@@ -4,6 +4,7 @@
 #include <ctime>
 
 #include "verilated_vcd_c.h"
+#include "nvboard.h"
 #include "Vtop.h"
 
 void nvboard_bind_all_pins(Vtop*);
@@ -11,6 +12,7 @@ void nvboard_bind_all_pins(Vtop*);
 static VerilatedContext *contextp;
 static Vtop *top;
 static VerilatedVcdC *trace_file;
+static bool nvboard = false;
 
 void init_top(int argc, char **argv) {
   contextp = new VerilatedContext;
@@ -25,6 +27,12 @@ void init_trace(const char *filename) {
   trace_file->open(filename);
 }
 
+void init_nvboard() {
+  nvboard = true;
+  nvboard_bind_all_pins(top);
+  nvboard_init();
+}
+
 void finalize() {
   if (trace_file) trace_file->close();
   delete top;
@@ -36,6 +44,8 @@ bool is_finished() {
 }
 
 void step() {
+  top->eval();
+  if (nvboard) nvboard_update();
   contextp->timeInc(1);
   if (trace_file) trace_file->dump(contextp->time());
 }
@@ -44,19 +54,9 @@ int main(int argc, char **argv) {
   init_top(argc, argv);
 
   // init_trace("top.vcd");
+  init_nvboard();
 
-  srand(time(0));
-  int cnt = 0;
-  while (!is_finished() && ++cnt <= 100) {
-    int a = rand() & 1;
-    int b = rand() & 1;
-    top->a = a;
-    top->b = b;
-    top->eval();
-
-    printf("a = %d, b = %d, f = %d\n", a, b, top->f);
-    assert(top->f == (a ^ b));
-
+  while (!is_finished()) {
     step();
   }
 
