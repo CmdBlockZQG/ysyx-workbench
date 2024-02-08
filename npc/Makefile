@@ -1,6 +1,6 @@
 TOPNAME = top
 NXDC_FILES = constr/top.nxdc
-INC_PATH ?=
+INC_PATH ?= 
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
@@ -41,7 +41,8 @@ default: $(BIN)
 
 all: default
 
-clean: rm -rf $(BUILD_DIR)
+clean:
+	rm -rf $(BUILD_DIR)
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
