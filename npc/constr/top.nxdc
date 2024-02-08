@@ -1,3 +1,6 @@
 top=top
 
 # 双控开关
+a SW0
+b SW1
+f LD0
