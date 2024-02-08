@@ -47,6 +47,9 @@ sim: $(BIN)
 	$(call git_commit, "sim RTL")
 	@$^
 
-.PHONY: default all clean sim
+sim_nt: $(BIN)
+	@$^
+
+.PHONY: default all clean sim sim_nt
 
 include ../Makefile

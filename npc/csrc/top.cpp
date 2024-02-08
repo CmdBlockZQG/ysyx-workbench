@@ -43,7 +43,7 @@ void step() {
 int main(int argc, char **argv) {
   init_top(argc, argv);
 
-  init_trace("top.vcd");
+  // init_trace("top.vcd");
 
   srand(time(0));
   int cnt = 0;
@@ -59,5 +59,7 @@ int main(int argc, char **argv) {
 
     step();
   }
+
+  close_sim();
   return 0;
 }
