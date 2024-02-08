@@ -44,10 +44,20 @@ bool is_finished() {
 }
 
 void step() {
-  top->eval();
   if (nvboard) nvboard_update();
   contextp->timeInc(1);
   if (trace_file) trace_file->dump(contextp->time());
+}
+
+void single_cycle() {
+  top->clk = 0; top->eval();
+  top->clk = 1; top->eval();
+}
+
+void reset(int n) {
+  top->rst = 1;
+  while (n--) single_cycle();
+  top->rst = 0;
 }
 
 int main(int argc, char **argv) {
@@ -56,7 +66,9 @@ int main(int argc, char **argv) {
   // init_trace("top.vcd");
   init_nvboard();
 
+  reset(10);
   while (!is_finished()) {
+    single_cycle();
     step();
   }
 

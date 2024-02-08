@@ -41,7 +41,8 @@ default: $(BIN)
 
 all: default
 
-clean: rm -rf $(BUILD_DIR)
+clean:
+	rm -rf $(BUILD_DIR)
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
