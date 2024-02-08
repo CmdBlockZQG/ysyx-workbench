@@ -6,25 +6,48 @@
 #include "verilated_vcd_c.h"
 #include "Vtop.h"
 
-int main(int argc, char **argv) {
-  // init
-  VerilatedContext* contextp = new VerilatedContext;
+void nvboard_bind_all_pins(Vtop*);
+
+static VerilatedContext *contextp;
+static Vtop *top;
+static VerilatedVcdC *trace_file;
+
+void init_top(int argc, char **argv) {
+  contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
+  top = new Vtop{contextp};
+}
 
-  // create module
-  Vtop *top = new Vtop{contextp};
-
-  // enable trace
+void init_trace(const char *filename) {
   Verilated::traceEverOn(true);
-  VerilatedVcdC *tfp = new VerilatedVcdC;
-  top->trace(tfp, 99);
-  tfp->open("top.vcd");
+  trace_file = new VerilatedVcdC;
+  top->trace(trace_file, 99);
+  trace_file->open(filename);
+}
+
+void finalize() {
+  if (trace_file) trace_file->close();
+  delete top;
+  delete contextp;
+}
+
+bool is_finished() {
+  return contextp->gotFinish();
+}
+
+void step() {
+  contextp->timeInc(1);
+  if (trace_file) trace_file->dump(contextp->time());
+}
+
+int main(int argc, char **argv) {
+  init_top(argc, argv);
+
+  // init_trace("top.vcd");
 
   srand(time(0));
   int cnt = 0;
-  while (!contextp->gotFinish() && ++cnt <= 100) {
-    contextp->timeInc(1);
-
+  while (!is_finished() && ++cnt <= 100) {
     int a = rand() & 1;
     int b = rand() & 1;
     top->a = a;
@@ -32,13 +55,11 @@ int main(int argc, char **argv) {
     top->eval();
 
     printf("a = %d, b = %d, f = %d\n", a, b, top->f);
-    tfp->dump(contextp->time());
     assert(top->f == (a ^ b));
+
+    step();
   }
 
-  tfp->close();
-
-  delete top;
-  delete contextp;
+  finalize();
   return 0;
 }
