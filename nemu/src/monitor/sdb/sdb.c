@@ -97,8 +97,8 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  { "si", "si [N]: Execute N instructions and then pause, N = 1 if not given.", cmd_si },
-  { "info", "info r/w: Print register/watch point info.", cmd_info },
+  { "si", "si [N]: Execute N instructions and then pause, N = 1 if not given", cmd_si },
+  { "info", "info r/w: Print register/watch point info", cmd_info },
   { "x", "x N EXPR: Evaluate EXPR, print N*4 bytes starting from the pointer", cmd_x },
 
   /* TODO: Add more commands */
