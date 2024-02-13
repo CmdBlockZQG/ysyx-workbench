@@ -24,6 +24,18 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
+  word_t val;
+  printf(
+    MUXDEF(CONFIG_RV64,"%-3s %-18s %-20s %-20s\n", "%-3s %-10s %-12s %-12s\n"),
+    "reg", "hex", "unsigned dec", "signed dec"
+  );
+  for (int i = 0; i < MUXDEF(CONFIG_RVE, 16, 32); ++i) {
+    val = gpr(i);
+    printf(
+      MUXDEF(CONFIG_RV64, "%-3s 0x%-16llx %-20llu %-20lld\n", "%-3s 0x%-8x %-12u %-12d\n"),
+      reg_name(i), val, val, val
+    );
+  }
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
