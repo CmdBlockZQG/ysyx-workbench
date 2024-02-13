@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/vaddr.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -53,6 +54,39 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args) {
+  char *arg = strtok(NULL, " ");
+  int n = arg == NULL ? 1 : atoi(arg);
+
+  if (n <= 0) printf("Invalid N value\n");
+  else cpu_exec(n);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char *arg = strtok(NULL, " ");
+  switch (arg[0]) {
+    case 'r': isa_reg_display(); break;
+    case 'w': /* TODO: print watch points */ break;
+    default: printf("Unknown sub command '%s'\n", arg); break;
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  unsigned int n;
+  vaddr_t addr;
+  sscanf(args, MUXDEF(CONFIG_RV64,"%u %llx", "%u %x"), &n, &addr);
+
+  for (unsigned int i = 0; i < n; ++i, addr += 4) {
+    printf(
+      MUXDEF(CONFIG_RV64,"0x%-16llx: 0x%-16llx\n", "0x%-8x: 0x%-8x\n"),
+      addr, vaddr_read(addr, 4)
+    );
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -63,6 +97,9 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si", "si [N]: Execute N instructions and then pause, N = 1 if not given.", cmd_si },
+  { "info", "info r/w: Print register/watch point info.", cmd_info },
+  { "x", "x N EXPR: Evaluate EXPR, print N*4 bytes starting from the pointer", cmd_x },
 
   /* TODO: Add more commands */
 
