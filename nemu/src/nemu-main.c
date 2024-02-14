@@ -23,6 +23,13 @@ int is_exit_status_bad();
 
 static char buf[65536] = {};
 int main(int argc, char *argv[]) {
+  /* Initialize the monitor. */
+#ifdef CONFIG_TARGET_AM
+  am_init_monitor();
+#else
+  init_monitor(argc, argv);
+#endif
+
   unsigned val, res;
   bool success;
   while (~scanf("%u %s\n", &val, buf)) {
@@ -35,14 +42,6 @@ int main(int argc, char *argv[]) {
   }
   printf("all tests passed");
   return 0;
-
-
-  /* Initialize the monitor. */
-#ifdef CONFIG_TARGET_AM
-  am_init_monitor();
-#else
-  init_monitor(argc, argv);
-#endif
 
   /* Start engine. */
   engine_start();
