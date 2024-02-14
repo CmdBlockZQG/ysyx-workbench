@@ -21,8 +21,8 @@ void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
 
+static char buf[65536] = {};
 int main(int argc, char *argv[]) {
-  char buf[65536] = {};
   unsigned val, res;
   bool success;
   while (~scanf("%u %s\n", &val, buf)) {
