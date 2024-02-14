@@ -35,7 +35,7 @@ static struct rule {
   {"\\/", '/'},         // divide
   {"\\(", '('},         // left parentheses
   {"\\)", ')'},         // right parentheses
-  {"[[digit]]+", TK_DEC},     // decimal number
+  {"[0-9]+", TK_DEC},     // decimal number
   {"==", TK_EQ},        // equal
 };
 
