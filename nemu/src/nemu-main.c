@@ -14,14 +14,12 @@
 ***************************************************************************************/
 
 #include <common.h>
-#include "monitor/sdb/sdb.h"
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
 
-static char buf[65536] = {};
 int main(int argc, char *argv[]) {
   /* Initialize the monitor. */
 #ifdef CONFIG_TARGET_AM
@@ -30,6 +28,8 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
+  #include "monitor/sdb/sdb.h"
+  static char buf[65536] = {};
   unsigned val, res;
   bool success;
   while (~scanf("%u %s\n", &val, buf)) {
