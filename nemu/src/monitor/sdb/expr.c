@@ -121,6 +121,7 @@ static bool make_token(char *e) {
 }
 
 static bool eval_err = false;
+static int stack[32];
 
 static word_t eval(int l, int r) {
   printf("eval: %d %d\n", l, r);
@@ -143,7 +144,15 @@ static word_t eval(int l, int r) {
     return mn ? -val : val;
   }
   if (tokens[l].type == '(' && tokens[r].type == ')') {
-    return eval(l + 1, r - 1);
+    int top = 0;
+    for (int i = l; i < r; ++i) {
+      if (tokens[i].type == '(') stack[top++] = i;
+      else if (tokens[i].type == ')') {
+        if (top == 0) { eval_err = true; return -1; }
+        --top;
+      }
+    }
+    if (top == 1 && stack[0] == l) eval(l + 1, r - 1);
   }
   int op = -1, dep = 0;
   for (int i = l; i <= r; ++i) {
