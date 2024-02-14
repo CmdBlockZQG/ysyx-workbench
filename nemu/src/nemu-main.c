@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <common.h>
+#include "monitor/sdb/sdb.h"
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -21,6 +22,20 @@ void engine_start();
 int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
+  char buf[65536] = {};
+  unsigned val, res;
+  bool success;
+  while (~scanf("%u %s\n", &val, buf)) {
+    res = expr(buf, &success);
+    if (!success || res != val) {
+      printf("%s\n", buf);
+      return 0;
+    }
+  }
+  printf("all tests passed");
+  return 0;
+
+
   /* Initialize the monitor. */
 #ifdef CONFIG_TARGET_AM
   am_init_monitor();

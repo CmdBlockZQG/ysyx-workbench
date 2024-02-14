@@ -20,6 +20,8 @@
 #include <assert.h>
 #include <string.h>
 
+#define MIN(a, b) ((a) > (b) ? (b) : (a))
+
 // this should be enough
 static char buf[65536] = {};
 static char code_buf[65536 + 128] = {}; // a little larger than `buf`
@@ -31,8 +33,47 @@ static char *code_format =
 "  return 0; "
 "}";
 
+static char *gen_num(char *buf, int len) {
+  uint32_t val = rand();
+  char str[12];
+  sprintf(str, "%u", val);
+  len = MIN(strlen(str), len);
+  strncpy(buf, str, len);
+  return buf + len;
+}
+
+static char *gen(char *buf, char c) {
+  *buf = c;
+  return buf + 1;
+}
+
+static char *gen_op(char *buf) {
+  static const char ops[4] = {'+', '-', '*', '/'};
+  return gen(buf, ops[rand() % 4]);
+}
+
+static char *gen_expr(char *buf, int len) {
+  if (len <= 8) return gen_num(buf, len);
+  switch (rand() % 6) {
+    case 0: return gen_num(buf, len);
+    case 1:
+    case 2:
+      buf = gen(buf, '(');
+      buf = gen_expr(buf, len - 2);
+      return gen(buf, ')');
+    case 3:
+    case 4:
+    case 5:
+      buf = gen_expr(buf, len / 2 - 1);
+      buf = gen_op(buf);
+      return gen_expr(buf, len / 2 - 1);
+  }
+  assert(0);
+}
+
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  char *t = gen_expr(buf, 100);
+  *t = '\0';
 }
 
 int main(int argc, char *argv[]) {
@@ -61,9 +102,12 @@ int main(int argc, char *argv[]) {
 
     int result;
     ret = fscanf(fp, "%d", &result);
-    pclose(fp);
+    int status = pclose(fp);
 
-    printf("%u %s\n", result, buf);
+    /* exit with err code -> divide 0 */
+    if (WEXITSTATUS(status) == 0) {
+      printf("%u %s\n", result, buf);
+    }
   }
   return 0;
 }
