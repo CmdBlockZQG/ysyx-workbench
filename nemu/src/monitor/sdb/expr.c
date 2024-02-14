@@ -152,7 +152,7 @@ static word_t eval(int l, int r) {
         --top;
       }
     }
-    if (top == 1 && stack[0] == l) eval(l + 1, r - 1);
+    if (top == 1 && stack[0] == l) return eval(l + 1, r - 1);
   }
   int op = -1, dep = 0;
   for (int i = l; i <= r; ++i) {
