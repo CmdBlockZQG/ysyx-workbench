@@ -28,6 +28,22 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
+  /* test expr
+  #include "monitor/sdb/sdb.h"
+  static char buf[65536] = {};
+  unsigned val, res;
+  bool success;
+  while (~scanf("%u %s\n", &val, buf)) {
+    res = expr(buf, &success);
+    printf(">>%u %u\n", res, val);
+    if (!success || res != val) {
+      printf("%s\n", buf);
+      return 0;
+    }
+  }
+  printf("all tests passed");
+  return 0; */
+
   /* Start engine. */
   engine_start();
 
