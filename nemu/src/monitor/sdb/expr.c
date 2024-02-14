@@ -123,6 +123,7 @@ static bool make_token(char *e) {
 static bool eval_err = false;
 
 static word_t eval(int l, int r) {
+  printf("eval: %d %d\n", l, r);
   if (l > r) { /* Bad expr */
     eval_err = true;
     Log("Bad expr: %d %d\n", l, r);
