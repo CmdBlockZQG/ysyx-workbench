@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
   bool success;
   while (~scanf("%u %s\n", &val, buf)) {
     res = expr(buf, &success);
-    printf(">>%d %d\n", res, val);
+    printf(">>%u %u\n", res, val);
     if (!success || res != val) {
       printf("%s\n", buf);
       return 0;

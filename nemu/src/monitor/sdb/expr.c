@@ -125,12 +125,14 @@ static bool eval_err = false;
 static word_t eval(int l, int r) {
   if (l > r) { /* Bad expr */
     eval_err = true;
+    Log("Bad expr: %d %d\n", l, r);
     return -1;
   }
   if (l == r || l + 1 == r) { /* 1~2 token, should be number */
     bool mn = (l + 1 == r);
     if (tokens[r].type != TK_DEC || (mn && tokens[l].type != '-')) {
       eval_err = true;
+      Log("Bad number: %d %d\n", l, r);
       return -1;
     }
     word_t val = 0;
@@ -162,8 +164,9 @@ static word_t eval(int l, int r) {
     }
   }
   /* dep == 0 is just a sufficient condition of bad parentheses */
-  if (op == -1 || dep != 0) { 
+  if (op == -1 || dep != 0) {
     eval_err = true;
+    Log("No op: %d %d\n", l, r);
     return -1;
   }
   word_t val1 = eval(l, op - 1);
