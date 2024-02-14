@@ -77,7 +77,7 @@ static char *gen_expr(char *buf, int len) {
 }
 
 static void gen_rand_expr() {
-  char *t = gen_expr(buf, 100);
+  char *t = gen_expr(buf, 1024);
   *t = '\0';
 }
 
