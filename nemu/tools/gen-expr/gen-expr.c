@@ -55,7 +55,9 @@ static char *gen_op(char *buf) {
 static char *gen_expr(char *buf, int len) {
   if (len <= 8) return gen_num(buf, len);
   switch (rand() % 6) {
-    case 0: return gen_num(buf, len);
+    case 0:
+      buf = gen_num(buf, len - 1);
+      return gen(buf, 'u');
     case 1:
     case 2:
       buf = gen(buf, '(');
