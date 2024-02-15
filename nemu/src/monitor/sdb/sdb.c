@@ -63,20 +63,33 @@ static int cmd_si(char *args) {
   return 0;
 }
 
+void wps_display();
 static int cmd_info(char *args) {
   char *arg = strtok(NULL, " ");
   switch (arg[0]) {
     case 'r': isa_reg_display(); break;
-    case 'w': /* TODO: print watch points */ break;
+    case 'w': wps_display(); break;
     default: printf("Unknown sub command '%s'\n", arg); break;
   }
   return 0;
 }
 
 static int cmd_x(char *args) {
-  unsigned int n;
+  char *arg = strtok(NULL, " ");
+  int n = arg == NULL ? 1 : atoi(arg);
+  char *str = strtok(NULL, "\0");
+
+  if (n <= 0) {
+    printf("Invalid N value\n");
+    return 0;
+  }
+
   vaddr_t addr;
-  sscanf(args, MUXDEF(CONFIG_RV64,"%u %llx", "%u %x"), &n, &addr);
+  bool success = true;
+  if (str == NULL || (addr = expr(str, &success), !success)) {
+    printf("Invalid EXPR\n");
+    return 0;
+  }
 
   for (unsigned int i = 0; i < n; ++i, addr += 4) {
     printf(
@@ -84,6 +97,49 @@ static int cmd_x(char *args) {
       addr, vaddr_read(addr, 4)
     );
   }
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  char *str = strtok(NULL, "\0");
+  bool success = true;
+  word_t val = expr(str, &success);
+  if (!success) {
+    printf("Invalid EXPR\n");
+    return 0;
+  }
+  printf(
+    MUXDEF(CONFIG_RV64,"hex: 0x%llx\ndec: %lld\n", "hex: 0x%x\ndec: %d\n"),
+    val, val
+  );
+  return 0;
+}
+
+void *new_wp(char *str, word_t val);
+void print_wp(void *p);
+static int cmd_w(char *args) {
+  char *str = strtok(NULL, "\0");
+  bool success = true;
+  word_t val = expr(str, &success);
+  if (!success) {
+    printf("Invalid EXPR\n");
+    return 0;
+  }
+  void *p = new_wp(str, val);
+  if (p == NULL) {
+    printf("Too many watchpoints\n");
+    return 0;
+  }
+  print_wp(p);
+  return 0;
+}
+
+void free_wp(int no);
+static int cmd_d(char *args) {
+  char *arg = strtok(NULL, " ");
+  int n = arg == NULL ? 1 : atoi(arg);
+
+  free_wp(n);
   return 0;
 }
 
@@ -97,12 +153,12 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  { "si", "si [N]: Execute N instructions and then pause, N = 1 if not given", cmd_si },
-  { "info", "info r/w: Print register/watch point info", cmd_info },
+  { "si", "si N: Execute N instructions and then pause, N = 1 if not given", cmd_si },
+  { "info", "info r/w: Print register/watchpoint info", cmd_info },
   { "x", "x N EXPR: Evaluate EXPR, print N*4 bytes starting from the address", cmd_x },
-
-  /* TODO: Add more commands */
-
+  { "p", "p EXPR: Evaluate EXPR", cmd_p },
+  { "w", "w EXPR: Stop when value of EXPR changes(watchpoint)", cmd_w },
+  { "d", "d N: Delete watchpoint No.N", cmd_d },
 };
 
 #define NR_CMD ARRLEN(cmd_table)
