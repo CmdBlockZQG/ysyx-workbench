@@ -66,6 +66,10 @@ static int cmd_si(char *args) {
 void wps_display();
 static int cmd_info(char *args) {
   char *arg = strtok(NULL, " ");
+  if (arg == NULL) {
+    printf("info r/w: Print register/watchpoint info\n");
+    return 0;
+  }
   switch (arg[0]) {
     case 'r': isa_reg_display(); break;
     case 'w': wps_display(); break;
