@@ -27,7 +27,7 @@ void isa_reg_display() {
   word_t val;
   printf(
     MUXDEF(CONFIG_RV64, "%-3s %-18s %-20s %-20s\n", "%-3s %-10s %-12s %-12s\n"),
-    "reg", "hex", "unsigned dec", "signed dec"
+    "Reg", "Hex", "Unsigned dec", "Signed dec"
   );
   for (int i = 0; i < MUXDEF(CONFIG_RVE, 16, 32); ++i) {
     val = gpr(i);
