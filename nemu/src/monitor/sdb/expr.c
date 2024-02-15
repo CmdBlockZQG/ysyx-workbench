@@ -182,10 +182,10 @@ static word_t eval(int l, int r) {
       val = isa_reg_str2val(tokens[l].str, &success);
       if (success) return val;
       eval_err = true;
+      // Log("Bad number: %d %d\n", l, r);
       return -1;
     }
-    // instant number
-    switch (tokens[l].str[1]) {
+    switch (tokens[l].str[1]) { // literal
       case 'x': // 0x hex
         for (char *p = tokens[l].str + 2; *p != '\0'; ++p) {
           val <<= 4;
@@ -206,12 +206,6 @@ static word_t eval(int l, int r) {
         return val;
     }
   }
-  // if (l + 1 == r) { /* unary operator */
-  //   switch (tokens[l].type) {
-  //     case TK_NEG: return -eval(l + 1, r);
-  //     default: eval_err = true; return -1;
-  //   }
-  // }
   if (tokens[l].type == '(' && tokens[r].type == ')') {
     int top = 0;
     for (int i = l; i < r; ++i) {
@@ -325,15 +319,11 @@ word_t expr(char *e, bool *success) {
   }
 
   for (int i = 0; i < nr_token; ++i) {
-    switch (tokens[i].type) {
-    case '-':
-      if (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != ')'))
-        tokens[i].type = TK_NEG;
-      break;
-    case '*':
-      if (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != ')'))
-        tokens[i].type = TK_DEREF;
-      break;
+    if (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != ')')) {
+      switch (tokens[i].type) {
+        case '-': tokens[i].type = TK_NEG; break;
+        case '*': tokens[i].type = TK_DEREF; break;
+      }
     }
   }
 
