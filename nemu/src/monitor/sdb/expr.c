@@ -40,6 +40,7 @@ static struct rule {
   {"\\)", ')'},         // right parentheses
   {"==", TK_EQ},        // equal
 
+  {"\\$[a-z0-9]+", TK_NUM}, // register
   {"0x[0-9a-fA-F]+", TK_NUM}, // hexadecimal number
   {"0b[01]+", TK_NUM}, // binary number
   {"[0-9]+", TK_NUM}, // decimal number
@@ -143,6 +144,14 @@ static word_t eval(int l, int r) {
       eval_err = true;
       return -1;
     }
+    if (tokens[l].str[0] == '$') { // register
+      bool success = true;
+      val = isa_reg_str2val(tokens[l].str + 1, &success);
+      if (success) return val;
+      eval_err = true;
+      return -1;
+    }
+    // instant number
     switch (tokens[l].str[1]) {
       case 'x': // 0x hex
         for (char *p = tokens[l].str + 2; *p != '\0'; ++p) {
