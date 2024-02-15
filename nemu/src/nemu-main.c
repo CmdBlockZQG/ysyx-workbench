@@ -33,15 +33,16 @@ int main(int argc, char *argv[]) {
   static char buf[65536] = {};
   unsigned val, res;
   bool success;
+  int wrong_cnt = 0;
   while (~scanf("%u %s", &val, buf)) {
     res = expr(buf, &success);
-    printf(">>%u %u\n", res, val);
     if (!success || res != val) {
-      printf("%s\n", buf);
-      return 0;
+      printf("std:%u res:%u\n", val, res);
+      printf("expr: %s\n", buf);
+      ++wrong_cnt;
     }
   }
-  printf("all tests passed");
+  printf("wrong count: %d\n", wrong_cnt);
   return 0; 
 
   /* Start engine. */

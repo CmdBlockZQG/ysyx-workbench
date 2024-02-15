@@ -133,18 +133,23 @@ static word_t eval(int l, int r) {
     // Log("Bad expr: %d %d\n", l, r);
     return -1;
   }
-  if (l == r || l + 1 == r) { /* 1~2 token, should be number */
-    bool neg = (l + 1 == r);
-    if (tokens[r].type != TK_DEC || (neg && tokens[l].type != TK_NEG)) {
+  if (l == r) { /* single token, should be number */
+    if (tokens[r].type != TK_DEC) {
       eval_err = true;
       // Log("Bad number: %d %d\n", l, r);
       return -1;
     }
     word_t val = 0;
-    for (int i = 0; i < strlen(tokens[r].str); ++i) {
-      val = val * 10 + (tokens[r].str[i] - '0');
+    for (int i = 0; i < strlen(tokens[l].str); ++i) {
+      val = val * 10 + (tokens[l].str[i] - '0');
     }
-    return neg ? -val : val;
+    return val;
+  }
+  if (l + 1 == r) { /* unary operator */
+    switch (tokens[l].type) {
+      case TK_NEG: return -eval(l + 1, r);
+      default: eval_err = true; return -1;
+    }
   }
   if (tokens[l].type == '(' && tokens[r].type == ')') {
     int top = 0;
