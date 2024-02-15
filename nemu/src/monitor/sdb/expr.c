@@ -161,7 +161,7 @@ static bool make_token(char *e) {
   return true;
 }
 
-static bool eval_err = false;
+static bool eval_err;
 static int stack[32];
 
 static word_t eval(int l, int r) {
@@ -327,6 +327,7 @@ word_t expr(char *e, bool *success) {
     }
   }
 
+  eval_err = false;
   word_t val = eval(0, nr_token - 1);
   *success = !eval_err;
   return val;
