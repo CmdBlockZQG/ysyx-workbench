@@ -21,7 +21,9 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_DEC
+  TK_NOTYPE = 256,
+  TK_NEG,
+  TK_EQ, TK_DEC
 };
 
 static struct rule {
@@ -35,8 +37,8 @@ static struct rule {
   {"\\/", '/'},         // divide
   {"\\(", '('},         // left parentheses
   {"\\)", ')'},         // right parentheses
-  {"[0-9]+", TK_DEC},     // decimal number
   {"==", TK_EQ},        // equal
+  {"[0-9]+", TK_DEC},   // decimal number
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -97,7 +99,8 @@ static bool make_token(char *e) {
 
           case TK_DEC:
             if (substr_len >= 32) {
-              printf("number too big at position %d\n%s\n%*.s^\n", position, e, position, "");
+              printf("number too big at position %d\n%s\n%*.s^\n", \
+                     position, e, position, "");
               return false;
             }
             tokens[nr_token].type = TK_DEC;
@@ -131,8 +134,8 @@ static word_t eval(int l, int r) {
     return -1;
   }
   if (l == r || l + 1 == r) { /* 1~2 token, should be number */
-    bool mn = (l + 1 == r);
-    if (tokens[r].type != TK_DEC || (mn && tokens[l].type != '-')) {
+    bool neg = (l + 1 == r);
+    if (tokens[r].type != TK_DEC || (neg && tokens[l].type != TK_NEG)) {
       eval_err = true;
       // Log("Bad number: %d %d\n", l, r);
       return -1;
@@ -141,7 +144,7 @@ static word_t eval(int l, int r) {
     for (int i = 0; i < strlen(tokens[r].str); ++i) {
       val = val * 10 + (tokens[r].str[i] - '0');
     }
-    return mn ? -val : val;
+    return neg ? -val : val;
   }
   if (tokens[l].type == '(' && tokens[r].type == ')') {
     int top = 0;
@@ -160,11 +163,8 @@ static word_t eval(int l, int r) {
     else if (tokens[i].type == ')') --dep;
     else if (dep == 0) {
       switch (tokens[i].type) {
-        case '+': op = i; break;
-        case '-': 
-          if (i != l && (tokens[i - 1].type == TK_DEC || tokens[i - 1].type == ')')) {
-            op = i; break;
-          }
+        case '+':
+        case '-': op = i; break;
         case '*':
         case '/':
           if (op == -1 || tokens[op].type == '*' || tokens[op].type == '/') {
@@ -197,6 +197,15 @@ word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
+  }
+
+  for (int i = 0; i < nr_token; ++i) {
+    switch (tokens[i].type) {
+    case '-':
+      if (i == 0 || (tokens[i - 1].type != TK_DEC && tokens[i - 1].type != ')'))
+        tokens[i].type = TK_NEG;
+      break;
+    }
   }
 
   word_t val = eval(0, nr_token - 1);
