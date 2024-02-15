@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <memory/vaddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -21,9 +22,29 @@
 #include <regex.h>
 
 enum {
+  PRI_UNARY = 0,
+  PRI_MUL,
+  PRI_ADD,
+  PRI_SH,
+  PRI_REL,
+  PRI_EQ,
+  PRI_BAND,
+  PRI_BXOR,
+  PRI_BOR,
+  PRI_LAND,
+  PRI_LOR
+};
+
+enum {
   TK_NOTYPE = 256,
-  TK_NEG,
-  TK_EQ,
+
+  TK_NEG, TK_DEREF,
+
+  TK_SHL, TK_SHR,
+  TK_LE, TK_GE,
+  TK_EQ, TK_NE,
+  TK_LAND, TK_LOR,
+
   TK_NUM
 };
 
@@ -32,18 +53,35 @@ static struct rule {
   int token_type;
 } rules[] = {
   {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"-", '-'},           // minus
-  {"\\*", '*'},         // multiply
-  {"\\/", '/'},         // divide
-  {"\\(", '('},         // left parentheses
-  {"\\)", ')'},         // right parentheses
-  {"==", TK_EQ},        // equal
 
   {"\\$[a-z0-9]+", TK_NUM}, // register
   {"0x[0-9a-fA-F]+", TK_NUM}, // hexadecimal number
   {"0b[01]+", TK_NUM}, // binary number
   {"[0-9]+", TK_NUM}, // decimal number
+
+  {"<<", TK_SHL},       // shift left
+  {">>", TK_SHR},       // shift right
+  {"<=", TK_LE},        // less or equal
+  {">=", TK_GE},        // greater or equal
+  {"==", TK_EQ},        // equal
+  {"!=", TK_NE},        // not equal
+  {"&&", TK_LAND},      // logic and
+  {"\\|\\|", TK_LOR},   // logic or
+
+  {"!", '!'},           // logic not
+  {"~", '~'},           // bitwise not
+  {"\\*", '*'},         // multiply (derefer)
+  {"\\/", '/'},         // divide
+  {"\\+", '+'},         // plus
+  {"-", '-'},           // minus (negative)
+  {">", '>'},           // greater
+  {"<", '<'},           // less
+  {"&", '&'},           // bitwise and
+  {"\\^", '^'},         // bitwise xor
+  {"\\|", '|'},         // bitwise or
+
+  {"\\(", '('},         // left parentheses
+  {"\\)", ')'},         // right parentheses
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -95,13 +133,7 @@ static bool make_token(char *e) {
         position += substr_len;
 
         switch (rules[i].token_type) {
-          case '+': tokens[nr_token++].type = '+'; break;
-          case '-': tokens[nr_token++].type = '-'; break;
-          case '*': tokens[nr_token++].type = '*'; break;
-          case '/': tokens[nr_token++].type = '/'; break;
-          case '(': tokens[nr_token++].type = '('; break;
-          case ')': tokens[nr_token++].type = ')'; break;
-
+          case TK_NOTYPE: break;
           case TK_NUM:
             if (substr_len >= 32) {
               printf("number too long at position %d\n%s\n%*.s^\n", \
@@ -112,7 +144,8 @@ static bool make_token(char *e) {
             strncpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
             ++nr_token;
-          break;
+            break;
+          default: tokens[nr_token++].type = rules[i].token_type; break;
         }
 
         break;
@@ -173,12 +206,12 @@ static word_t eval(int l, int r) {
         return val;
     }
   }
-  if (l + 1 == r) { /* unary operator */
-    switch (tokens[l].type) {
-      case TK_NEG: return -eval(l + 1, r);
-      default: eval_err = true; return -1;
-    }
-  }
+  // if (l + 1 == r) { /* unary operator */
+  //   switch (tokens[l].type) {
+  //     case TK_NEG: return -eval(l + 1, r);
+  //     default: eval_err = true; return -1;
+  //   }
+  // }
   if (tokens[l].type == '(' && tokens[r].type == ')') {
     int top = 0;
     for (int i = l; i < r; ++i) {
@@ -190,20 +223,56 @@ static word_t eval(int l, int r) {
     }
     if (top == 1 && stack[0] == l) return eval(l + 1, r - 1);
   }
-  int op = -1, dep = 0;
+
+  int op = -1, dep = 0, pri = -1;
   for (int i = l; i <= r; ++i) {
     if (tokens[i].type == '(') ++dep;
     else if (tokens[i].type == ')') --dep;
-    else if (dep == 0) {
-      switch (tokens[i].type) {
-        case '+':
-        case '-': op = i; break;
-        case '*':
-        case '/':
-          if (op == -1 || tokens[op].type == '*' || tokens[op].type == '/') {
-            op = i; break;
-          }
-      }
+    if (dep != 0) continue;
+    switch (tokens[i].type) {
+      case TK_NEG:
+      case TK_DEREF:
+      case '!':
+      case '~':
+        if (PRI_UNARY <= pri) break;
+        op = i; pri = PRI_UNARY; break;
+      case '*':
+      case '/':
+        if (PRI_MUL < pri) break;
+        op = i; pri = PRI_MUL; break;
+      case '+':
+      case '-':
+        if (PRI_ADD < pri) break;
+        op = i; pri = PRI_ADD; break;
+      case TK_SHL:
+      case TK_SHR:
+        if (PRI_SH < pri) break;
+        op = i; pri = PRI_SH; break;
+      case '<':
+      case '>':
+      case TK_GE:
+      case TK_LE:
+        if (PRI_REL < pri) break;
+        op = i; pri = PRI_REL; break;
+      case TK_EQ:
+      case TK_NE:
+        if (PRI_EQ < pri) break;
+        op = i; pri = PRI_EQ; break;
+      case '&':
+        if (PRI_BAND < pri) break;
+        op = i; pri = PRI_BAND; break;
+      case '^':
+        if (PRI_BXOR < pri) break;
+        op = i; pri = PRI_BXOR; break;
+      case '|':
+        if (PRI_BOR < pri) break;
+        op = i; pri = PRI_BOR; break;
+      case TK_LAND:
+        if (PRI_LAND < pri) break;
+        op = i; pri = PRI_LAND; break;
+      case TK_LOR:
+        if (PRI_LOR < pri) break;
+        op = i; pri = PRI_LOR; break;
     }
   }
   /* dep == 0 is just a sufficient condition of bad parentheses */
@@ -212,16 +281,39 @@ static word_t eval(int l, int r) {
     // Log("No op: %d %d\n", l, r);
     return -1;
   }
+  
+  if (op == l) { /* unary operator */
+    switch (tokens[l].type) {
+      case TK_NEG: return -eval(l + 1, r);
+      case TK_DEREF: return vaddr_read(eval(l + 1, r), 4);
+      case '!': return !eval(l + 1, r);
+      case '~': return ~eval(l + 1, r);
+      default: eval_err = true; return -1;
+    }
+  }
   word_t val1 = eval(l, op - 1);
   if (eval_err) return -1;
   word_t val2 = eval(op + 1, r);
   if (eval_err) return -1;
 
   switch (tokens[op].type) {
-    case '+': return val1 + val2;
-    case '-': return val1 - val2;
-    case '*': return val1 * val2;
-    case '/': return val1 / val2;
+    case '*':     return val1 * val2;
+    case '/':     return val1 / val2;
+    case '+':     return val1 + val2;
+    case '-':     return val1 - val2;
+    case TK_SHL:  return val1 << val2;
+    case TK_SHR:  return val1 >> val2;
+    case '>':     return val1 > val2;
+    case '<':     return val1 < val2;
+    case TK_GE:   return val1 >= val2;
+    case TK_LE:   return val1 <= val2;
+    case TK_EQ:   return val1 == val2;
+    case TK_NE:   return val1 != val2;
+    case '&':     return val1 & val2;
+    case '^':     return val1 ^ val2;
+    case '|':     return val1 | val2;
+    case TK_LAND: return val1 && val2;
+    case TK_LOR:  return val1 || val2;
     default: assert(0);
   }
 }
@@ -237,6 +329,10 @@ word_t expr(char *e, bool *success) {
     case '-':
       if (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != ')'))
         tokens[i].type = TK_NEG;
+      break;
+    case '*':
+      if (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != ')'))
+        tokens[i].type = TK_DEREF;
       break;
     }
   }
