@@ -48,7 +48,9 @@ WP *new_wp(char *str, word_t val) {
   p->NO = ++wp_no;
   p->next = head;
   p->val = val;
-  p->expr = str;
+
+  p->expr = malloc(strlen(str) + 1);
+  strcpy(p->expr, str);
 
   head = p;
   return p;
@@ -87,6 +89,10 @@ void print_wp(WP *p) {
 }
 
 void wps_display() {
+  if (head == NULL) {
+    printf("No watchpoints\n");
+    return;
+  }
   printf(
     MUXDEF(CONFIG_RV64, "%-3s %-18s %s\n", "%-3s %-10s %s\n"),
     "No", "Value", "Expr"
