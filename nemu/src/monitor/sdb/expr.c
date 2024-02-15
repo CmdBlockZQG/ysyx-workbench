@@ -23,7 +23,8 @@
 enum {
   TK_NOTYPE = 256,
   TK_NEG,
-  TK_EQ, TK_DEC
+  TK_EQ,
+  TK_DEC, TK_HEX
 };
 
 static struct rule {
@@ -38,7 +39,9 @@ static struct rule {
   {"\\(", '('},         // left parentheses
   {"\\)", ')'},         // right parentheses
   {"==", TK_EQ},        // equal
-  {"[0-9]+", TK_DEC},   // decimal number
+
+  {"0x[0-9a-fA-F]+", TK_HEX}, // hexadecimal number
+  {"[0-9]+", TK_DEC},      // decimal number
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -97,13 +100,14 @@ static bool make_token(char *e) {
           case '(': tokens[nr_token++].type = '('; break;
           case ')': tokens[nr_token++].type = ')'; break;
 
+          case TK_HEX:
           case TK_DEC:
             if (substr_len >= 32) {
               printf("number too big at position %d\n%s\n%*.s^\n", \
                      position, e, position, "");
               return false;
             }
-            tokens[nr_token].type = TK_DEC;
+            tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
             ++nr_token;
@@ -133,17 +137,25 @@ static word_t eval(int l, int r) {
     // Log("Bad expr: %d %d\n", l, r);
     return -1;
   }
-  if (l == r) { /* single token, should be number */
-    if (tokens[r].type != TK_DEC) {
-      eval_err = true;
-      // Log("Bad number: %d %d\n", l, r);
-      return -1;
-    }
+  if (l == r) { /* single token, should be a number */
     word_t val = 0;
-    for (int i = 0; i < strlen(tokens[l].str); ++i) {
-      val = val * 10 + (tokens[l].str[i] - '0');
+    switch (tokens[l].type) {
+      case TK_DEC:
+        for (char *p = tokens[l].str; *p != '\0'; ++p) {
+          val = val * 10 + (*p - '0');
+        }
+        return val;
+      case TK_HEX:
+        for (char *p = tokens[l].str + 2; *p != '\0'; ++p) {
+          val <<= 4;
+          if (*p <= '9') val += *p - '0';
+          else if (*p <= 'F') val += *p - 'A' + 10;
+          else val += *p - 'a' + 10;
+        }
+        return val;
+      default:
+        eval_err = true; return -1;
     }
-    return val;
   }
   if (l + 1 == r) { /* unary operator */
     switch (tokens[l].type) {
