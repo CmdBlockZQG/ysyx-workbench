@@ -114,5 +114,6 @@ int main(int argc, char *argv[]) {
       printf("%u %s\n", result, buf);
     }
   }
+  printf("0 0\n");
   return 0;
 }

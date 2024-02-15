@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   static char buf[65536] = {};
   unsigned val, res;
   bool success;
-  while (~scanf("%u %s\n", &val, buf)) {
+  while (~scanf("%u %s", &val, buf)) {
     res = expr(buf, &success);
     printf(">>%u %u\n", res, val);
     if (!success || res != val) {
