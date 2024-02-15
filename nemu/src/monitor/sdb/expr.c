@@ -179,7 +179,7 @@ static word_t eval(int l, int r) {
     }
     if (tokens[l].str[0] == '$') { // register
       bool success = true;
-      val = isa_reg_str2val(tokens[l].str, &success);
+      val = isa_reg_str2val(tokens[l].str + 1, &success);
       if (success) return val;
       eval_err = true;
       // Log("Bad number: %d %d\n", l, r);

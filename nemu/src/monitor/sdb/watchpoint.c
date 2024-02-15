@@ -73,6 +73,7 @@ void free_wp(int no) {
   if (i->NO == no) p = i;
   else return;
   found:
+  free(p->expr);
   p->next = free_;
   free_ = p;
 }
@@ -103,4 +104,23 @@ void wps_display() {
       p->NO, p->val, p->expr
     );
   }
+}
+
+bool check_wps() {
+  bool success, stop = false;
+  for (WP *p = head; p; p = p->next) {
+    word_t val = expr(p->expr, &success);
+    Assert(success, "Expr become invalid: %s", p->expr);
+    if (p->val != val) {
+      stop = true;
+      printf("Watchpoint No.%d triggered: %s\n  value: ", p->NO, p->expr);
+      printf(
+        MUXDEF(CONFIG_RV64, "0x%-16llx -> 0x%-16llx\n", "0x%-8x -> 0x%-8x\n"),
+        p->val, val
+      );
+      p->val = val;
+    }
+  }
+  if (stop) printf("Stopped\n");
+  return stop;
 }
