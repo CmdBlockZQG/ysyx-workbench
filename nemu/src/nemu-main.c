@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
-  /* test expr
+  // test expr
   #include "monitor/sdb/sdb.h"
   static char buf[65536] = {};
   unsigned val, res;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     }
   }
   printf("wrong count: %d\n", wrong_cnt);
-  return 0; */
+  return 0; 
 
   /* Start engine. */
   engine_start();
