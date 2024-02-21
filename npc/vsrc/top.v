@@ -27,7 +27,7 @@ module top(
 
     .pc(pc), .next_pc(next_pc),
 
-    .dnpcen(0),
+    .dnpc_en(0),
     .dnpc(32'b0)
   );
 
