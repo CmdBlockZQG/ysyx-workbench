@@ -73,11 +73,6 @@ void reset(int n) {
   top->rstn = 1;
 }
 
-void halt() {
-  finalize();
-  exit(0);
-}
-
 int main(int argc, char **argv) {
   init_top(argc, argv);
 
@@ -85,12 +80,15 @@ int main(int argc, char **argv) {
   // init_nvboard();
 
   reset(10);
-  int n = 10;
-  // while (!is_finished()) {
-  while (n--) {
+  while (!is_finished()) {
     single_cycle();
   }
 
   finalize();
   return 0;
+}
+
+void halt() {
+  finalize();
+  exit(0);
 }
