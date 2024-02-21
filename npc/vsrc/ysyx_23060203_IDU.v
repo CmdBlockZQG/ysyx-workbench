@@ -1,3 +1,5 @@
+import "DPI-C" function void halt();
+
 module ysyx_23060203_IDU (
   // 组合逻辑,无时钟和复位
 
@@ -11,6 +13,12 @@ module ysyx_23060203_IDU (
   input [31:0] reg_file_rdata
 );
   wire [4:0] rs1;
+
+  always_comb begin
+    if (inst == 32'h00100073) begin
+      halt();
+    end
+  end
 
   assign imm = {{20{inst[31]}}, inst[31:20]};
   assign rd = inst[11:7];
