@@ -52,7 +52,7 @@ const uint32_t img[] = {
 
 void step() {
   uint32_t addr = top->inst_mem_addr - 0x80000000;
-  if (addr < 4) top->inst_mem_data = img[addr];
+  if (addr < sizeof(img)) top->inst_mem_data = img[addr >> 2];
   else top->inst_mem_data = 0;
   top->eval();
   if (nvboard) nvboard_update();
