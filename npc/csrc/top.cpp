@@ -89,6 +89,8 @@ int main(int argc, char **argv) {
 }
 
 void halt() {
+  contextp->timeInc(1);
+  if (trace_file) trace_file->dump(contextp->time());
   finalize();
   exit(0);
 }
