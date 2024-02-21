@@ -1,9 +1,3 @@
-`include "ysyx_23060203_PC.v"
-`include "ysyx_23060203_IFU.v"
-`include "ysyx_23060203_IDU.v"
-`include "ysyx_23060203_EXU.v"
-`include "ysyx_23060203_RegFile.v"
-
 module top(
   input rstn, clk,
 
@@ -27,13 +21,13 @@ module top(
     .rdata(reg_file_rdata)
   );
 
-  wire [31:0] pc;
+  wire [31:0] pc, next_pc;
   ysyx_23060203_PC PC (
     .rstn(rstn), .clk(clk),
 
-    .pc(pc),
+    .pc(pc), .next_pc(next_pc),
 
-    .dnpcen(0),
+    .dnpc_en(0),
     .dnpc(32'b0)
   );
 
@@ -41,7 +35,7 @@ module top(
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),
 
-    .pc(pc), .inst(inst),
+    .next_pc(next_pc), .inst(inst),
 
     .inst_mem_addr(inst_mem_addr),
     .inst_mem_data(inst_mem_data)
