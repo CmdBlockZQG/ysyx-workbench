@@ -13,7 +13,7 @@ module ysyx_23060203_PC (
     if (rstn) begin
       pc <= next_pc;
     end else begin
-      pc <= 32'h80000000; // 复位0x80000000
+      pc <= 32'h80000000 - 4; // 复位0x80000000
     end
   end
 endmodule
