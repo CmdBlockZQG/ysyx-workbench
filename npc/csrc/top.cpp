@@ -73,6 +73,7 @@ void reset(int n) {
   top->rstn = 1;
 }
 
+static bool halt_sig = false;
 int main(int argc, char **argv) {
   init_top(argc, argv);
 
@@ -80,7 +81,7 @@ int main(int argc, char **argv) {
   // init_nvboard();
 
   reset(10);
-  while (!is_finished()) {
+  while (!halt_sig && !is_finished()) {
     single_cycle();
   }
 
@@ -89,8 +90,5 @@ int main(int argc, char **argv) {
 }
 
 void halt() {
-  contextp->timeInc(1);
-  if (trace_file) trace_file->dump(contextp->time());
-  finalize();
-  exit(0);
+  halt_sig = true;
 }
