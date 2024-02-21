@@ -43,33 +43,45 @@ bool is_finished() {
   return contextp->gotFinish();
 }
 
+const uint32_t img[] = {
+  0x00500093,
+  0x00608113,
+  0x00310093,
+  0x00108093
+};
+
 void step() {
+  uint32_t addr = top->inst_mem_data - 0x80000000;
+  if (addr < 4) top->inst_mem_data = img[addr];
+  else top->inst_mem_data = 0;
+  top->eval();
   if (nvboard) nvboard_update();
   contextp->timeInc(1);
   if (trace_file) trace_file->dump(contextp->time());
 }
 
 void single_cycle() {
-  top->clk = 0; top->eval();
-  top->clk = 1; top->eval();
+  top->clk = 0; step();
+  top->clk = 1; step();
 }
 
 void reset(int n) {
-  top->rst = 1;
+  top->rstn = 0;
   while (n--) single_cycle();
-  top->rst = 0;
+  top->rstn = 1;
 }
 
 int main(int argc, char **argv) {
   init_top(argc, argv);
 
-  // init_trace("top.vcd");
-  init_nvboard();
+  init_trace("top.vcd");
+  // init_nvboard();
 
   reset(10);
-  while (!is_finished()) {
+  int n = 10;
+  // while (!is_finished()) {
+  while (n--) {
     single_cycle();
-    step();
   }
 
   finalize();
