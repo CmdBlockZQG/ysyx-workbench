@@ -6,6 +6,7 @@
 #include "verilated_vcd_c.h"
 #include "nvboard.h"
 #include "Vtop.h"
+#include "Vtop__Dpi.h"
 
 void nvboard_bind_all_pins(Vtop*);
 
@@ -47,7 +48,8 @@ const uint32_t img[] = {
   0x00500093,
   0x00608113,
   0x00310093,
-  0x00108093
+  0x00108093,
+  0x00100073
 };
 
 void step() {
@@ -71,6 +73,7 @@ void reset(int n) {
   top->rstn = 1;
 }
 
+static bool halt_sig = false;
 int main(int argc, char **argv) {
   init_top(argc, argv);
 
@@ -78,12 +81,14 @@ int main(int argc, char **argv) {
   // init_nvboard();
 
   reset(10);
-  int n = 10;
-  // while (!is_finished()) {
-  while (n--) {
+  while (!halt_sig && !is_finished()) {
     single_cycle();
   }
 
   finalize();
   return 0;
+}
+
+void halt() {
+  halt_sig = true;
 }
