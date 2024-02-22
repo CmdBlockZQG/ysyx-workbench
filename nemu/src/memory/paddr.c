@@ -54,7 +54,7 @@ word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))) {
 #ifdef CONFIG_MTRACE
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
-      log_write(ANSI_FMT("[MTRACE] Read %d bytes at " FMT_PADDR "\n", ANSI_FG_GREEN), len, addr);
+      log_write(ANSI_FMT("[MTRACE] Read %d bytes at " FMT_PADDR "\n", ANSI_FG_YELLOW), len, addr);
     }
 #endif
     return pmem_read(addr, len);
