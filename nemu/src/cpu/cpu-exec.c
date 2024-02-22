@@ -104,8 +104,10 @@ static void statistic() {
 
 static void print_iringbuf() {
   for (int i = 0; i < 16; ++i) {
-    puts(iringbuf[(iringbuf_ptr + i) & 0xf].logbuf);
+    char *log = iringbuf[(iringbuf_ptr + i) & 0xf].logbuf;
+    if (*log) puts(log);
   }
+  putchar('\n');
 }
 
 void assert_fail_msg() {
