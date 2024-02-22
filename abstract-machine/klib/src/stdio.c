@@ -39,7 +39,7 @@ static void reverse(char *s, size_t n) {
 }
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
-  int t = 0;
+  size_t t = 0;
   char buf[25];
   buf[0] = '-';
   while (*fmt && t < n) {
@@ -55,7 +55,7 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         char *p = buf + 1;
         src = x < 0 ? buf : buf + 1; // '-'
         while (x) {
-          *p++ = x % 10;
+          *p++ = '0' + x % 10;
           x /= 10;
         }
         *p = '\0';
