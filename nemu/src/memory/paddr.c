@@ -67,7 +67,7 @@ word_t paddr_read(paddr_t addr, int len) {
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) {
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
-      log_write("[MTRACE] Write %d bytes at " FMT_PADDR "\n", len, addr);
+      log_write("[MTRACE] Write %d bytes at " FMT_PADDR ": " FMT_WORD "\n", len, addr, data);
     }
     pmem_write(addr, len, data);
     return; 
