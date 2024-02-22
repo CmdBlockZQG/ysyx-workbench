@@ -30,9 +30,11 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+static Decode iringbuf[16];
+static uint8_t iringbuf_ptr = 0;
+
 void device_update();
 
-bool check_wps();
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
@@ -40,6 +42,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 #ifdef CONFIG_WATCHPOINT
+  bool check_wps();
   if (check_wps()) nemu_state.state = NEMU_STOP;
 #endif
 }
@@ -73,6 +76,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #else
   p[0] = '\0'; // the upstream llvm does not support loongarch32r
 #endif
+
+  iringbuf[iringbuf_ptr++] = *s;
+  iringbuf_ptr &= 0xf;
 #endif
 }
 
@@ -96,7 +102,14 @@ static void statistic() {
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
+static void print_iringbuf() {
+  for (int i = 0; i < 16; ++i) {
+    puts(iringbuf[(iringbuf_ptr + i) & 0xf].logbuf);
+  }
+}
+
 void assert_fail_msg() {
+  IFDEF(CONFIG_ITRACE, print_iringbuf());
   isa_reg_display();
   statistic();
 }
