@@ -173,7 +173,7 @@ config MTRACE_START
 config MTRACE_END
   depends on MTRACE
   hex "Maximum tracable memory address"
-  default 0xffffffff
+  default 0x87ffffff
 
 config WATCHPOINT
   bool "Enable tracepoints"
