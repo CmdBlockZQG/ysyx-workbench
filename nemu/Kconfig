@@ -160,6 +160,21 @@ config DIFFTEST
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NEMU.
 
+config MTRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+  bool "Enable memory tracer"
+  default n
+
+config MTRACE_START
+  depends on MTRACE
+  hex "Minimum tracable memory address"
+  default 0x80000000
+
+config MTRACE_END
+  depends on MTRACE
+  hex "Maximum tracable memory address"
+  default 0x87ffffff
+
 config WATCHPOINT
   bool "Enable tracepoints"
   default y
