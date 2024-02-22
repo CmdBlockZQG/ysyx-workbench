@@ -7,7 +7,7 @@ module ysyx_23060203_IFU (
   output [31:0] inst_mem_addr,
   input [31:0] inst_mem_data
 );
-  // 这里暂时把指令内存当作组合逻辑
+  // 这里暂时把指令内存当作组合逻辑,根据next_pc加载下一条指令
   assign inst_mem_addr = next_pc;
 
   always @(posedge clk) begin
