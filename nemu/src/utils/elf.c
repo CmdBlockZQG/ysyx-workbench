@@ -66,9 +66,9 @@ void read_symbols() {
     fseek(fp, eh.e_shoff + i * eh.e_shentsize, SEEK_SET);
     Assert(fread(&shent, sizeof(shent), 1, fp) == 1, "Error when reading section table entry %lu", i);
     printf("%lu %u %u %u %u %u\n", i, shent.sh_name, shent.sh_type, shent.sh_addr, shent.sh_offset, shent.sh_size);
-    if (shent.sh_type == SHT_STRTAB && strcmp(shstrtab + shent.sh_name, ".strtab")) { // find .strtab entry
+    if (shent.sh_type == SHT_STRTAB && !strcmp(shstrtab + shent.sh_name, ".strtab")) { // find .strtab entry
       strtab_ent = shent;
-    } else if (shent.sh_type == SHT_SYMTAB && strcmp(shstrtab + shent.sh_name, ".symtab")) { // find .symtab entry
+    } else if (shent.sh_type == SHT_SYMTAB && !strcmp(shstrtab + shent.sh_name, ".symtab")) { // find .symtab entry
       symtab_ent = shent;
     }
   }
