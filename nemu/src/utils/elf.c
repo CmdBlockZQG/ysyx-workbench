@@ -87,8 +87,8 @@ void read_symbols() {
   ElfN(Sym) symtab[symtab_size];
   fseek(fp, symtab_ent.sh_offset, SEEK_SET);
   Assert(fread(symtab, symtab_ent.sh_entsize, symtab_size, fp) == symtab_size, "Error when reading symbol table");
-  printf("%lu\n", symtab_size);
   for (size_t i = 0; i < symtab_size; ++i) {
+    printf("%lu %s %d %u %u\n", i, strtab + symtab[i].st_name, (int)symtab[i].st_info, symtab[i].st_value, symtab[i].st_size);
     if (symtab[i].st_info == STT_FUNC) {
       elf_symbol_list[elf_symbol_list_size++] = (ElfSymbol) {
         symtab[i].st_name ? strtab + symtab[i].st_name : elf_no_name, // name
