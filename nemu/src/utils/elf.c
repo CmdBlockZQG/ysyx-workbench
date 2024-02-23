@@ -84,8 +84,8 @@ void read_symbols() {
     }
   }
 
-  Assert(strtab_ent.sh_offset, "No .strtab section in elf file");
   Assert(symtab_ent.sh_offset, "No .symtab section in elf file");
+  Assert(strtab_ent.sh_offset, "No .strtab section in elf file");
 
   // unpack string table
   fseek(fp, strtab_ent.sh_offset, SEEK_SET);
