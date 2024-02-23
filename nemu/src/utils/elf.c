@@ -65,7 +65,7 @@ void read_symbols() {
   for (size_t i = 1; i < shnum; ++i) {
     fseek(fp, eh.e_shoff + i * eh.e_shentsize, SEEK_SET);
     Assert(fread(&shent, sizeof(shent), 1, fp) == 1, "Error when reading section table entry %lu", i);
-    printf("%lu %u %u %u %u %u\n", i, shent.sh_name, shent.sh_type, shent.sh_addr, shent.sh_offset, shent.sh_size);
+    // printf("%lu %u %u %u %u %u\n", i, shent.sh_name, shent.sh_type, shent.sh_addr, shent.sh_offset, shent.sh_size);
     if (shent.sh_type == SHT_STRTAB && !strcmp(shstrtab + shent.sh_name, ".strtab")) { // find .strtab entry
       strtab_ent = shent;
     } else if (shent.sh_type == SHT_SYMTAB && !strcmp(shstrtab + shent.sh_name, ".symtab")) { // find .symtab entry
@@ -87,6 +87,7 @@ void read_symbols() {
   ElfN(Sym) symtab[symtab_size];
   fseek(fp, symtab_ent.sh_offset, SEEK_SET);
   Assert(fread(symtab, symtab_ent.sh_entsize, symtab_size, fp) == symtab_size, "Error when reading symbol table");
+  printf("%lu\n", symtab_size);
   for (size_t i = 0; i < symtab_size; ++i) {
     if (symtab[i].st_info == STT_FUNC) {
       elf_symbol_list[elf_symbol_list_size++] = (ElfSymbol) {
