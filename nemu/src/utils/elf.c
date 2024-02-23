@@ -66,7 +66,6 @@ size_t read_strtab_name_ndx() {
 
 void read_symbols() {
   size_t strtab_name_ndx = read_strtab_name_ndx();
-  printf("%lu\n", strtab_name_ndx);
   
   ElfN(Shdr) shent, strtab_ent = { .sh_offset = 0 }, symtab_ent = { .sh_offset = 0 };
 
@@ -77,6 +76,7 @@ void read_symbols() {
   for (size_t i = 1; i < shnum; ++i) {
     fseek(fp, eh.e_shoff + i * eh.e_shentsize, SEEK_SET);
     Assert(fread(&shent, sizeof(shent), 1, fp) == 1, "Error when reading section table entry %lu", i);
+    printf("%lu %u %u %u %u %u\n", i, shent.sh_name, shent.sh_type, shent.sh_addr, shent.sh_offset, shent.sh_size);
     if (shent.sh_type == SHT_STRTAB && shent.sh_name == strtab_name_ndx) { // find .strtab entry
       strtab_ent = shent;
     } else if (shent.sh_type == SHT_SYMTAB) { // find .symtab entry
@@ -84,8 +84,8 @@ void read_symbols() {
     }
   }
 
-  Assert(symtab_ent.sh_offset, "No .symtab section in elf file");
   Assert(strtab_ent.sh_offset, "No .strtab section in elf file");
+  Assert(symtab_ent.sh_offset, "No .symtab section in elf file");
 
   // unpack string table
   fseek(fp, strtab_ent.sh_offset, SEEK_SET);
