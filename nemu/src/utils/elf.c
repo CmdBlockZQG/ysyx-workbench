@@ -18,7 +18,7 @@ void init_elf(const char *elf_file) {
   Assert(fp, "Can not open '%s'", elf_file);
 
   /* Read elf header */
-  Assert(fread(&eh, sizeof(eh), 1, fp) == sizeof(eh), "Error when reading elf header");
+  Assert(fread(&eh, sizeof(eh), 1, fp) == 1, "Error when reading elf header");
 
   Assert(eh.e_ident[EI_MAG0] == ELFMAG0 &&
          eh.e_ident[EI_MAG1] == ELFMAG1 &&
@@ -34,12 +34,12 @@ void init_elf(const char *elf_file) {
   /* Read section header string table */
   ElfN(Shdr) shstrent;
   fseek(fp, eh.e_shoff + eh.e_shstrndx * eh.e_shentsize, SEEK_SET);
-  Assert(fread(&shstrent, sizeof(shstrent), 1, fp) == sizeof(shstrent),
+  Assert(fread(&shstrent, sizeof(shstrent), 1, fp) == 1,
          "Error when reading section header string table entry");
   Assert(shstrent.sh_type == SHT_STRTAB, "Reading wrong section header string table entry");
   char shstrbuf[shstrent.sh_size];
   fseek(fp, shstrent.sh_offset, SEEK_SET);
-  Assert(fread(shstrbuf, shstrent.sh_size, 1, fp) == shstrent.sh_size,
+  Assert(fread(shstrbuf, shstrent.sh_size, 1, fp) == 1,
          "Error when reading section header string table buffer");
   size_t strtab_ndx = 0;
   for (size_t i = 1; i < shstrent.sh_size; ++i) {
