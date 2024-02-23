@@ -43,6 +43,8 @@ void init_elf(const char *elf_file) {
 
   void read_symbols();
   read_symbols();
+
+  Log("ELF file loaded from %s", elf_file);
 }
 
 void read_symbols() {
@@ -109,14 +111,14 @@ void read_symbols() {
     }
   }
 
-  for (word_t i = 0; i < elf_symbol_list_size; ++i) {
-    printf("%s %x %u %s\n",
-      elf_symbol_list[i].name,
-      elf_symbol_list[i].addr,
-      elf_symbol_list[i].size,
-      elf_symbol_list[i].type == ELF_SYM_FUNC ? "FUNC" : "OBJECT"
-    );
-  }
+  // for (word_t i = 0; i < elf_symbol_list_size; ++i) {
+  //   printf("%s %x %u %s\n",
+  //     elf_symbol_list[i].name,
+  //     elf_symbol_list[i].addr,
+  //     elf_symbol_list[i].size,
+  //     elf_symbol_list[i].type == ELF_SYM_FUNC ? "FUNC" : "OBJECT"
+  //   );
+  // }
 }
 
 #endif
