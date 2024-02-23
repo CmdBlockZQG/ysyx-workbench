@@ -110,7 +110,7 @@ void read_symbols() {
   }
 
   for (word_t i = 0; i < elf_symbol_list_size; ++i) {
-    printf("%s %u %u %s\n",
+    printf("%s %x %u %s\n",
       elf_symbol_list[i].name,
       elf_symbol_list[i].addr,
       elf_symbol_list[i].size,
