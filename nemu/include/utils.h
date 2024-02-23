@@ -73,5 +73,15 @@ uint64_t get_time();
     log_write(__VA_ARGS__); \
   } while (0)
 
+// ----------- elf -----------
+
+enum { ELF_SYM_FUNC, ELF_SYM_OBJECT };
+
+typedef struct {
+  char *name;
+  vaddr_t addr;
+  word_t size;
+  int type;
+} ElfSymbol;
 
 #endif
