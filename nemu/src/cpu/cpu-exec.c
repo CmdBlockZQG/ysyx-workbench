@@ -44,7 +44,7 @@ static word_t get_func_sym_ndx(paddr_t p) {
   word_t res = 0;
   paddr_t res_off = -1;
   for (word_t i = 0; i < elf_symbol_list_size; ++i) {
-    if (elf_symbol_list[i].addr <= p) {
+    if (elf_symbol_list[i].type == ELF_SYM_FUNC && elf_symbol_list[i].addr <= p) {
       if (p < elf_symbol_list[i].addr + elf_symbol_list[i].size) return i;
       paddr_t off = p - elf_symbol_list[i].addr;
       if (off < res_off) {
