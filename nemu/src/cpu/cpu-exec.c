@@ -64,15 +64,16 @@ static void ftrace(Decode *s) {
   if (likely(from == to)) return;
   log_write("[FTRACE] 0x" FMT_PADDR ": ", s->pc);
   for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
-  if (elf_symbol_list[to].addr == to) { // call, jump to the begging of a func
-    // ++ftrace_dep;
+  if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
+    ++ftrace_dep;
     log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
               elf_symbol_list[from].name,
               elf_symbol_list[from].addr,
               elf_symbol_list[to].name,
               elf_symbol_list[to].addr);
   } else { // ret, return to calling position
-    // --ftrace_dep;
+    Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
+    --ftrace_dep;
     log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
               elf_symbol_list[from].name,
               elf_symbol_list[from].addr,
