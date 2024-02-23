@@ -50,11 +50,28 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
+#ifdef CONFIG_MTRACE
+void locate_object_sym(paddr_t addr) {
+  extern ElfSymbol elf_symbol_list[];
+  extern word_t elf_symbol_list_size;
+  for (word_t i = 0; i < elf_symbol_list_size; ++i) {
+    if (elf_symbol_list[i].type == ELF_SYM_OBJECT &&
+        elf_symbol_list[i].addr <= addr &&
+        addr < elf_symbol_list[i].addr + elf_symbol_list[i].size) {
+      log_write("(%s + %u)", elf_symbol_list[i].name, (uint32_t)(addr - elf_symbol_list[i].addr));
+      return;
+    }
+  }
+}
+#endif
+
 word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))) {
 #ifdef CONFIG_MTRACE
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
-      log_write(ANSI_FMT("[MTRACE] Read %d bytes at " FMT_PADDR "\n", ANSI_FG_CYAN), len, addr);
+      log_write(ANSI_FG_CYAN "[MTRACE] Read %d bytes at " FMT_PADDR, len, addr);
+      locate_object_sym(addr);
+      log_write(ANSI_NONE "\n");
     }
 #endif
     return pmem_read(addr, len);
@@ -66,9 +83,13 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) {
+#ifdef CONFIG_MTRACE
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
-      log_write(ANSI_FMT("[MTRACE] Write %d bytes at " FMT_PADDR ": " FMT_WORD "\n", ANSI_FG_YELLOW), len, addr, data);
+      log_write(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_PADDR , len, addr);
+      locate_object_sym(addr);
+      log_write(": " FMT_WORD ANSI_NONE "\n", data);
     }
+#endif
     pmem_write(addr, len, data);
     return; 
   }
