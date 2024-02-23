@@ -66,6 +66,7 @@ size_t read_strtab_name_ndx() {
 
 void read_symbols() {
   size_t strtab_name_ndx = read_strtab_name_ndx();
+  printf("%lu\n", strtab_name_ndx);
   
   ElfN(Shdr) shent, strtab_ent = { .sh_offset = 0 }, symtab_ent = { .sh_offset = 0 };
 
