@@ -15,7 +15,7 @@ static ElfN(Ehdr) eh;
 #define STRTAB_BUF_SIZE 2048
 #define MAX_SYMBOL 256
 
-static char strtab_buf[STRTAB_BUF_SIZE];
+static char strtab[STRTAB_BUF_SIZE];
 static char *elf_no_name = "<anonymous symbol>";
 ElfSymbol elf_symbol_list[MAX_SYMBOL];
 word_t elf_symbol_list_size = 0;
@@ -43,43 +43,31 @@ void init_elf(const char *elf_file) {
   read_symbols();
 }
 
-/* Read section header string table, find ".strtab"'s index in it */
-size_t read_strtab_name_ndx() {
-  ElfN(Shdr) shstrent;
-  fseek(fp, eh.e_shoff + eh.e_shstrndx * eh.e_shentsize, SEEK_SET);
-  Assert(fread(&shstrent, sizeof(shstrent), 1, fp) == 1,
-         "Error when reading section header string table entry");
-  Assert(shstrent.sh_type == SHT_STRTAB, "Reading wrong section header string table entry");
-  char shstrbuf[shstrent.sh_size];
-  fseek(fp, shstrent.sh_offset, SEEK_SET);
-  Assert(fread(shstrbuf, shstrent.sh_size, 1, fp) == 1,
-         "Error when reading section header string table buffer");
-  size_t strtab_name_ndx = 0;
-  for (size_t i = 1; i < shstrent.sh_size; ++i) {
-    if (shstrbuf[i] && !shstrbuf[i - 1]) {
-      if (!strcmp(&shstrbuf[i], ".strtab")) break;
-      ++strtab_name_ndx;
-    }
-  }
-  return strtab_name_ndx;
-}
-
 void read_symbols() {
-  size_t strtab_name_ndx = read_strtab_name_ndx();
+  ElfN(Shdr) shent;
+
+  /* Read section header string table */
+  fseek(fp, eh.e_shoff + eh.e_shstrndx * eh.e_shentsize, SEEK_SET);
+  Assert(fread(&shent, sizeof(shent), 1, fp) == 1,
+         "Error when reading section header string table entry");
+  Assert(shent.sh_type == SHT_STRTAB, "Reading wrong section header string table entry");
+  char shstrtab[shent.sh_size];
+  fseek(fp, shent.sh_offset, SEEK_SET);
+  Assert(fread(shstrtab, shent.sh_size, 1, fp) == 1,
+         "Error when reading section header string table buffer");
   
-  ElfN(Shdr) shent, strtab_ent = { .sh_offset = 0 }, symtab_ent = { .sh_offset = 0 };
+  /* Read section table, find '.strtab' and '.symtab' */
+  ElfN(Shdr) strtab_ent = { .sh_offset = 0 }, symtab_ent = { .sh_offset = 0 };
 
   fseek(fp, eh.e_shoff, SEEK_SET);
   Assert(fread(&shent, sizeof(shent), 1, fp) == 1, "Error when reading section table entry 0");
   size_t shnum = eh.e_shnum ? eh.e_shnum : shent.sh_size;
-
   for (size_t i = 1; i < shnum; ++i) {
     fseek(fp, eh.e_shoff + i * eh.e_shentsize, SEEK_SET);
     Assert(fread(&shent, sizeof(shent), 1, fp) == 1, "Error when reading section table entry %lu", i);
-    printf("%lu %u %u %u %u %u\n", i, shent.sh_name, shent.sh_type, shent.sh_addr, shent.sh_offset, shent.sh_size);
-    if (shent.sh_type == SHT_STRTAB && shent.sh_name == strtab_name_ndx) { // find .strtab entry
+    if (shent.sh_type == SHT_STRTAB && strcmp(shstrtab + shent.sh_name, ".strtab")) { // find .strtab entry
       strtab_ent = shent;
-    } else if (shent.sh_type == SHT_SYMTAB) { // find .symtab entry
+    } else if (shent.sh_type == SHT_SYMTAB && strcmp(shstrtab + shent.sh_name, ".symtab")) { // find .symtab entry
       symtab_ent = shent;
     }
   }
@@ -87,17 +75,10 @@ void read_symbols() {
   Assert(strtab_ent.sh_offset, "No .strtab section in elf file");
   Assert(symtab_ent.sh_offset, "No .symtab section in elf file");
 
-  // unpack string table
+  // Read string table
   fseek(fp, strtab_ent.sh_offset, SEEK_SET);
-  Assert(fread(strtab_buf, strtab_ent.sh_size, 1, fp) == 1,
+  Assert(fread(strtab, strtab_ent.sh_size, 1, fp) == 1,
          "Error when reading symbol string table buffer");
-  char *strtab[MAX_SYMBOL];
-  size_t strtab_size = 0;
-  for (size_t i = 1; i < strtab_ent.sh_size; ++i) {
-    if (strtab_buf[i] && !strtab_buf[i - 1]) {
-      strtab[strtab_size++] = &strtab_buf[i];
-    }
-  }
   
   // reorgnize symbols
   size_t symtab_size = symtab_ent.sh_size / symtab_ent.sh_entsize;
@@ -108,14 +89,14 @@ void read_symbols() {
   for (size_t i = 0; i < symtab_size; ++i) {
     if (symtab[i].st_info == STT_FUNC) {
       elf_symbol_list[elf_symbol_list_size++] = (ElfSymbol) {
-        symtab[i].st_name ? strtab[symtab[i].st_name] : elf_no_name, // name
+        symtab[i].st_name ? strtab + symtab[i].st_name : elf_no_name, // name
         symtab[i].st_value, // addr
         symtab[i].st_size, // size
         ELF_SYM_FUNC
       };
     } else if (symtab[i].st_info == STT_OBJECT) {
       elf_symbol_list[elf_symbol_list_size++] = (ElfSymbol) {
-        symtab[i].st_name ? strtab[symtab[i].st_name] : elf_no_name, // name
+        symtab[i].st_name ? strtab + symtab[i].st_name : elf_no_name, // name
         symtab[i].st_value, // addr
         symtab[i].st_size, // size
         ELF_SYM_OBJECT
