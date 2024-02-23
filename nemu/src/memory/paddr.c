@@ -69,9 +69,9 @@ word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))) {
 #ifdef CONFIG_MTRACE
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
-      log_write("[MTRACE] Read %d bytes at " FMT_PADDR, len, addr);
+      log_write(ANSI_FG_CYAN "[MTRACE] Read %d bytes at " FMT_PADDR, len, addr);
       locate_object_sym(addr);
-      log_write("\n");
+      log_write(ANSI_NONE "\n");
     }
 #endif
     return pmem_read(addr, len);
@@ -85,9 +85,9 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) {
 #ifdef CONFIG_MTRACE
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
-      log_write("[MTRACE] Write %d bytes at " FMT_PADDR , len, addr);
+      log_write(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_PADDR , len, addr);
       locate_object_sym(addr);
-      log_write(": " FMT_WORD "\n", data);
+      log_write(": " FMT_WORD ANSI_NONE "\n", data);
     }
 #endif
     pmem_write(addr, len, data);
