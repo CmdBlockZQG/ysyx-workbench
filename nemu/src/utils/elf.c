@@ -3,8 +3,10 @@
 
 #ifdef CONFIG_ISA64
 #define ElfN(type) Elf64_ ## type
+#define ELFN(macro) ELF64_ ## macro
 #else
 #define ElfN(type) Elf32_ ## type
+#define ELFN(macro) ELF32_ ## macro
 #endif
 
 #ifndef CONFIG_TARGET_AM
@@ -88,15 +90,16 @@ void read_symbols() {
   fseek(fp, symtab_ent.sh_offset, SEEK_SET);
   Assert(fread(symtab, symtab_ent.sh_entsize, symtab_size, fp) == symtab_size, "Error when reading symbol table");
   for (size_t i = 0; i < symtab_size; ++i) {
-    printf("%lu %s %d %u %u\n", i, strtab + symtab[i].st_name, (int)symtab[i].st_info, symtab[i].st_value, symtab[i].st_size);
-    if (symtab[i].st_info == STT_FUNC) {
+    // printf("%lu %s %d %u %u\n", i, strtab + symtab[i].st_name, (int)symtab[i].st_info, symtab[i].st_value, symtab[i].st_size);
+    unsigned char st_type = ELFN(ST_TYPE)(symtab[i].st_info);
+    if (st_type == STT_FUNC) {
       elf_symbol_list[elf_symbol_list_size++] = (ElfSymbol) {
         symtab[i].st_name ? strtab + symtab[i].st_name : elf_no_name, // name
         symtab[i].st_value, // addr
         symtab[i].st_size, // size
         ELF_SYM_FUNC
       };
-    } else if (symtab[i].st_info == STT_OBJECT) {
+    } else if (st_type == STT_OBJECT) {
       elf_symbol_list[elf_symbol_list_size++] = (ElfSymbol) {
         symtab[i].st_name ? strtab + symtab[i].st_name : elf_no_name, // name
         symtab[i].st_value, // addr
