@@ -58,12 +58,7 @@ void locate_object_sym(paddr_t addr) {
     if (elf_symbol_list[i].type == ELF_SYM_OBJECT &&
         elf_symbol_list[i].addr <= addr &&
         addr < elf_symbol_list[i].addr + elf_symbol_list[i].size) {
-      paddr_t off = addr - elf_symbol_list[i].addr;
-      if (off) {
-        log_write("(%s + %u)", elf_symbol_list[i].name, (uint32_t)off);
-      } else {
-        log_write("(%s)", elf_symbol_list[i].name);
-      }
+      log_write("(%s + %u)", elf_symbol_list[i].name, (uint32_t)(addr - elf_symbol_list[i].addr));
       return;
     }
   }
