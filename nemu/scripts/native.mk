@@ -28,7 +28,7 @@ override ARGS ?= --log=$(BUILD_DIR)/nemu-log.txt
 override ARGS += $(ARGS_DIFF)
 
 ifdef ELF
-ARGS += --elf=$(ELF)
+override ARGS += --elf=$(ELF)
 endif
 
 # Command to execute NEMU
