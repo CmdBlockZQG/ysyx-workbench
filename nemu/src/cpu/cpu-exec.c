@@ -35,9 +35,62 @@ static uint8_t iringbuf_ptr = 0;
 
 void device_update();
 
+#ifdef CONFIG_FTRACE
+static word_t ftrace_dep = 0;
+extern ElfSymbol elf_symbol_list[];
+extern word_t elf_symbol_list_size;
+
+static word_t get_func_sym_ndx(paddr_t p) {
+  word_t res = 0;
+  paddr_t res_off = -1;
+  for (word_t i = 0; i < elf_symbol_list_size; ++i) {
+    if (elf_symbol_list[i].addr <= p) {
+      if (p < elf_symbol_list[i].addr + elf_symbol_list[i].size) return i;
+      paddr_t off = p - elf_symbol_list[i].addr;
+      if (off < res_off) {
+        res_off = off;
+        res = i;
+      }
+    }
+  }
+  Log(ANSI_FMT("[FTRACE] Warning: PC outside any FUNC symbol area: " FMT_PADDR, ANSI_FG_YELLOW), p);
+  return res;
+}
+
+static void ftrace(Decode *s) {
+  if (likely(s->dnpc == s->snpc)) return;
+  if (elf_symbol_list_size == 0) return; // no elf file
+  word_t from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
+  if (likely(from == to)) return;
+  log_write("[FTRACE] 0x" FMT_PADDR ": ", s->pc);
+  if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
+    for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
+    ++ftrace_dep;
+    log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
+              elf_symbol_list[from].name,
+              elf_symbol_list[from].addr,
+              elf_symbol_list[to].name,
+              elf_symbol_list[to].addr);
+  } else { // ret, return to calling position
+    Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
+    --ftrace_dep;
+    for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
+    log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
+              elf_symbol_list[from].name,
+              elf_symbol_list[from].addr,
+              elf_symbol_list[to].name,
+              elf_symbol_list[to].addr,
+              s->dnpc);
+  }
+}
+#endif
+
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
+#endif
+#ifdef CONFIG_FTRACE
+  ftrace(_this);
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
