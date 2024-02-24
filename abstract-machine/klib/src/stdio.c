@@ -5,6 +5,8 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+
 int printf(const char *fmt, ...) {
   panic("Not implemented");
 }
@@ -54,12 +56,17 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         int x = va_arg(ap, int);
         char *p = buf + 1;
         src = x < 0 ? buf : buf + 1; // '-'
-        while (x) {
-          *p++ = '0' + x % 10;
-          x /= 10;
+        if (x == 0) {
+          *p++ = '0';
+          *p = '\0';
+        } else {
+          while (x) {
+            *p++ = '0' + ABS(x % 10);
+            x /= 10;
+          }
+          *p = '\0';
+          reverse(buf + 1, p - buf - 1);
         }
-        *p = '\0';
-        reverse(buf + 1, p - buf - 1);
       } else {
         panic("Not implemented");
       }
