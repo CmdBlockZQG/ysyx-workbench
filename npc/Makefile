@@ -27,7 +27,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I , $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\"" 
+CXXFLAGS += $(INCFLAGS) -Wall -Werror -DTOP_NAME="\"V$(TOPNAME)\"" 
 
 LDFLAGS += -lreadline
 
@@ -47,6 +47,9 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 ARGS = --log=$(BUILD_DIR)/log.txt --wave=$(BUILD_DIR)/wave.vcd
+IMG ?=
+ELF ?=
+
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
