@@ -46,18 +46,21 @@ all: default
 clean:
 	rm -rf $(BUILD_DIR)
 
-ARGS = --log=$(BUILD_DIR)/log.txt --wave=$(BUILD_DIR)/wave.vcd
-IMG ?=
-ELF ?=
 
+ARGS ?= --log=$(BUILD_DIR)/log.txt
+ARGS += --wave=$(BUILD_DIR)/wave.vcd
+IMG ?=
+ifdef ELF
+override ARGS += --elf=$(ELF)
+endif
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
-	@$^ $(ARGS)
+	$(BIN) $(ARGS) $(IMG)
 
-sim_nt: $(BIN)
-	@$^ $(ARGS)
+run: $(BIN)
+	$(BIN) $(ARGS) $(IMG)
 
-.PHONY: default all clean sim sim_nt
+.PHONY: default all clean sim run
 
 include ../Makefile
