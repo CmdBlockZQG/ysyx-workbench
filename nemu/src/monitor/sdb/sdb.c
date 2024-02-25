@@ -63,13 +63,13 @@ static int cmd_si(char *args) {
   return 0;
 }
 
-void wps_display();
 static int cmd_info(char *args) {
   char *arg = strtok(NULL, " ");
   if (arg == NULL) {
     printf("info r/w: Print register/watchpoint info\n");
     return 0;
   }
+  void wps_display();
   switch (arg[0]) {
     case 'r': isa_reg_display(); break;
     case 'w': wps_display(); break;
@@ -119,8 +119,6 @@ static int cmd_p(char *args) {
   return 0;
 }
 
-void *new_wp(char *str, word_t val);
-void print_wp(void *p);
 static int cmd_w(char *args) {
   char *str = strtok(NULL, "\0");
   bool success = true;
@@ -129,11 +127,13 @@ static int cmd_w(char *args) {
     printf("Invalid EXPR\n");
     return 0;
   }
+  void *new_wp(char *str, word_t val);
   void *p = new_wp(str, val);
   if (p == NULL) {
     printf("Too many watchpoints\n");
     return 0;
   }
+  void print_wp(void *p);
   print_wp(p);
   return 0;
 }

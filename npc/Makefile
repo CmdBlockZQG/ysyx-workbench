@@ -44,12 +44,14 @@ all: default
 clean:
 	rm -rf $(BUILD_DIR)
 
+ARGS = --log=$(BUILD_DIR)/log.txt --wave=$(BUILD_DIR)/wave.vcd
+
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
 	@$^
 
 sim_nt: $(BIN)
-	@$^
+	@$^ $(ARGS)
 
 .PHONY: default all clean sim sim_nt
 

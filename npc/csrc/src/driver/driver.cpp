@@ -1,3 +1,4 @@
+#include "common.h"
 #include "driver.h"
 
 #include "verilated_vcd_c.h"
@@ -15,6 +16,15 @@ void init_top(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   top = new Vtop{contextp};
+
+  // reset for 20 clock cycle
+  top->rstn = 0;
+  int n = 20;
+  while (n--) {
+    top->clk = 0; top->eval();
+    top->clk = 1; top->eval();
+  }
+  top->rstn = 1;
 }
 
 void init_wave(const char *filename) {

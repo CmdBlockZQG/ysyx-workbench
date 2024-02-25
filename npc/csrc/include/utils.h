@@ -4,6 +4,19 @@
 #include <cstdio>
 #include "common.h"
 
+// ----------- state -----------
+
+enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT, NPC_QUIT };
+
+struct NPCState {
+  int state;
+  uint32_t halt_ret;
+};
+
+extern NPCState npc_state;
+
+// ----------- log -----------
+
 #define ANSI_FG_BLACK   "\33[1;30m"
 #define ANSI_FG_RED     "\33[1;31m"
 #define ANSI_FG_GREEN   "\33[1;32m"
@@ -34,8 +47,21 @@
 #define _Log(...) \
   do { \
     extern FILE *log_fp; \
-    if (log_fp) printf(__VA_ARGS__); \
+    if (log_fp != stdout) printf(__VA_ARGS__); \
     log_write(__VA_ARGS__); \
   } while (0)
+
+// ----------- elf -----------
+
+typedef uint32_t word_t;
+
+enum { ELF_SYM_FUNC, ELF_SYM_OBJECT };
+
+struct ElfSymbol {
+  char *name;
+  paddr_t addr;
+  word_t size;
+  int type;
+};
 
 #endif

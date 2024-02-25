@@ -1,3 +1,6 @@
+#ifndef __DRIVER_H__
+#define __DRIVER_H__
+
 #include "Vtop.h"
 
 extern Vtop *top;
@@ -9,3 +12,5 @@ void init_nvboard();
 void driver_step();
 
 void finalize_driver();
+
+#endif
