@@ -1,6 +1,6 @@
 TOPNAME = top
 NXDC_FILES = constr/top.nxdc
-INC_PATH ?=
+INC_PATH = $(abspath ./csrc/include)
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
@@ -27,7 +27,9 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I , $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\"" 
+
+LDFLAGS += -lreadline
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -44,12 +46,14 @@ all: default
 clean:
 	rm -rf $(BUILD_DIR)
 
+ARGS = --log=$(BUILD_DIR)/log.txt --wave=$(BUILD_DIR)/wave.vcd
+
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
-	@$^
+	@$^ $(ARGS)
 
 sim_nt: $(BIN)
-	@$^
+	@$^ $(ARGS)
 
 .PHONY: default all clean sim sim_nt
 

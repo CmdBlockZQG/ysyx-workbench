@@ -1,29 +1,9 @@
-/***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
-*
-* NEMU is licensed under Mulan PSL v2.
-* You can use this software according to the terms and conditions of the Mulan PSL v2.
-* You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
-*
-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-*
-* See the Mulan PSL v2 for more details.
-***************************************************************************************/
-
+#include "common.h"
 #include "sdb.h"
 
+#include <cstring>
+
 #define NR_WP 32
-
-typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
-
-  word_t val;
-  char *expr;
-} WP;
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
@@ -49,7 +29,7 @@ WP *new_wp(char *str, word_t val) {
   p->next = head;
   p->val = val;
 
-  p->expr = malloc(strlen(str) + 1);
+  p->expr = new char[strlen(str) + 1];
   strcpy(p->expr, str);
 
   head = p;
@@ -73,18 +53,18 @@ void free_wp(int no) {
   if (i->NO == no) p = i;
   else return;
   found:
-  free(p->expr);
+  delete[] p->expr;
   p->next = free_;
   free_ = p;
 }
 
 void print_wp(WP *p) {
   printf(
-    MUXDEF(CONFIG_ISA64, "%-3s %-18s %s\n", "%-3s %-10s %s\n"),
+    MUXDEF(RV64, "%-3s %-18s %s\n", "%-3s %-10s %s\n"),
     "No", "Value", "Expr"
   );
   printf(
-    MUXDEF(CONFIG_ISA64, "%-3d 0x%-16llx %s\n", "%-3d 0x%-8x %s\n"),
+    MUXDEF(RV64, "%-3d 0x%-16llx %s\n", "%-3d 0x%-8x %s\n"),
     p->NO, p->val, p->expr
   );
 }
@@ -95,12 +75,12 @@ void wps_display() {
     return;
   }
   printf(
-    MUXDEF(CONFIG_ISA64, "%-3s %-18s %s\n", "%-3s %-10s %s\n"),
+    MUXDEF(RV64, "%-3s %-18s %s\n", "%-3s %-10s %s\n"),
     "No", "Value", "Expr"
   );
   for (WP *p = head; p; p = p->next) {
     printf(
-      MUXDEF(CONFIG_ISA64, "%-3d 0x%-16llx %s\n", "%-3d 0x%-8x %s\n"),
+      MUXDEF(RV64, "%-3d 0x%-16llx %s\n", "%-3d 0x%-8x %s\n"),
       p->NO, p->val, p->expr
     );
   }
@@ -109,13 +89,13 @@ void wps_display() {
 bool check_wps() {
   bool success, stop = false;
   for (WP *p = head; p; p = p->next) {
-    word_t val = expr(p->expr, &success);
+    word_t val = 0; // expr(p->expr, &success); TODO: expr
     Assert(success, "Expr become invalid: %s", p->expr);
     if (p->val != val) {
       stop = true;
       printf("Watchpoint No.%d triggered: %s\n  value: ", p->NO, p->expr);
       printf(
-        MUXDEF(CONFIG_ISA64, "0x%-16llx -> 0x%-16llx\n", "0x%-8x -> 0x%-8x\n"),
+        MUXDEF(RV64, "0x%-16llx -> 0x%-16llx\n", "0x%-8x -> 0x%-8x\n"),
         p->val, val
       );
       p->val = val;

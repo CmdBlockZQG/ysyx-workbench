@@ -1,33 +1,16 @@
-/***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
-*
-* NEMU is licensed under Mulan PSL v2.
-* You can use this software according to the terms and conditions of the Mulan PSL v2.
-* You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
-*
-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-*
-* See the Mulan PSL v2 for more details.
-***************************************************************************************/
-
-#include <isa.h>
-#include <cpu/cpu.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <memory/vaddr.h>
+#include "common.h"
+#include "cpu.h"
+#include "mem.h"
 #include "sdb.h"
 
-static int is_batch_mode = false;
+#include <readline/readline.h>
+#include <readline/history.h>
 
-void init_regex();
-void init_wp_pool();
+static bool is_batch_mode = false;
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
-  static char *line_read = NULL;
+  static char *line_read = nullptr;
 
   if (line_read) {
     free(line_read);
@@ -48,9 +31,8 @@ static int cmd_c(char *args) {
   return 0;
 }
 
-
 static int cmd_q(char *args) {
-  nemu_state.state = NEMU_QUIT;
+  npc_state.state = NPC_QUIT;
   return -1;
 }
 
@@ -69,9 +51,8 @@ static int cmd_info(char *args) {
     printf("info r/w: Print register/watchpoint info\n");
     return 0;
   }
-  void wps_display();
   switch (arg[0]) {
-    case 'r': isa_reg_display(); break;
+    case 'r': // isa_reg_display(); break; // TODO
     case 'w': wps_display(); break;
     default: printf("Unknown sub command '%s'\n", arg); break;
   }
@@ -88,52 +69,51 @@ static int cmd_x(char *args) {
     return 0;
   }
 
-  vaddr_t addr;
-  bool success = true;
-  if (str == NULL || (addr = expr(str, &success), !success)) {
-    printf("Invalid EXPR\n");
-    return 0;
-  }
+  addr_t addr = MBASE; // TODO: temporary alternate 
+  bool success = true; // TODO: expr
+  // if (str == NULL || (addr = expr(str, &success), !success)) {
+  //   printf("Invalid EXPR\n");
+  //   return 0;
+  // }
 
   for (unsigned int i = 0; i < n; ++i, addr += 4) {
     printf(
-      MUXDEF(CONFIG_ISA64,"0x%-16llx: 0x%-16llx\n", "0x%-8x: 0x%-8x\n"),
-      addr, vaddr_read(addr, 4)
+      MUXDEF(RV64,"0x%-16llx: 0x%-16llx\n", "0x%-8x: 0x%-8x\n"),
+      addr, addr_read(addr, 4)
     );
   }
   return 0;
 }
 
 static int cmd_p(char *args) {
-  char *str = strtok(NULL, "\0");
-  bool success = true;
-  word_t val = expr(str, &success);
-  if (!success) {
-    printf("Invalid EXPR\n");
-    return 0;
-  }
-  printf(
-    MUXDEF(CONFIG_ISA64,"hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
-    val, val, val
-  );
+  // TODO: expr eval
+  // char *str = strtok(NULL, "\0");
+  // bool success = true;
+  // word_t val = expr(str, &success);
+  // if (!success) {
+  //   printf("Invalid EXPR\n");
+  //   return 0;
+  // }
+  // printf(
+  //   MUXDEF(RV64,"hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
+  //   val, val, val
+  // );
   return 0;
 }
 
 static int cmd_w(char *args) {
   char *str = strtok(NULL, "\0");
   bool success = true;
-  word_t val = expr(str, &success);
+  word_t val = 0; // expr(str, &success); TODO: expr
   if (!success) {
     printf("Invalid EXPR\n");
     return 0;
   }
-  void *new_wp(char *str, word_t val);
-  void *p = new_wp(str, val);
+  WP *p = new_wp(str, val);
   if (p == NULL) {
     printf("Too many watchpoints\n");
     return 0;
   }
-  void print_wp(void *p);
   print_wp(p);
   return 0;
 }
@@ -196,11 +176,11 @@ void sdb_set_batch_mode() {
 
 void sdb_mainloop() {
   if (is_batch_mode) {
-    cmd_c(NULL);
+    cmd_c(nullptr);
     return;
   }
 
-  for (char *str; (str = rl_gets()) != NULL; ) {
+  for (char *str; str = rl_gets(); ) {
     char *str_end = str + strlen(str);
 
     /* extract the first token as the command */
@@ -215,11 +195,6 @@ void sdb_mainloop() {
       args = NULL;
     }
 
-#ifdef CONFIG_DEVICE
-    extern void sdl_clear_event_queue();
-    sdl_clear_event_queue();
-#endif
-
     int i;
     for (i = 0; i < NR_CMD; i ++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
@@ -233,11 +208,10 @@ void sdb_mainloop() {
 }
 
 void init_sdb() {
-  void init_regex();
-  void init_wp_pool();
-
+  // void init_regex();
+  
   /* Compile the regular expressions. */
-  init_regex();
+  // init_regex(); TODO: expr
 
   /* Initialize the watchpoint pool. */
   init_wp_pool();
