@@ -45,6 +45,7 @@ void init_nvboard() {
 
 void finalize_driver() {
   if (trace_file) trace_file->close();
+  Log("wave closed");
   delete top;
   delete contextp;
 }

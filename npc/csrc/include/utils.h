@@ -49,7 +49,7 @@ void set_npc_state(int state, int halt_ret);
 #define _Log(...) \
   do { \
     extern FILE *log_fp; \
-    /*if (log_fp != stdout)*/ printf(__VA_ARGS__); \
+    if (log_fp != stdout) printf(__VA_ARGS__); \
     log_write(__VA_ARGS__); \
   } while (0)
 
