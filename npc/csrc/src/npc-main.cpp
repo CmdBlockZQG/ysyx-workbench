@@ -42,11 +42,12 @@ static int parse_args(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+  printf("123");
   /* parge command line arguments */
   parse_args(argc, argv);
   
   /* open log file */
-  init_log(log_file);
+  init_log(log_file);printf("456");
 
   /* init npc verilator module */
   init_top(argc, argv);
