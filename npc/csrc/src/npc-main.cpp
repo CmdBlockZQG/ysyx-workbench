@@ -18,6 +18,7 @@ void sdb_mainloop();
 static char *log_file = nullptr;
 static char *img_file = nullptr;
 static char *elf_file = nullptr;
+static char *wave_file = nullptr;
 
 static void load_img() {
   if (!img_file) {
@@ -63,7 +64,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'b': sdb_set_batch_mode(); break;
       case 'l': log_file = optarg; break;
       case 'e': elf_file = optarg; break;
-      case 'w': init_wave(optarg); break;
+      case 'w': wave_file = optarg; break;
       case 'n': init_nvboard(); break;
       case 1: img_file = optarg; return 0;
       default:
@@ -90,6 +91,9 @@ int main(int argc, char *argv[]) {
 
   /* open log file */
   init_log(log_file);
+
+  /* initialize wave output */
+  init_wave(wave_file);
 
   /* initialize memory */
   init_mem();

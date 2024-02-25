@@ -8,6 +8,6 @@ void init_log(const char *log_file) {
     FILE *fp = fopen(log_file, "w");
     Assert(fp, "Can not open log file '%s'", log_file);
     log_fp = fp;
+    Log("Log is written to %s", log_file);
   }
-  Log("Log is written to %s", log_file ? log_file : "stdout");
 }
