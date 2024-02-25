@@ -16,6 +16,8 @@
       extern FILE* log_fp; fflush(log_fp); \
       extern void finalize_driver(); \
       finalize_driver(); \
+      extern void assert_fail_msg(); \
+      assert_fail_msg(); \
       assert(cond); \
     } \
   } while (0)
