@@ -79,7 +79,7 @@ enum { ELF_SYM_FUNC, ELF_SYM_OBJECT };
 
 typedef struct {
   char *name;
-  paddr_t addr;
+  vaddr_t addr;
   word_t size;
   int type;
 } ElfSymbol;

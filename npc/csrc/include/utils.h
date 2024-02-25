@@ -15,6 +15,8 @@ struct NPCState {
 
 extern NPCState npc_state;
 
+void set_npc_state(int state, int halt_ret);
+
 // ----------- log -----------
 
 #define ANSI_FG_BLACK   "\33[1;30m"
@@ -59,7 +61,7 @@ enum { ELF_SYM_FUNC, ELF_SYM_OBJECT };
 
 struct ElfSymbol {
   char *name;
-  paddr_t addr;
+  addr_t addr;
   word_t size;
   int type;
 };

@@ -6,13 +6,15 @@
 #include <cassert>
 #include <cstdint>
 
-typedef uint32_t word_t;
-typedef int32_t sword_t;
+#include "config.h"
 
-typedef word_t paddr_t;
+typedef MUXDEF(RV64, uint64_t, uint32_t) word_t;
+typedef MUXDEF(RV64, int64_t, int32_t)  sword_t;
 
-#define FMT_WORD "0x%016x"
-#define FMT_PADDR "0x%016x"
+typedef word_t addr_t;
+
+#define FMT_WORD MUXDEF(RV64, "0x%016x", "0x%08x")
+#define FMT_ADDR MUXDEF(RV64, "0x%016x", "0x%08x")
 
 #include "debug.h"
 

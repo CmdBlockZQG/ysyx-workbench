@@ -2,6 +2,5 @@
 #include "common.h"
 
 void halt() {
-  // difftest_skip_ref();
-  
+  set_npc_state(NPC_END, 0); // TODO: read reg a0 as ret
 }

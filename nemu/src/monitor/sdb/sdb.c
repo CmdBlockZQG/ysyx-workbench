@@ -97,7 +97,7 @@ static int cmd_x(char *args) {
 
   for (unsigned int i = 0; i < n; ++i, addr += 4) {
     printf(
-      MUXDEF(CONFIG_RV64,"0x%-16llx: 0x%-16llx\n", "0x%-8x: 0x%-8x\n"),
+      MUXDEF(CONFIG_ISA64,"0x%-16llx: 0x%-16llx\n", "0x%-8x: 0x%-8x\n"),
       addr, vaddr_read(addr, 4)
     );
   }
@@ -113,7 +113,7 @@ static int cmd_p(char *args) {
     return 0;
   }
   printf(
-    MUXDEF(CONFIG_RV64,"hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
+    MUXDEF(CONFIG_ISA64,"hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
     val, val, val
   );
   return 0;
@@ -138,11 +138,11 @@ static int cmd_w(char *args) {
   return 0;
 }
 
-void free_wp(int no);
 static int cmd_d(char *args) {
   char *arg = strtok(NULL, " ");
   int n = arg == NULL ? 1 : atoi(arg);
 
+  void free_wp(int no);
   free_wp(n);
   return 0;
 }
@@ -233,6 +233,9 @@ void sdb_mainloop() {
 }
 
 void init_sdb() {
+  void init_regex();
+  void init_wp_pool();
+
   /* Compile the regular expressions. */
   init_regex();
 

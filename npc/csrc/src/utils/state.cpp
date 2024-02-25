@@ -7,3 +7,9 @@ int is_exit_status_bad() {
     (npc_state.state == NPC_QUIT);
   return !good;
 }
+
+void set_npc_state(int state, int halt_ret) {
+  // difftest_skip_ref();
+  npc_state.state = state;
+  npc_state.halt_ret = halt_ret;
+}

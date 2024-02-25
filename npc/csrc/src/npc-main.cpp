@@ -1,6 +1,6 @@
 #include "common.h"
 #include "driver.h"
-#include "memory/paddr.h"
+#include "mem.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -10,8 +10,10 @@
 void init_log(const char *log_file);
 void init_elf(const char *elf_file);
 void init_mem();
+void init_sdb();
 void sdb_set_batch_mode();
 int is_exit_status_bad();
+void sdb_mainloop();
 
 static char *log_file = nullptr;
 static char *img_file = nullptr;
@@ -19,7 +21,6 @@ static char *elf_file = nullptr;
 
 static void load_img() {
   if (!img_file) {
-    Log("No image is given. Use the default built-in image.");
     const uint32_t img[] = {
       0x00500093, // addi x1, x0, 5
       0x00608113, // addi x2, x1, 6
@@ -29,6 +30,7 @@ static void load_img() {
       0xdeadbeef  // some data
     };
     memcpy(guest_to_host(MBASE), img, sizeof(img));
+    Log("No image is given. Use the default built-in image.");
     return;
   }
   FILE *fp = fopen(img_file, "rb");
@@ -60,6 +62,7 @@ static int parse_args(int argc, char *argv[]) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'l': log_file = optarg; break;
+      case 'e': elf_file = optarg; break;
       case 'w': init_wave(optarg); break;
       case 'n': init_nvboard(); break;
       case 1: img_file = optarg; return 0;
@@ -67,7 +70,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch           run with batch mode\n");
         printf("\t-l,--log=FILE        output log to FILE\n");
-        printf("\t-e,--elf=FILE           load elf file from FILE\n");
+        printf("\t-e,--elf=FILE        load elf file from FILE\n");
         printf("\t-w,--wave=FILE       dump wave to FILE\n");
         printf("\t-n,--nvboard         run nvboard\n");
         printf("\t-h,--help            display this information\n");
@@ -97,8 +100,16 @@ int main(int argc, char *argv[]) {
   /* load elf file */
   init_elf(elf_file);
 
+  /* initialize simple debugger */
+  init_sdb();
+
   /* finalize driver */
   finalize_driver();
+
+  /* run sdb */
+  sdb_mainloop();
+
+  // TODO: init_disasm
 
   return is_exit_status_bad();
 }

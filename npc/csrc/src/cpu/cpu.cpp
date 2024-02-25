@@ -1,18 +1,18 @@
 #include "common.h"
 #include "driver.h"
-#include "memory/paddr.h"
+#include "mem.h"
 
 void exec_once() {
   auto eval_inst = [&]() -> void {
-    paddr_t iaddr = top->inst_mem_addr;
-    top->inst_mem_data = paddr_read(iaddr, 4);
+    addr_t iaddr = top->inst_mem_addr;
+    top->inst_mem_data = addr_read(iaddr, 4);
   };
   top->clk = 0; eval_inst(); driver_step();
   top->clk = 1; eval_inst(); driver_step();
 }
 
 void trace_and_difftest() {
-
+  // TODO: trace & watchpoint & difftest
 }
 
 static void execute(uint64_t n) {
@@ -37,11 +37,11 @@ void cpu_exec(uint64_t n) {
     case NPC_RUNNING: npc_state.state = NPC_STOP; break;
 
     case NPC_END: case NPC_ABORT:
-      Log("npc: %s" FMT_WORD,
+      Log("npc: %s",
           (npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))));
       // fall through
-    case NPC_QUIT: // statistic();
+    case NPC_QUIT:; // statistic();
   }
 }

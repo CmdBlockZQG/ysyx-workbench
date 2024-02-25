@@ -3,7 +3,7 @@
 #include <cstring>
 #include <elf.h>
 
-#ifdef CONFIG_ISA64
+#ifdef RV64
 #define ElfN(type) Elf64_ ## type
 #define ELFN(macro) ELF64_ ## macro
 #else
@@ -38,7 +38,7 @@ void init_elf(const char *elf_file) {
          eh.e_ident[EI_MAG3] == ELFMAG3, 
          "Invalid elf file '%s'", elf_file);
   
-  Assert(eh.e_ident[EI_CLASS] == ELFCLASS32,
+  Assert(eh.e_ident[EI_CLASS] == MUXDEF(RV64, ELFCLASS64, ELFCLASS32),
          "Elf file architecture(32/64-bit) incompatible.");
   
   Assert(eh.e_shoff, "Elf file has no section header.");
