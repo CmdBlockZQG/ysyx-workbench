@@ -33,7 +33,8 @@
 
 #define _Log(...) \
   do { \
-    printf(__VA_ARGS__); \
+    extern FILE *log_fp; \
+    if (log_fp) printf(__VA_ARGS__); \
     log_write(__VA_ARGS__); \
   } while (0)
 
