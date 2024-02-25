@@ -4,7 +4,8 @@ INC_PATH = $(abspath ./csrc/include)
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
-					-O3 --x-assign fast --x-initial fast --noassert
+					-O3 --x-assign fast --x-initial fast --noassert \
+					-Wall -Werror
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
