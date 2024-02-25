@@ -100,16 +100,16 @@ int main(int argc, char *argv[]) {
   /* load elf file */
   init_elf(elf_file);
 
+  // TODO: init_disasm
+
   /* initialize simple debugger */
   init_sdb();
-
-  /* finalize driver */
-  finalize_driver();
 
   /* run sdb */
   sdb_mainloop();
 
-  // TODO: init_disasm
+  /* finalize driver */
+  finalize_driver();
 
   return is_exit_status_bad();
 }

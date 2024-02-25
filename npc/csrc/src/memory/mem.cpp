@@ -3,7 +3,7 @@
 
 #include <cstring>
 
-static uint8_t pmem[MSIZE];
+static uint8_t pmem[MSIZE] PG_ALIGN;
 
 uint8_t *guest_to_host(addr_t addr) { return pmem + addr - MBASE; }
 addr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + MBASE; }
