@@ -50,7 +50,7 @@ ARGS = --log=$(BUILD_DIR)/log.txt --wave=$(BUILD_DIR)/wave.vcd
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
-	@$^
+	@$^ $(ARGS)
 
 sim_nt: $(BIN)
 	@$^ $(ARGS)
