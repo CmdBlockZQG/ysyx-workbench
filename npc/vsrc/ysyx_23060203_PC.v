@@ -10,6 +10,7 @@ module ysyx_23060203_PC (
   // 这里写dnpc_en & rstn是为了防止复位时dnpc_en为1
   // 如果设计保证复位时dnpc_en为0,则可以把这个条件改为只有dnpc_en
   assign next_pc = (dnpc_en & rstn) ? dnpc : pc + 4;
+  // TODO: 控制跳转
 
   always @(posedge clk) begin
     if (rstn) begin
