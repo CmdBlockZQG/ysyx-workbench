@@ -21,7 +21,7 @@ module ysyx_23060203_ALU (
   wire sf = e[31]; // 符号
   wire of = (a[31] == b[31]) & (sf ^ a[31]); // 有符号溢出
 
-  always_comb begin
+  always_comb begin // TODO: 位移只考虑低位
     cf = 0;
     case (funct)
       ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, sub}; // 减法需要加一个1
