@@ -5,20 +5,20 @@ module top(
   output [31:0] inst_mem_addr,
   input [31:0] inst_mem_data
 );
-  wire reg_file_wen;
-  wire [4:0] reg_file_waddr;
-  wire [31:0] reg_file_wdata;
-  wire [4:0] reg_file_raddr;
-  wire [31:0] reg_file_rdata;
+  wire reg_wen;
+  wire [4:0] reg_waddr;
+  wire [31:0] reg_wdata;
+  wire [4:0] reg_raddr;
+  wire [31:0] reg_rdata;
   ysyx_23060203_RegFile RegFile (
     .clk(clk),
 
-    .wen(reg_file_wen),
-    .wdata(reg_file_wdata),
-    .waddr(reg_file_waddr),
+    .wen(reg_wen),
+    .wdata(reg_wdata),
+    .waddr(reg_waddr),
 
-    .raddr(reg_file_raddr),
-    .rdata(reg_file_rdata)
+    .raddr(reg_raddr),
+    .rdata(reg_rdata)
   );
 
   wire [31:0] pc, next_pc;
@@ -48,15 +48,15 @@ module top(
 
     .rd(rd), .src1(src1), .imm(imm),
 
-    .reg_file_raddr(reg_file_raddr),
-    .reg_file_rdata(reg_file_rdata)
+    .reg_raddr(reg_raddr),
+    .reg_rdata(reg_rdata)
   );
 
   ysyx_23060203_EXU EXU (
     .rd(rd), .src1(src1), .imm(imm),
 
-    .reg_file_wen(reg_file_wen),
-    .reg_file_waddr(reg_file_waddr),
-    .reg_file_wdata(reg_file_wdata)
+    .reg_wen(reg_wen),
+    .reg_waddr(reg_waddr),
+    .reg_wdata(reg_wdata)
   );
 endmodule

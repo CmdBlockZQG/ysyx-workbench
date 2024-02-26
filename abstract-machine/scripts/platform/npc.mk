@@ -24,4 +24,4 @@ image: $(IMAGE).elf
 
 run: image
 	@echo run
-	$(MAKE) -C $(AM_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
+	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run

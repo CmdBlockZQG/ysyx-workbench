@@ -1,0 +1,44 @@
+module ysyx_23060203_ALU (
+  // 组合逻辑,无时钟和复位
+
+  input [31:0] alu_a,
+  input [31:0] alu_b,
+
+  input [2:0] funct,
+  input funcs, // 不需要时必须为0
+
+  output reg [31:0] val
+);
+  `include "params/alu.v"
+
+  // 需要做减法的情况：减法、比较（有符号/无符号）
+  wire sub = funcs | (funct == ALU_LTS) | (funct == ALU_LTU);
+  wire [31:0] a = alu_a;
+  wire [31:0] b = alu_b ^ {32{sub}}; // 做减法需要将b取反
+
+  reg [31:0] e; // 直接计算结果
+  reg cf; // 无符号进位
+  wire sf = e[31]; // 符号
+  wire of = (a[31] == b[31]) & (sf ^ a[31]); // 有符号溢出
+
+  always_comb begin
+    cf = 0;
+    case (funct)
+      ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, sub}; // 减法需要加一个1
+      ALU_SHL: e = a << b;
+      ALU_XOR: e = a ^ b;
+      ALU_SHR: e = funcs ? a >>> b : a >> b; // 0逻辑，1算数
+      ALU_OR : e = a | b;
+      ALU_AND: e = a & b;
+      default: e = 32'b0;
+    endcase
+  end
+
+  always_comb begin
+    case (funct)
+      ALU_LTS: val = {31'b0, sf ^ of};
+      ALU_LTU: val = {31'b0, !cf};
+      default: val = e;
+    endcase
+  end
+endmodule
