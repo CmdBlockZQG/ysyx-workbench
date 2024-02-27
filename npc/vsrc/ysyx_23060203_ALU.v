@@ -30,7 +30,7 @@ module ysyx_23060203_ALU (
       ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, sub}; // 减法需要加一个1
       ALU_SHL: e = a << bs;
       ALU_XOR: e = a ^ b;
-      ALU_SHR: e = funcs ? a >>> bs : a >> bs; // 0逻辑，1算数
+      ALU_SHR: e = funcs ? $signed(a) >>> bs : a >> bs; // 0逻辑，1算数
       ALU_OR : e = a | b;
       ALU_AND: e = a & b;
       default: e = 32'b0;
