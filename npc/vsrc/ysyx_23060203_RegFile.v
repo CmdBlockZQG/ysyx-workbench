@@ -10,7 +10,7 @@ module ysyx_23060203_RegFile #(integer NR_REG = 16) (
   input [4:0] raddr2, // 读出地址
   output [31:0] rdata2 // 读出数据
 );
-  reg [31:0] rf [1:NR_REG-1];
+  reg [31:0] rf [1:NR_REG-1]/*verilator public*/;
 
   // 读逻辑
   assign rdata1 = raddr1 == 5'b0 ? 0 : rf[raddr1];

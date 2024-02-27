@@ -1,6 +1,17 @@
 #include "Vtop__Dpi.h"
+#include "Vtop_top.h"
+#include "Vtop_ysyx_23060203_RegFile.h"
+
 #include "common.h"
+#include "driver.h"
 #include "mem.h"
+
+void test_print_reg() {
+  printf("--------------------\n");
+  for (int i = 1; i < 16; ++i) {
+    printf("x%d: " FMT_WORD "\n", i, top->top->RegFile->rf[i - 1]);
+  }
+}
 
 void halt() {
   set_npc_state(NPC_END, 0); // TODO: read reg a0 as ret
