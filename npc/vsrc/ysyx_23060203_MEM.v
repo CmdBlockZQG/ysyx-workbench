@@ -27,16 +27,16 @@ module ysyx_23060203_MEM (
     end
   end
 
-  reg [31:0] rword = rword_aligned;
-  // always_comb begin
-  //   case (raddr[1:0])
-  //     2'b00: rword = rword_aligned;
-  //     2'b01: rword = {8'b0, rword_aligned[31:8]};
-  //     2'b10: rword = {16'b0, rword_aligned[31:16]};
-  //     2'b11: rword = {24'b0, rword_aligned[31:24]};
-  //     default: rword = rword_aligned;
-  //   endcase
-  // end
+  reg [31:0] rword;
+  always_comb begin
+    case (raddr[1:0])
+      2'b00: rword = rword_aligned;
+      2'b01: rword = {8'b0, rword_aligned[31:8]};
+      2'b10: rword = {16'b0, rword_aligned[31:16]};
+      2'b11: rword = {24'b0, rword_aligned[31:24]};
+      default: rword = rword_aligned;
+    endcase
+  end
 
   always_comb begin
     case (rfunc)
