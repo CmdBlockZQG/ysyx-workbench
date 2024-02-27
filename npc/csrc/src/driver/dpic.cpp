@@ -13,7 +13,7 @@ void halt() {
 
 int mem_read(int raddr) {
   Log("Mem read " FMT_ADDR, raddr);
-  word_t rdata = addr_read((addr_t)raddr, 4);
+  word_t rdata = addr_read((addr_t)raddr & ~0x3u, 4);
   return *((int *)(&rdata));
 }
 

@@ -15,14 +15,28 @@ module ysyx_23060203_MEM (
   `include "params/mem.v"
 
   // 内存读当作组合逻辑
-  reg [31:0] rword;
+  // 访存时，读地址的最后两位会被忽略
+  // 读取单字节或半字时需要重新处理对齐
+  // 这里的实现不支持非对齐访存，需要至少对齐到读取的长度
+  reg [31:0] rword_aligned;
   always @(ren, raddr) begin
     if (rstn & ren) begin
-      rword = mem_read(raddr);
+      rword_aligned = mem_read(raddr);
     end else begin
-      rword = 32'b0;
+      rword_aligned = 32'b0;
     end
   end
+
+  reg [31:0] rword = rword_aligned;
+  // always_comb begin
+  //   case (raddr[1:0])
+  //     2'b00: rword = rword_aligned;
+  //     2'b01: rword = {8'b0, rword_aligned[31:8]};
+  //     2'b10: rword = {16'b0, rword_aligned[31:16]};
+  //     2'b11: rword = {24'b0, rword_aligned[31:24]};
+  //     default: rword = rword_aligned;
+  //   endcase
+  // end
 
   always_comb begin
     case (rfunc)
