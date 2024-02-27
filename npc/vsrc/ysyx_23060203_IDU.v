@@ -99,7 +99,7 @@ module ysyx_23060203_IDU (
     case (opcode)
       OP_CALRI, OP_CALRR : alu_funct = funct;
       OP_BRANCH          : alu_funct = branch_alu_funct;
-      default            : alu_funct = 3'b0;
+      default            : alu_funct = ALU_ADD;
       // LUI, AUIPC, JAL, JALR, LOAD, STORE 都是直接加法
     endcase
   end
