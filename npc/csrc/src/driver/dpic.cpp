@@ -19,7 +19,7 @@ int mem_read(int raddr) {
 
 void mem_write(int waddr, int wdata, char wmask) {
   // Log("Mem write " FMT_ADDR " " FMT_WORD " %x", waddr, wdata, (uint32_t)wmask);
-  waddr = waddr & ~0x3u;
+  // waddr = waddr & ~0x3u;
   switch (wmask) {
     case 0x01: return addr_write(waddr, 1, wdata);
     case 0x03: return addr_write(waddr, 2, wdata);
