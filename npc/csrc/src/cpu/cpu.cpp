@@ -16,8 +16,6 @@ void assert_fail_msg() {
 static void exec_once() {
   top->clk = 0; driver_step();
   top->clk = 1; driver_step();
-  void test_print_reg();
-  test_print_reg();
 }
 
 static void trace_and_difftest() {
