@@ -60,6 +60,7 @@ sim: $(BIN)
 	$(BIN) $(ARGS) $(IMG)
 
 run: $(BIN)
+	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
 .PHONY: default all clean sim run

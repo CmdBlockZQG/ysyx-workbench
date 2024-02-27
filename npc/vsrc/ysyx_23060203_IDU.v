@@ -99,13 +99,13 @@ module ysyx_23060203_IDU (
     case (opcode)
       OP_CALRI, OP_CALRR : alu_funct = funct;
       OP_BRANCH          : alu_funct = branch_alu_funct;
-      default            : alu_funct = 3'b0;
+      default            : alu_funct = ALU_ADD;
       // LUI, AUIPC, JAL, JALR, LOAD, STORE 都是直接加法
     endcase
   end
 
   wire funcs = inst[30]; // 带有功能切换的运算，切换标志位
   // R型运算指令直接取出那个位即可。I型运算指令只有位移指令有。左移指令只能是逻辑，所以这里只考虑了右移。
-  wire funcs_en = (opcode == OP_CALRR) | ((opcode == OP_CALRI) & (funct == 3'b101));
+  wire funcs_en = (opcode == OP_CALRR) | ((opcode == OP_CALRI) & (funct == ALU_SHR));
   assign alu_funcs = funcs & funcs_en;
 endmodule

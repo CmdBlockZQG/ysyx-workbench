@@ -67,7 +67,6 @@ module ysyx_23060203_EXU (
   assign mem_ren = (opcode == OP_LOAD);
   assign mem_rfunc = funct;
   assign mem_raddr = alu_val;
-  // mem_raddr可能是非法的地址，这里假设内存读取非法地址的行为不是爆炸，返回一个任意值都行
   // mem_rdata mem模块读取部分（暂时？）看作组合逻辑
 
   assign mem_wen = (opcode == OP_STORE);

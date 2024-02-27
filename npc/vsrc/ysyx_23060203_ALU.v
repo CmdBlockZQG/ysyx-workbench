@@ -24,13 +24,15 @@ module ysyx_23060203_ALU (
   wire sf = e[31]; // 符号
   wire of = (a[31] == b[31]) & (sf ^ a[31]); // 有符号溢出
 
+  wire signed [31:0] sra = $signed(a) >>> $signed(bs);
+
   always_comb begin
     cf = 0;
     case (funct)
       ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, sub}; // 减法需要加一个1
       ALU_SHL: e = a << bs;
       ALU_XOR: e = a ^ b;
-      ALU_SHR: e = funcs ? a >>> bs : a >> bs; // 0逻辑，1算数
+      ALU_SHR: e = funcs ? sra : a >> bs; // 0逻辑，1算数
       ALU_OR : e = a | b;
       ALU_AND: e = a & b;
       default: e = 32'b0;
