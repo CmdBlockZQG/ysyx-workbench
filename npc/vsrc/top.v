@@ -1,63 +1,132 @@
 module top(
-  input rstn, clk,
-
-  // 用驱动程序控制的指令内存
-  output [31:0] inst_mem_addr,
-  input [31:0] inst_mem_data
+  input rstn, clk
 );
-  // TODO：重新连线
-  wire reg_wen;
-  wire [4:0] reg_waddr;
-  wire [31:0] reg_wdata;
-  wire [4:0] reg_raddr;
-  wire [31:0] reg_rdata;
+
+  wire [31:0] reg_rdata1, reg_rdata2;
   ysyx_23060203_RegFile RegFile (
-    .clk(clk),
-
+    .rstn(rstn), .clk(clk),
+    // 写
     .wen(reg_wen),
-    .wdata(reg_wdata),
     .waddr(reg_waddr),
-
-    .raddr(reg_raddr),
-    .rdata(reg_rdata)
+    .wdata(reg_wdata),
+    // 读
+    .raddr1(reg_raddr1),
+    .rdata1(reg_rdata1),
+    .raddr2(reg_raddr2),
+    .rdata2(reg_rdata2)
   );
+
 
   wire [31:0] pc, next_pc;
   ysyx_23060203_PC PC (
     .rstn(rstn), .clk(clk),
-
-    .pc(pc), .next_pc(next_pc),
-
-    .dnpc_en(0),
-    .dnpc(32'b0)
+    // 连接EXU输出，控制跳转
+    .inc(pc_inc),
+    .ovrd(pc_ovrd),
+    .ovrd_addr(pc_ovrd_addr),
+    // 输出
+    .next_pc(next_pc), .pc(pc)
   );
+
 
   wire [31:0] inst;
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),
-
-    .next_pc(next_pc), .inst(inst),
-
-    .inst_mem_addr(inst_mem_addr),
-    .inst_mem_data(inst_mem_data)
+    // 连接PC输入
+    .next_pc(next_pc),
+    // 输出
+    .inst(inst)
   );
 
+
+  wire [4:0] reg_raddr1, reg_raddr2;
+
+  wire [31:0] alu_a, alu_b;
+  wire [2:0] alu_funct;
+  wire alu_funcs;
+
+  wire [4:0] opcode;
+  wire [2:0] funct;
   wire [4:0] rd;
-  wire [31:0] src1, imm;
+  wire [11:0] csr;
+  wire [31:0] src1, src2, imm;
+
   ysyx_23060203_IDU IDU (
-    .inst(inst),
-
-    .rd(rd), .src1(src1), .imm(imm),
-
-    .reg_raddr(reg_raddr),
-    .reg_rdata(reg_rdata)
+    .inst(inst), .pc(pc),
+    // 连接寄存器文件
+    .reg_raddr1(reg_raddr1), .reg_rdata1(reg_rdata1),
+    .reg_raddr2(reg_raddr2), .reg_rdata2(reg_rdata2),
+    // 产生ALU输入
+    .alu_a(alu_a), .alu_b(alu_b),
+    .alu_funct(alu_funct), .alu_funcs(alu_funcs),
+    // 产生EXU输入
+    .opcode(opcode), .funct(funct),
+    .rd(rd), .csr(csr),
+    .src1(src1), .src2(src2), .imm(imm)
   );
 
-  ysyx_23060203_EXU EXU (
-    .rd(rd), .src1(src1), .imm(imm),
 
+  wire [31:0] alu_val;
+  ysyx_23060203_ALU ALU (
+    .alu_a(alu_a), .alu_b(alu_b),
+    .funct(alu_funct), .funcs(alu_funcs),
+    // 输出
+    .val(alu_val)
+  );
+
+
+  wire reg_wen;
+  wire [4:0] reg_waddr;
+  wire [31:0] reg_wdata;
+
+  wire mem_ren;
+  wire [2:0] mem_rfunc;
+  wire [31:0] mem_raddr;
+  wire mem_wen;
+  wire [2:0] mem_wfunc;
+  wire [31:0] mem_waddr;
+  wire [31:0] mem_wdata;
+
+  wire pc_ovrd;
+  wire [31:0] pc_inc, pc_ovrd_addr;
+  ysyx_23060203_EXU EXU (
+    // 译码结果
+    .opcode(opcode), .funct(funct),
+    .rd(rd), .csr(csr),
+    .src1(src1), .src2(src2), .imm(imm),
+    // alu结果
+    .alu_val(alu_val),
+    // 寄存器写
     .reg_wen(reg_wen),
     .reg_waddr(reg_waddr),
-    .reg_wdata(reg_wdata)
+    .reg_wdata(reg_wdata),
+    // 连接访存模块
+    .mem_ren(mem_ren),
+    .mem_rfunc(mem_rfunc),
+    .mem_raddr(mem_raddr),
+    .mem_rdata(mem_rdata),
+    .mem_wen(mem_wen),
+    .mem_wfunc(mem_wfunc),
+    .mem_waddr(mem_waddr),
+    .mem_wdata(mem_wdata),
+    // 连接PC
+    .pc_inc(pc_inc),
+    .pc_ovrd(pc_ovrd),
+    .pc_ovrd_addr(pc_ovrd_addr)
+  );
+
+  wire [31:0] mem_rdata;
+  ysyx_23060203_MEM MEM (
+    .rstn(rstn), .clk(clk),
+    // 写
+    .wen(mem_wen),
+    .wfunc(mem_wfunc),
+    .waddr(mem_waddr),
+    .wdata(mem_wdata),
+    // 读
+    .ren(mem_ren),
+    .rfunc(mem_rfunc),
+    .raddr(mem_raddr),
+    .rdata(mem_rdata)
   );
 endmodule

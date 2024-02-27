@@ -12,6 +12,7 @@ module ysyx_23060203_PC (
   wire [31:0] npc_base = ovrd ? ovrd_addr : pc;
   wire [31:0] npc_orig = npc_base + inc;
   // JALR指令要求目标地址最后一位清零
+  // 如果只支持对齐内存访问的话（特别是指令内存），可以统一去掉最后一位
   assign next_pc = {npc_orig[31:1], npc_orig[0] & (~ovrd)};
 
   always @(posedge clk) begin

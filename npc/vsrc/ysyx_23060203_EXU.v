@@ -19,6 +19,7 @@ module ysyx_23060203_EXU (
   output [31:0] reg_wdata,
 
   // 连接访存模块
+  output mem_ren,
   output [2:0] mem_rfunc,
   output [31:0] mem_raddr,
   input [31:0] mem_rdata,
@@ -34,6 +35,14 @@ module ysyx_23060203_EXU (
 );
   `include "params/opcode.v"
   `include "params/branch.v"
+
+  // -------------------- EBREAK --------------------
+  `include "dpic.v"
+  always_comb begin
+    if (opcode == OP_ECALL && csr == 1) begin
+      halt();
+    end
+  end
 
   // -------------------- 寄存器写 --------------------
   assign reg_wen = (opcode != OP_BRANCH) & (opcode != OP_STORE); // 寄存器写端口使能，只有这么两种指令不写寄存器
@@ -55,6 +64,7 @@ module ysyx_23060203_EXU (
   end */
 
   // -------------------- 内存读写 --------------------
+  assign mem_ren = (opcode == OP_LOAD);
   assign mem_rfunc = funct;
   assign mem_raddr = alu_val;
   // mem_raddr可能是非法的地址，这里假设内存读取非法地址的行为不是爆炸，返回一个任意值都行

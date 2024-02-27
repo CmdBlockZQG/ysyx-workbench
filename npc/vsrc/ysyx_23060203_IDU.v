@@ -1,5 +1,3 @@
-import "DPI-C" function void halt();
-
 module ysyx_23060203_IDU (
   // 组合逻辑,无时钟和复位
 
@@ -30,13 +28,6 @@ module ysyx_23060203_IDU (
   `include "params/opcode.v"
   `include "params/alu.v"
   `include "params/branch.v"
-
-
-  always_comb begin // TODO: 挪到exu去
-    if (inst == 32'h00100073) begin
-      halt();
-    end
-  end
 
   // -------------------- 指令译码 --------------------
   assign opcode = inst[6:2];

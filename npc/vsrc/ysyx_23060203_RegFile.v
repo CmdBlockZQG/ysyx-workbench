@@ -2,8 +2,8 @@ module ysyx_23060203_RegFile #(integer NR_REG = 16) (
   input rstn, clk,
 
   input wen, // 写入使能
-  input [31:0] wdata, // 写入数据
   input [4:0] waddr, // 写入地址
+  input [31:0] wdata, // 写入数据
 
   input [4:0] raddr1, // 读出地址
   output [31:0] rdata1, // 读出数据
