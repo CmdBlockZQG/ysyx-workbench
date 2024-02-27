@@ -17,7 +17,7 @@ module ysyx_23060203_MEM (
   // 内存读当作组合逻辑
   reg [31:0] rword;
   always @(ren, raddr) begin
-    if (ren) begin
+    if (rstn & ren) begin
       rword = mem_read(raddr);
     end else begin
       rword = 32'b0;
