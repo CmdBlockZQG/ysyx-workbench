@@ -13,9 +13,11 @@ module ysyx_23060203_ALU (
 
   // 需要做减法的情况：减法、比较（有符号/无符号）
   wire sub = funcs | (funct == ALU_LTS) | (funct == ALU_LTU);
+  // wire sub = ((funct == ALU_ADD) & funcs) | (funct == ALU_LTS) | (funct == ALU_LTU);
+  // 这里简化是因为funcs只在减法和位移时为1，而位移时位移位数有单独的bs，不会被取反影响
   wire [31:0] a = alu_a;
   wire [31:0] b = alu_b ^ {32{sub}}; // 做减法需要将b取反
-  wire [31:0] bs = alu_b & 32'h1f; // 位移指令，移动位数高位舍弃
+  wire [31:0] bs = {27'b0, alu_b[4:0]}; // 位移指令，移动位数高位舍弃
 
   reg [31:0] e; // 直接计算结果
   reg cf; // 无符号进位

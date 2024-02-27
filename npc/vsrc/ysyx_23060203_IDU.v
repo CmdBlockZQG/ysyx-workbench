@@ -23,7 +23,9 @@ module ysyx_23060203_IDU (
   output [2:0] funct,
   output [4:0] rd,
   output [11:0] csr,
-  output [31:0] src2
+  output [31:0] src1,
+  output [31:0] src2,
+  output [31:0] imm
 );
   `include "params/opcode.v"
   `include "params/alu.v"
@@ -43,7 +45,6 @@ module ysyx_23060203_IDU (
 
   // -------------------- 寄存器译码 --------------------
   wire [4:0] rs1, rs2;
-  wire [31:0] src1;
 
   assign rd = inst[11:7];
   assign rs1 = inst[19:15];
@@ -63,7 +64,6 @@ module ysyx_23060203_IDU (
   assign immU = {inst[31:12], 12'b0};
   assign immJ = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
 
-  reg [31:0] imm;
   always_comb begin // 根据指令类型选择立即数
     case (opcode)
       OP_CALRI, OP_LOAD, OP_JALR : imm = immI;
@@ -95,7 +95,7 @@ module ysyx_23060203_IDU (
   end
 
   reg [2:0] branch_alu_funct;
-  always_comb begin // 分支指令时alu的功能选择
+  always_comb begin // 分支指令时alu的功能选择，在opcode不为OP_BRANCH时无效
     case (funct)
       BR_BLT, BR_BGE   : branch_alu_funct = ALU_LTS;
       BR_BLTU, BR_BGEU : branch_alu_funct = ALU_LTU;

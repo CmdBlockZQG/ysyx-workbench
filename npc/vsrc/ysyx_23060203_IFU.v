@@ -15,6 +15,8 @@ module ysyx_23060203_IFU (
       inst <= inst_mem_data;
     end else begin
       inst <= 32'b0; // 全0是非法指令
+      // 这个指令还需要保证使得EXU一定会将pc_inc设为4，pc_ovrd设为0
+      // 改动PC和跳转部分设计时务必检查
     end
   end
 endmodule
