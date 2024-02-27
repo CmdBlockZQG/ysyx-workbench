@@ -24,7 +24,7 @@ module ysyx_23060203_ALU (
   wire sf = e[31]; // 符号
   wire of = (a[31] == b[31]) & (sf ^ a[31]); // 有符号溢出
 
-  wire signed [31:0] sra = a >>> bs;
+  wire signed [31:0] sra = $signed(a) >>> $signed(bs);
 
   always_comb begin
     cf = 0;
