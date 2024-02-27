@@ -14,12 +14,8 @@ void assert_fail_msg() {
 }
 
 static void exec_once() {
-  auto eval_inst = [&]() -> void {
-    addr_t iaddr = top->inst_mem_addr;
-    top->inst_mem_data = addr_read(iaddr, 4);
-  };
-  top->clk = 0; eval_inst(); driver_step();
-  top->clk = 1; eval_inst(); driver_step();
+  top->clk = 0; driver_step();
+  top->clk = 1; driver_step();
 }
 
 static void trace_and_difftest() {
