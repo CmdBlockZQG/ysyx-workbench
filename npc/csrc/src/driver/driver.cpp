@@ -25,6 +25,8 @@ void init_top(int argc, char **argv) {
     top->clk = 1; top->eval();
   }
   top->rstn = 1;
+  top->clk = 0; top->eval();
+  top->clk = 1; top->eval();
 }
 
 void init_wave(const char *filename) {
