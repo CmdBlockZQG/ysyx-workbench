@@ -46,6 +46,10 @@ static void load_img() {
   Assert(fread(guest_to_host(MBASE), size, 1, fp) == 1, "Error when reading image file");
 
   fclose(fp);
+
+  // load first instruction after image ready
+  top->clk = 0; top->eval();
+  top->clk = 1; top->eval();
 }
 
 static int parse_args(int argc, char *argv[]) {
