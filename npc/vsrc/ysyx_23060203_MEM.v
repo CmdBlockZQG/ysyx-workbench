@@ -50,20 +50,43 @@ module ysyx_23060203_MEM (
   end
 
   // 内存写在时钟上升沿触发
-  // TODO: 重新对齐内存写
-  reg [7:0] wmask;
+  // 内存写也是四字节对齐，需要重新对齐写操作
+  // 用wmask指定实际操作的字节
+  reg [31:0] wdata_aligned;
+  always_comb begin
+    case (waddr[1:0])
+      2'b00: wdata_aligned = wdata;
+      2'b01: wdata_aligned = {wdata[23:0], 8'b0};
+      2'b10: wdata_aligned = {wdata[15:0], 16'b0};
+      2'b11: wdata_aligned = {wdata[7:0], 24'b0};
+      default: wdata_aligned = wdata;
+    endcase
+  end
+
+  reg [7:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
   always_comb begin
     case (wfunc)
       ST_B: wmask = 8'b00000001;
       ST_H: wmask = 8'b00000011;
       // ST_W: wmask = 8'b00001111;
-      default: wmask = 8'b00001111; // 与ST_W合并
+      default: wmask = 8'b00001111; // 合并ST_W
+    endcase
+  end
+
+  reg [7:0] wmask_aligned;
+  always_comb begin
+    case (waddr[1:0])
+      2'b00: wmask_aligned = wmask;
+      2'b01: wmask_aligned = {wmask[6:0], 1'b0};
+      2'b10: wmask_aligned = {wmask[5:0], 2'b0};
+      2'b11: wmask_aligned = {wmask[4:0], 3'b0};
+      default: wmask_aligned = wmask;
     endcase
   end
 
   always @(posedge clk) begin
     if (wen) begin
-      mem_write(waddr, wdata, wmask);
+      mem_write(waddr, wdata_aligned, wmask_aligned);
     end
   end
 endmodule

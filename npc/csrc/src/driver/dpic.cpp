@@ -21,13 +21,8 @@ int mem_read(int raddr) {
 void mem_write(int waddr, int wdata, char wmask) {
   // Log("Mem write " FMT_ADDR " " FMT_WORD " %x", waddr, wdata, (uint32_t)wmask);
   waddr = waddr & ~0x3u;
-  // TODO: 前面的理解有误，改正这里的mask实现
-  switch (wmask) {
-    case 0x01: return addr_write(waddr, 1, wdata);
-    case 0x03: return addr_write(waddr, 2, wdata);
-    case 0x0f: return addr_write(waddr, 4, wdata);
-    IFDEF(RV64, case 0xff: return addr_write(waddr, 8, wdata));
-    default: panic("writing memory with invalid mask 0x%x at " FMT_ADDR, \
-                   (uint32_t)wmask, waddr);
-  }
+  if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
+  if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);
+  if (wmask & 0b0100) addr_write(waddr + 2, 1, wdata >> 16);
+  if (wmask & 0b1000) addr_write(waddr + 3, 1, wdata >> 24);
 }
