@@ -104,8 +104,9 @@ static int cmd_p(char *args) {
 static int cmd_w(char *args) {
   char *str = strtok(NULL, "\0");
   bool success = true;
-  word_t val = expr(str, &success);
-  if (!success) {
+  
+  word_t val;
+  if (str == NULL || (val = expr(str, &success), !success)) {
     printf("Invalid EXPR\n");
     return 0;
   }
