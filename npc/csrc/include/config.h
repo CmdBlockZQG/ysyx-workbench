@@ -5,6 +5,6 @@
 
 // #define RV64 1
 
-#define MAX_CYCLE 32768 // (uint64_t)(-1)
+#define MAX_CYCLE 10000000 // (uint64_t)(-1)
 
 #endif
