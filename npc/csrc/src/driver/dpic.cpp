@@ -1,15 +1,14 @@
 #include "Vtop__Dpi.h"
-#include "Vtop_top.h"
-#include "Vtop_ysyx_23060203_RegFile.h"
 
 #include "common.h"
 #include "driver.h"
+#include "cpu.h"
 #include "mem.h"
 
 void halt() {
   // ret a0 x10
   // TODO: 封装寄存器读取，这里换掉
-  set_npc_state(NPC_END, top->top->RegFile->rf[9]);
+  set_npc_state(NPC_END, gpr(10));
 }
 
 int mem_read(int raddr) {

@@ -50,8 +50,8 @@ module ysyx_23060203_MEM (
   end
 
   // 内存写在时钟上升沿触发
-  // TODO: 重新对齐内存写
-
+  // 内存写也是四字节对齐，需要重新对齐写操作
+  // 用wmask指定实际操作的字节
   reg [31:0] wdata_aligned;
   always_comb begin
     case (waddr[1:0])
