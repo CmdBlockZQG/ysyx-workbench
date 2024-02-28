@@ -14,7 +14,7 @@ module ysyx_23060203_EXU (
   input [31:0] alu_val,
 
   // 寄存器写
-  output reg_wen,
+  output reg reg_wen,
   output [4:0] reg_waddr,
   output [31:0] reg_wdata,
 
@@ -45,16 +45,19 @@ module ysyx_23060203_EXU (
   end
 
   // -------------------- 寄存器写 --------------------
-  assign reg_wen = (opcode != OP_BRANCH) & (opcode != OP_STORE); // 寄存器写端口使能，只有这么两种指令不写寄存器
-  assign reg_waddr = rd;
-  assign reg_wdata = (opcode == OP_LOAD) ? mem_rdata : alu_val; // 除了读内存之外，都是写alu运算结果
-  /* always_comb begin
+  // 寄存器写端口使能
+  // 只有这么两种指令不写寄存器，但是这样做会导致复位非法指令通过测试
+  // assign reg_wen = (opcode != OP_BRANCH) & (opcode != OP_STORE);
+  // 所以采用下面的写法，过滤非法指令
+  always_comb begin
     case (opcode)
       OP_LUI, OP_AUIPC, OP_JAL, OP_JALR, OP_LOAD, OP_CALRI, OP_CALRR : reg_wen = 1'b1;
       OP_BRANCH, OP_STORE                                            : reg_wen = 1'b0;
       default                                                        : reg_wen = 1'b0;
     endcase
-  end */
+  end
+  assign reg_waddr = rd;
+  assign reg_wdata = (opcode == OP_LOAD) ? mem_rdata : alu_val; // 除了读内存之外，都是写alu运算结果
   /* always_comb begin
     case (opcode)
       OP_LUI, OP_AUIPC, OP_JAL, OP_JALR, OP_CALRI, OP_CALRR: reg_wdata = alu_val;
