@@ -87,7 +87,7 @@ void wps_display() {
 }
 
 bool check_wps() {
-  bool success = false, stop = false;
+  bool success = true, stop = false;
   for (WP *p = head; p; p = p->next) {
     word_t val = 0; // expr(p->expr, &success);
     Assert(success, "Expr become invalid: %s", p->expr);
