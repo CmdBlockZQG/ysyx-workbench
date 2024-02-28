@@ -36,7 +36,7 @@ module ysyx_23060203_EXU (
   `include "params/opcode.v"
   `include "params/branch.v"
 
-  // -------------------- EBREAK HALT --------------------
+  // -------------------- EBREAK --------------------
   `include "dpic.v"
   always_comb begin
     if (opcode == OP_ECALL && csr == 1) begin
