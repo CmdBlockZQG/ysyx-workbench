@@ -113,7 +113,8 @@ static int cmd_p(char *args) {
     return 0;
   }
   printf(
-    MUXDEF(CONFIG_ISA64,"hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
+    MUXDEF(CONFIG_ISA64, "hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", \
+                         "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
     val, val, val
   );
   return 0;
@@ -122,8 +123,9 @@ static int cmd_p(char *args) {
 static int cmd_w(char *args) {
   char *str = strtok(NULL, "\0");
   bool success = true;
-  word_t val = expr(str, &success);
-  if (!success) {
+
+  word_t val;
+  if (str == NULL || (val = expr(str, &success), !success)) {
     printf("Invalid EXPR\n");
     return 0;
   }

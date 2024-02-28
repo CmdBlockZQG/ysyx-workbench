@@ -32,20 +32,23 @@ static void load_img() {
     };
     memcpy(guest_to_host(MBASE), img, sizeof(img));
     Log("No image is given. Use the default built-in image.");
-    return;
+  } else {
+    FILE *fp = fopen(img_file, "rb");
+    Assert(fp, "Can not open image file '%s'", img_file);
+
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+
+    Log("Image file %s, size = %ld", img_file, size);
+
+    fseek(fp, 0, SEEK_SET);
+    Assert(fread(guest_to_host(MBASE), size, 1, fp) == 1, "Error when reading image file");
+
+    fclose(fp);
   }
-  FILE *fp = fopen(img_file, "rb");
-  Assert(fp, "Can not open image file '%s'", img_file);
-
-  fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
-
-  Log("Image file %s, size = %ld", img_file, size);
-
-  fseek(fp, 0, SEEK_SET);
-  Assert(fread(guest_to_host(MBASE), size, 1, fp) == 1, "Error when reading image file");
-
-  fclose(fp);
+  // load first instruction after image ready
+  top->clk = 0; top->eval();
+  top->clk = 1; top->eval();
 }
 
 static int parse_args(int argc, char *argv[]) {
