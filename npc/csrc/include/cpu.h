@@ -21,4 +21,7 @@ static inline const char *reg_name(int idx) {
   return regs[check_reg_idx(idx)];
 }
 
+void reg_display();
+word_t reg_str2val(const char *s, bool *success);
+
 #endif

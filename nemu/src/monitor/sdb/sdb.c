@@ -113,7 +113,8 @@ static int cmd_p(char *args) {
     return 0;
   }
   printf(
-    MUXDEF(CONFIG_ISA64,"hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
+    MUXDEF(CONFIG_ISA64, "hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", \
+                         "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
     val, val, val
   );
   return 0;

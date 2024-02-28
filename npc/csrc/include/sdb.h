@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+word_t expr(char *e, bool *success);
+
 struct WP {
   int NO;
   struct WP *next;

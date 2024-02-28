@@ -14,11 +14,25 @@ void reg_display() {
     MUXDEF(RV64, "%-3s %-18s %-20s %-20s\n", "%-3s %-10s %-12s %-12s\n"),
     "Reg", "Hex", "Unsigned dec", "Signed dec"
   );
-  for (int i = 0; i < MUXDEF(CONFIG_RVE, 16, 32); ++i) {
+  for (int i = 0; i < MUXDEF(RVE, 16, 32); ++i) {
     val = gpr(i);
     printf(
       MUXDEF(CONFIG_RV64, "%-3s 0x%-16llx %-20llu %-20lld\n", "%-3s 0x%-8x %-12u %-12d\n"),
       reg_name(i), val, val, val
     );
   }
+}
+
+word_t reg_str2val(const char *s, bool *success) {
+  if (strcmp(s, "pc") == 0) {
+    *success = true;
+    return top->top->pc;
+  }
+  for (int i = 0; i < MUXDEF(RVE, 16, 32); ++i) {
+    if (strcmp(s, regs[i])) continue;
+    *success = true;
+    return gpr(i);
+  }
+  *success = false;
+  return -1;
 }

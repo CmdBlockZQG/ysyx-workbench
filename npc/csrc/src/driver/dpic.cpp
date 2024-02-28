@@ -1,13 +1,11 @@
 #include "Vtop__Dpi.h"
 
 #include "common.h"
-#include "driver.h"
 #include "cpu.h"
 #include "mem.h"
 
 void halt() {
   // ret a0 x10
-  // TODO: 封装寄存器读取，这里换掉
   set_npc_state(NPC_END, gpr(10));
 }
 

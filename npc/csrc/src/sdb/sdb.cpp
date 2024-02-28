@@ -52,7 +52,7 @@ static int cmd_info(char *args) {
     return 0;
   }
   switch (arg[0]) {
-    case 'r': // isa_reg_display(); break; // TODO
+    case 'r': reg_display(); break;
     case 'w': wps_display(); break;
     default: printf("Unknown sub command '%s'\n", arg); break;
   }
@@ -69,12 +69,12 @@ static int cmd_x(char *args) {
     return 0;
   }
 
-  addr_t addr = MBASE; // TODO: temporary alternate 
-  bool success = true; // TODO: expr
-  // if (str == NULL || (addr = expr(str, &success), !success)) {
-  //   printf("Invalid EXPR\n");
-  //   return 0;
-  // }
+  addr_t addr;
+  bool success = true;
+  if (str == NULL || (addr = expr(str, &success), !success)) {
+    printf("Invalid EXPR\n");
+    return 0;
+  }
 
   for (unsigned int i = 0; i < n; ++i, addr += 4) {
     printf(
@@ -86,25 +86,25 @@ static int cmd_x(char *args) {
 }
 
 static int cmd_p(char *args) {
-  // TODO: expr eval
-  // char *str = strtok(NULL, "\0");
-  // bool success = true;
-  // word_t val = expr(str, &success);
-  // if (!success) {
-  //   printf("Invalid EXPR\n");
-  //   return 0;
-  // }
-  // printf(
-  //   MUXDEF(RV64,"hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
-  //   val, val, val
-  // );
+  char *str = strtok(NULL, "\0");
+  bool success = true;
+  word_t val = expr(str, &success);
+  if (!success) {
+    printf("Invalid EXPR\n");
+    return 0;
+  }
+  printf(
+    MUXDEF(RV64, "hex: 0x%llx\nunsigned dec: %llu\nsigned dec: %lld\n", \
+                 "hex: 0x%x\nunsigned dec: %u\nsigned dec: %d\n"),
+    val, val, val
+  );
   return 0;
 }
 
 static int cmd_w(char *args) {
   char *str = strtok(NULL, "\0");
   bool success = true;
-  word_t val = 0; // expr(str, &success); TODO: expr
+  word_t val = expr(str, &success);
   if (!success) {
     printf("Invalid EXPR\n");
     return 0;
@@ -208,10 +208,10 @@ void sdb_mainloop() {
 }
 
 void init_sdb() {
-  // void init_regex();
+  void init_regex();
   
   /* Compile the regular expressions. */
-  // init_regex(); TODO: expr
+  init_regex();
 
   /* Initialize the watchpoint pool. */
   init_wp_pool();

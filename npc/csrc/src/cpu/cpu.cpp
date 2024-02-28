@@ -20,6 +20,10 @@ static void exec_once() {
 
 static void trace_and_difftest() {
   // TODO: trace & watchpoint & difftest
+#ifdef WATCHPOINT
+  bool check_wps(void);
+  if (check_wps()) npc_state.state = NPC_STOP;
+#endif
 }
 
 static void execute(uint64_t n) {
