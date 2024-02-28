@@ -9,7 +9,7 @@
 
 void cpu_exec(uint64_t n);
 
-static inline bool check_reg_idx(int idx) {
+static inline int check_reg_idx(int idx) {
   Assert(idx >= 0 && idx < MUXDEF(RVE, 16, 32), "Accessing invalid register: x%d", idx);
   return idx;
 }
