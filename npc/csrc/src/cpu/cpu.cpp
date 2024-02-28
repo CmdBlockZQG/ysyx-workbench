@@ -23,7 +23,9 @@ static void trace_and_difftest() {
 #ifdef WATCHPOINT
 // TODO
   bool check_wps(void);
-  if (check_wps()) npc_state.state = NPC_STOP;
+  if (check_wps()) {
+    if (npc_state.state == NPC_RUNNING) npc_state.state = NPC_STOP;
+  }
 #endif
 }
 
