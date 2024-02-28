@@ -36,14 +36,6 @@ module ysyx_23060203_EXU (
   `include "params/opcode.v"
   `include "params/branch.v"
 
-  // -------------------- EBREAK --------------------
-  `include "dpic.v"
-  always_comb begin
-    if (opcode == OP_ECALL && csr == 1) begin
-      halt();
-    end
-  end
-
   // -------------------- 寄存器写 --------------------
   // 寄存器写端口使能
   // 只有这么两种指令不写寄存器，但是这样做会导致复位非法指令通过测试

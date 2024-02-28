@@ -14,4 +14,11 @@ module ysyx_23060203_IFU (
       // 改动PC和跳转部分设计时务必检查
     end
   end
+
+  // -------------------- EBREAK --------------------
+  always @(posedge clk) begin
+    if (rstn & inst == 32'h100073) begin
+      halt();
+    end
+  end
 endmodule
