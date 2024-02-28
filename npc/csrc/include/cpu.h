@@ -14,7 +14,7 @@ static inline bool check_reg_idx(int idx) {
   return idx;
 }
 
-#define gpr(idx) (top->top->RegFile->rf[check_reg_idx(idx) - 1])
+#define gpr(idx) (idx ? top->top->RegFile->rf[check_reg_idx(idx) - 1] : 0)
 
 static inline const char *reg_name(int idx) {
   extern const char* regs[];

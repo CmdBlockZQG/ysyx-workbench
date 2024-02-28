@@ -17,7 +17,7 @@ void reg_display() {
   for (int i = 0; i < MUXDEF(RVE, 16, 32); ++i) {
     val = gpr(i);
     printf(
-      MUXDEF(CONFIG_RV64, "%-3s 0x%-16llx %-20llu %-20lld\n", "%-3s 0x%-8x %-12u %-12d\n"),
+      MUXDEF(RV64, "%-3s 0x%-16llx %-20llu %-20lld\n", "%-3s 0x%-8x %-12u %-12d\n"),
       reg_name(i), val, val, val
     );
   }
