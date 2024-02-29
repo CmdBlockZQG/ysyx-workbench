@@ -30,8 +30,18 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+#ifdef CONFIG_ITRACE
 static Decode iringbuf[16];
 static uint8_t iringbuf_ptr = 0;
+
+static void print_iringbuf() {
+  for (int i = 0; i < 16; ++i) {
+    char *log = iringbuf[(iringbuf_ptr + i) & 0xf].logbuf;
+    if (*log) puts(log);
+  }
+  putchar('\n');
+}
+#endif
 
 void device_update();
 
@@ -153,14 +163,6 @@ static void statistic() {
   Log("total guest instructions = " NUMBERIC_FMT, g_nr_guest_inst);
   if (g_timer > 0) Log("simulation frequency = " NUMBERIC_FMT " inst/s", g_nr_guest_inst * 1000000 / g_timer);
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
-}
-
-static void print_iringbuf() {
-  for (int i = 0; i < 16; ++i) {
-    char *log = iringbuf[(iringbuf_ptr + i) & 0xf].logbuf;
-    if (*log) puts(log);
-  }
-  putchar('\n');
 }
 
 void assert_fail_msg() {
