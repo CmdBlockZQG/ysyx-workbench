@@ -6,4 +6,17 @@
 void itrace(addr_t pc, uint64_t inst, bool print);
 void print_iringbuf();
 
+// ----------- elf -----------
+
+typedef uint32_t word_t;
+
+enum { ELF_SYM_FUNC, ELF_SYM_OBJECT };
+
+struct ElfSymbol {
+  char *name;
+  addr_t addr;
+  word_t size;
+  int type;
+};
+
 #endif

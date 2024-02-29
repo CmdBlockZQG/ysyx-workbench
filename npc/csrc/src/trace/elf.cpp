@@ -1,4 +1,5 @@
 #include "common.h"
+#include "trace.h"
 
 #include <cstring>
 #include <elf.h>
@@ -22,31 +23,6 @@ static char strtab[strtab_buf_size];
 static char elf_no_name[] = "<anonymous symbol>";
 ElfSymbol elf_symbol_list[max_symbol];
 word_t elf_symbol_list_size = 0;
-
-void init_elf(const char *elf_file) {
-  if (elf_file == nullptr) return;
-  fp = fopen(elf_file, "rb");
-  Assert(fp, "Can not open '%s'", elf_file);
-
-  /* Read elf header */
-  Assert(fread(&eh, sizeof(eh), 1, fp) == 1, "Error when reading elf header");
-
-  Assert(eh.e_ident[EI_MAG0] == ELFMAG0 &&
-         eh.e_ident[EI_MAG1] == ELFMAG1 &&
-         eh.e_ident[EI_MAG2] == ELFMAG2 &&
-         eh.e_ident[EI_MAG3] == ELFMAG3, 
-         "Invalid elf file '%s'", elf_file);
-  
-  Assert(eh.e_ident[EI_CLASS] == MUXDEF(RV64, ELFCLASS64, ELFCLASS32),
-         "Elf file architecture(32/64-bit) incompatible.");
-  
-  Assert(eh.e_shoff, "Elf file has no section header.");
-
-  void read_symbols();
-  read_symbols();
-
-  Log("ELF file loaded from %s", elf_file);
-}
 
 static void read_symbols() {
   ElfN(Shdr) shent;
@@ -109,4 +85,28 @@ static void read_symbols() {
       };
     }
   }
+}
+
+void init_elf(const char *elf_file) {
+  if (elf_file == nullptr) return;
+  fp = fopen(elf_file, "rb");
+  Assert(fp, "Can not open '%s'", elf_file);
+
+  /* Read elf header */
+  Assert(fread(&eh, sizeof(eh), 1, fp) == 1, "Error when reading elf header");
+
+  Assert(eh.e_ident[EI_MAG0] == ELFMAG0 &&
+         eh.e_ident[EI_MAG1] == ELFMAG1 &&
+         eh.e_ident[EI_MAG2] == ELFMAG2 &&
+         eh.e_ident[EI_MAG3] == ELFMAG3, 
+         "Invalid elf file '%s'", elf_file);
+  
+  Assert(eh.e_ident[EI_CLASS] == MUXDEF(RV64, ELFCLASS64, ELFCLASS32),
+         "Elf file architecture(32/64-bit) incompatible.");
+  
+  Assert(eh.e_shoff, "Elf file has no section header.");
+
+  read_symbols();
+
+  Log("ELF file loaded from %s", elf_file);
 }
