@@ -90,7 +90,7 @@ module ysyx_23060203_EXU (
   // pc_inc
   always_comb begin
     case (opcode)
-      OP_JAL, OP_JALR: pc_inc = imm;
+      OP_JAL, OP_JALR: pc_inc = imm + 4;
       OP_BRANCH: pc_inc = br_en ? imm : 4;
       default: pc_inc = 4; // 需要保证在复位和复位释放后第一个时钟上升沿到来之前为4
     endcase
