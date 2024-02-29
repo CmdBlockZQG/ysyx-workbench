@@ -11,17 +11,16 @@
 #define ELFN(macro) ELF32_ ## macro
 #endif
 
-#ifndef CONFIG_TARGET_AM
 static FILE *fp = nullptr;
 
 static ElfN(Ehdr) eh;
 
-#define STRTAB_BUF_SIZE 2048
-#define MAX_SYMBOL 256
+static const int strtab_buf_size = 2048;
+static const int max_symbol = 256;
 
-static char strtab[STRTAB_BUF_SIZE];
+static char strtab[strtab_buf_size];
 static char elf_no_name[] = "<anonymous symbol>";
-ElfSymbol elf_symbol_list[MAX_SYMBOL];
+ElfSymbol elf_symbol_list[max_symbol];
 word_t elf_symbol_list_size = 0;
 
 void init_elf(const char *elf_file) {
@@ -49,7 +48,7 @@ void init_elf(const char *elf_file) {
   Log("ELF file loaded from %s", elf_file);
 }
 
-void read_symbols() {
+static void read_symbols() {
   ElfN(Shdr) shent;
 
   /* Read section header string table */
@@ -111,5 +110,3 @@ void read_symbols() {
     }
   }
 }
-
-#endif

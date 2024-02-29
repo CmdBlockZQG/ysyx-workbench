@@ -18,7 +18,7 @@ module top(
 
 
   wire [31:0] pc/*verilator public*/;
-  wire [31:0] next_pc;
+  wire [31:0] next_pc/*verilator public*/;
   ysyx_23060203_PC PC (
     .rstn(rstn), .clk(clk),
     // 连接EXU输出，控制跳转

@@ -21,7 +21,7 @@ static void exec_once() {
   top->clk = 1; driver_step();
 }
 
-static void trace_and_difftest() {
+static void wp_and_difftest() {
   // TODO: trace & watchpoint & difftest
 #ifdef WATCHPOINT
   bool check_wps(void);
@@ -36,9 +36,11 @@ static void execute(uint64_t n) {
 #ifdef ITRACE
     itrace(top->top->pc, top->top->inst, n <= 24);
 #endif
+
+
     exec_once();
     ++nr_inst;
-    trace_and_difftest();
+    wp_and_difftest();
     if (nr_inst >= MAX_CYCLE) {
       Log("Cycle limit exceed, abort");
       npc_state.state = NPC_ABORT;
