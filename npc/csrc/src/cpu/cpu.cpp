@@ -37,7 +37,7 @@ static void execute(uint64_t n) {
     itrace(top->top->pc, top->top->inst, n <= 24);
 #endif
 #ifdef FTRACE
-    ftrace(top->top->pc, top->top->inst);
+    ftrace(top->top->pc, top->top->next_pc);
 #endif
 
     exec_once();

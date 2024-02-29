@@ -35,8 +35,8 @@ LDFLAGS += $(shell llvm-config --libs)
 
 LDFLAGS += -lreadline
 
-# @rm -rf $(OBJ_DIR)
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		-y "$(abspath ./vsrc)" \
