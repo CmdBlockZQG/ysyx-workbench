@@ -8,6 +8,9 @@ void print_iringbuf();
 
 void ftrace(addr_t pc, addr_t next_pc);
 
+void mtrace_read(addr_t addr);
+void mtrace_write(addr_t addr, word_t data, uint8_t mask);
+
 // ----------- elf -----------
 
 typedef uint32_t word_t;

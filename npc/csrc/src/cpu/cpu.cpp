@@ -22,7 +22,7 @@ static void exec_once() {
 }
 
 static void wp_and_difftest() {
-  // TODO: trace & watchpoint & difftest
+  // TODO: difftest
 #ifdef WATCHPOINT
   bool check_wps(void);
   if (check_wps()) {
@@ -33,6 +33,7 @@ static void wp_and_difftest() {
 
 static void execute(uint64_t n) {
   while (n--) {
+
 #ifdef ITRACE
     itrace(top->top->pc, top->top->inst, n <= 24);
 #endif
