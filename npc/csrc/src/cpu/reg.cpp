@@ -26,7 +26,7 @@ void reg_display() {
 word_t reg_str2val(const char *s, bool *success) {
   if (strcmp(s, "pc") == 0) {
     *success = true;
-    return top->top->pc;
+    return cpu_pc;
   }
   for (int i = 0; i < MUXDEF(RVE, 16, 32); ++i) {
     if (strcmp(s, regs[i])) continue;
