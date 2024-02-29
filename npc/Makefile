@@ -58,6 +58,7 @@ IMG ?=
 ifdef ELF
 override ARGS += --elf=$(ELF)
 endif
+ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL")

@@ -65,6 +65,7 @@ static int parse_args(int argc, char *argv[]) {
     {"log"    , required_argument, NULL, 'l'},
     {"elf"    , required_argument, NULL, 'e'},
     {"wave"   , required_argument, NULL, 'w'},
+    {"diff"   , required_argument, NULL, 'd'},
     {"nvboard", no_argument      , NULL, 'n'},
     {"help"   , no_argument      , NULL, 'h'},
     {0        , 0                , NULL,  0 },
@@ -85,6 +86,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-l,--log=FILE        output log to FILE\n");
         printf("\t-e,--elf=FILE        load elf file from FILE\n");
         printf("\t-w,--wave=FILE       dump wave to FILE\n");
+        printf("\t-d,--diff=REF_SO     run DiffTest with reference REF_SO\n");
         printf("\t-n,--nvboard         run nvboard\n");
         printf("\t-h,--help            display this information\n");
         printf("\n");
