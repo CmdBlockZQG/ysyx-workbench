@@ -66,11 +66,11 @@ void init_difftest(char *ref_so_file, long img_size) {
   difftest_regcpy();
 }
 
-static bool checkgprs(diff_context_t *ref) {
+static bool checkregs(diff_context_t *ref) {
   for (int i = 0; i < NR_GPR; ++i) {
     if (ref->gpr[i] != gpr(i)) return false;
   }
-  return true;
+  return ref->pc == cpu_pc;
 }
 
 static void display_ref(diff_context_t *ref) {
@@ -89,7 +89,7 @@ static void display_ref(diff_context_t *ref) {
   }
 }
 
-void difftest_step(addr_t pc) {
+void difftest_step() {
   if (is_skip_ref) {
     difftest_regcpy();
     is_skip_ref = false;
@@ -99,9 +99,9 @@ void difftest_step(addr_t pc) {
   diff_context_t ref;
   ref_difftest_regcpy(&ref, DIFFTEST_TO_DUT);
 
-  if (pc != ref.pc || !checkgprs(&ref)) {
+  if (!checkregs(&ref)) {
     Log("Difftest failed");
-    set_npc_state(NPC_ABORT, pc, 1);
+    set_npc_state(NPC_ABORT, cpu_pc, 1);
     reg_display();
     display_ref(&ref);
   }

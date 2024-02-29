@@ -11,7 +11,7 @@ void ftrace(addr_t pc, addr_t next_pc);
 void mtrace_read(addr_t addr);
 void mtrace_write(addr_t addr, word_t data, uint8_t mask);
 
-void difftest_step(addr_t pc);
+void difftest_step();
 
 // ----------- elf -----------
 

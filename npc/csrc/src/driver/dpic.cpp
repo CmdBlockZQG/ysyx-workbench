@@ -7,6 +7,8 @@
 
 void halt() {
   // ret a0 x10
+  void difftest_skip_ref();
+  difftest_skip_ref();
   set_npc_state(NPC_END, cpu_pc, gpr(10));
 }
 
