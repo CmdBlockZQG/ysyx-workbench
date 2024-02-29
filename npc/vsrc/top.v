@@ -30,7 +30,7 @@ module top(
   );
 
 
-  wire [31:0] inst;
+  wire [31:0] inst/*verilator public*/;
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),
     // 连接PC输入

@@ -14,6 +14,7 @@ void init_sdb();
 void sdb_set_batch_mode();
 int is_exit_status_bad();
 void sdb_mainloop();
+void init_disasm(const char *triple);
 
 static char *log_file = nullptr;
 static char *img_file = nullptr;
@@ -107,7 +108,8 @@ int main(int argc, char *argv[]) {
   /* load elf file */
   init_elf(elf_file);
 
-  // TODO: init_disasm
+  /* initialize llvm disasm */
+  IFDEF(ITRACE, init_disasm(MUXDEF(RV64, "riscv64", "riscv32") "-pc-linux-gnu"));
 
   /* initialize simple debugger */
   init_sdb();
