@@ -15,7 +15,7 @@ void itrace(addr_t pc, uint64_t inst, bool print) {
   for (int i = ilen - 1; i >= 0; --i) {
     p += snprintf(p, 4, " %02x", inst_p[i]);
   }
-  *p++ = '\t';
+  *p++ = ' ';
   *p++ = '\t';
 
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
