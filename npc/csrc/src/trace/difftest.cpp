@@ -75,13 +75,13 @@ static bool checkregs(diff_context_t *ref) {
 
 static void display_ref(diff_context_t *ref) {
   word_t val;
-  printf("\n----- reference cpu state -----\npc = " FMT_ADDR "\n", ref->pc);
+  printf("----- reference cpu state -----\npc = " FMT_ADDR "\n", ref->pc);
   printf(
     MUXDEF(RV64, "%-3s %-18s %-20s %-20s\n", "%-3s %-10s %-12s %-12s\n"),
     "Reg", "Hex", "Unsigned dec", "Signed dec"
   );
   for (int i = 0; i < NR_GPR; ++i) {
-    val = gpr(i);
+    val = ref->gpr[i];
     printf(
       MUXDEF(RV64, "%-3s 0x%-16llx %-20llu %-20lld\n", "%-3s 0x%-8x %-12u %-12d\n"),
       reg_name(i), val, val, val
@@ -102,6 +102,7 @@ void difftest_step() {
   if (!checkregs(&ref)) {
     Log("Difftest failed");
     set_npc_state(NPC_ABORT, cpu_pc, 1);
+    printf("----- npc state -----\npc = " FMT_ADDR "\n", cpu_pc);
     reg_display();
     display_ref(&ref);
   }
