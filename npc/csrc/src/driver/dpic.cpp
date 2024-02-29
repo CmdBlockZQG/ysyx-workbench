@@ -19,10 +19,10 @@ int mem_read(int raddr) {
 }
 
 void mem_write(int waddr, int wdata, char wmask) {
+  waddr = waddr & ~0x3u;
 #ifdef MTRACE
   mtrace_write(waddr, wdata, wmask);
 #endif
-  waddr = waddr & ~0x3u;
   if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
   if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);
   if (wmask & 0b0100) addr_write(waddr + 2, 1, wdata >> 16);
