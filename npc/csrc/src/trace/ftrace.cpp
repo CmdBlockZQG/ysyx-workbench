@@ -3,6 +3,7 @@
 
 extern ElfSymbol elf_symbol_list[];
 extern word_t elf_symbol_list_size;
+static word_t ftrace_dep = 0;
 
 static word_t get_func_sym_ndx(addr_t p) {
   word_t res = 0;
@@ -21,15 +22,15 @@ static word_t get_func_sym_ndx(addr_t p) {
   return res;
 }
 
-void ftrace(uint64_t pc, uint64_t next_pc) {
+void ftrace(addr_t pc, addr_t next_pc) {
   if (next_pc == pc + 4 || elf_symbol_list_size == 0) return;
   word_t from = get_func_sym_ndx(pc), to = get_func_sym_ndx(next_pc);
   if (from == to) return;
-  log_write("[FTRACE] 0x" FMT_ADDR ": ", pc);
-  if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
+  log_write("[FTRACE] " FMT_ADDR ": ", pc);
+  if (elf_symbol_list[to].addr == next_pc) { // call, jump to the begging of a func
     for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
     ++ftrace_dep;
-    log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
+    log_write("call [%s@" FMT_ADDR "] -> [%s@" FMT_ADDR "]\n",
               elf_symbol_list[from].name,
               elf_symbol_list[from].addr,
               elf_symbol_list[to].name,
@@ -38,11 +39,11 @@ void ftrace(uint64_t pc, uint64_t next_pc) {
     Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
     --ftrace_dep;
     for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
-    log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
+    log_write("ret [%s@" FMT_ADDR "] -> [%s@" FMT_ADDR "]:" FMT_ADDR "\n",
               elf_symbol_list[from].name,
               elf_symbol_list[from].addr,
               elf_symbol_list[to].name,
               elf_symbol_list[to].addr,
-              s->dnpc);
+              next_pc);
   }
 }

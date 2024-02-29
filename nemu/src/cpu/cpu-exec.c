@@ -62,7 +62,7 @@ static void ftrace(Decode *s) {
   if (elf_symbol_list_size == 0) return; // no elf file
   word_t from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
   if (likely(from == to)) return;
-  log_write("[FTRACE] 0x" FMT_PADDR ": ", s->pc);
+  log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
   if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
     for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
     ++ftrace_dep;

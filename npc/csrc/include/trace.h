@@ -6,6 +6,8 @@
 void itrace(addr_t pc, uint64_t inst, bool print);
 void print_iringbuf();
 
+void ftrace(addr_t pc, addr_t next_pc);
+
 // ----------- elf -----------
 
 typedef uint32_t word_t;
