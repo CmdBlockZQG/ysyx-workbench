@@ -22,7 +22,7 @@ static void exec_once() {
 }
 
 static void wp_and_difftest() {
-  // TODO: difftest
+  IFDEF(DIFFTEST, difftest_step());
 #ifdef WATCHPOINT
   bool check_wps(void);
   if (check_wps()) {
@@ -35,10 +35,10 @@ static void execute(uint64_t n) {
   while (n--) {
 
 #ifdef ITRACE
-    itrace(top->top->pc, top->top->inst, n <= 24);
+    itrace(cpu_pc, top->top->inst, n <= 24);
 #endif
 #ifdef FTRACE
-    ftrace(top->top->pc, top->top->next_pc);
+    ftrace(cpu_pc, top->top->next_pc);
 #endif
 
     exec_once();
@@ -69,7 +69,7 @@ void cpu_exec(uint64_t n) {
       Log("npc: %s at pc = " FMT_ADDR,
           (npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
-            ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))), cpu_pc);
+            ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))), npc_state.halt_pc);
       // fall through
     case NPC_QUIT: statistic();
   }

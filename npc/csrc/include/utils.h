@@ -10,12 +10,13 @@ enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT, NPC_QUIT };
 
 struct NPCState {
   int state;
+  addr_t halt_pc;
   uint32_t halt_ret;
 };
 
 extern NPCState npc_state;
 
-void set_npc_state(int state, int halt_ret);
+void set_npc_state(int state, addr_t halt_pc, int halt_ret);
 
 // ----------- log -----------
 

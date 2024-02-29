@@ -21,18 +21,20 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
 
-void get_dut_ctx(diff_context_t *ctx) {
+static void difftest_regcpy() {
+  diff_context_t ctx;
   for (int i = 0; i < NR_GPR; ++i) {
-    ctx->gpr[i] = gpr(i);
+    ctx.gpr[i] = gpr(i);
   }
-  ctx->pc = cpu_pc;
+  ctx.pc = cpu_pc;
+  ref_difftest_regcpy(&ctx, DIFFTEST_TO_REF);
 }
 
 void difftest_skip_ref() {
   is_skip_ref = true;
 }
 
-void init_difftest(char *ref_so_file, long img_size, int port) {
+void init_difftest(char *ref_so_file, long img_size) {
   assert(ref_so_file != NULL);
 
   void *handle;
@@ -59,18 +61,51 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "This will help you a lot for debugging, but also significantly reduce the performance. "
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
-  ref_difftest_init(port);
+  ref_difftest_init(1234);
   ref_difftest_memcpy(MBASE, guest_to_host(MBASE), img_size, DIFFTEST_TO_REF);
-  diff_context_t ctx;
-  get_dut_ctx(&ctx);
-  ref_difftest_regcpy(&ctx, DIFFTEST_TO_REF);
+  difftest_regcpy();
 }
 
-static bool checkregs(diff_context_t *ref) {
+static bool checkgprs(diff_context_t *ref) {
   for (int i = 0; i < NR_GPR; ++i) {
     if (ref->gpr[i] != gpr(i)) return false;
   }
-  return ref->pc == cpu_pc;
+  return true;
 }
 
+static void display_ref(diff_context_t *ref) {
+  word_t val;
+  printf("\n----- reference cpu state -----\npc = " FMT_ADDR "\n", ref->pc);
+  printf(
+    MUXDEF(RV64, "%-3s %-18s %-20s %-20s\n", "%-3s %-10s %-12s %-12s\n"),
+    "Reg", "Hex", "Unsigned dec", "Signed dec"
+  );
+  for (int i = 0; i < NR_GPR; ++i) {
+    val = gpr(i);
+    printf(
+      MUXDEF(RV64, "%-3s 0x%-16llx %-20llu %-20lld\n", "%-3s 0x%-8x %-12u %-12d\n"),
+      reg_name(i), val, val, val
+    );
+  }
+}
+
+void difftest_step(addr_t pc) {
+  if (is_skip_ref) {
+    difftest_regcpy();
+    is_skip_ref = false;
+    return;
+  }
+  ref_difftest_exec(1);
+  diff_context_t ref;
+  ref_difftest_regcpy(&ref, DIFFTEST_TO_DUT);
+
+  if (pc != ref.pc || !checkgprs(&ref)) {
+    Log("Difftest failed");
+    set_npc_state(NPC_ABORT, pc, 1);
+    reg_display();
+    display_ref(&ref);
+  }
+}
+#else
+void init_difftest(char *ref_so_file, long img_size) { }
 #endif

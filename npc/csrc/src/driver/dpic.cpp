@@ -7,7 +7,7 @@
 
 void halt() {
   // ret a0 x10
-  set_npc_state(NPC_END, gpr(10));
+  set_npc_state(NPC_END, cpu_pc, gpr(10));
 }
 
 int mem_read(int raddr) {
