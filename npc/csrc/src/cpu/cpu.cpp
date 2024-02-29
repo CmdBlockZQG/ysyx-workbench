@@ -1,6 +1,7 @@
 #include "common.h"
-#include "driver.h"
+#include "cpu.h"
 #include "mem.h"
+#include "trace.h"
 
 static uint64_t nr_inst = 0;
 bool trace_enabled = true;
@@ -10,6 +11,8 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
+  IFDEF(ITRACE, print_iringbuf());
+  reg_display();
   statistic();
 }
 
@@ -18,10 +21,9 @@ static void exec_once() {
   top->clk = 1; driver_step();
 }
 
-static void trace_and_difftest() {
-  // TODO: trace & watchpoint & difftest
+static void wp_and_difftest() {
+  // TODO: difftest
 #ifdef WATCHPOINT
-// TODO
   bool check_wps(void);
   if (check_wps()) {
     if (npc_state.state == NPC_RUNNING) npc_state.state = NPC_STOP;
@@ -31,9 +33,17 @@ static void trace_and_difftest() {
 
 static void execute(uint64_t n) {
   while (n--) {
+
+#ifdef ITRACE
+    itrace(top->top->pc, top->top->inst, n <= 24);
+#endif
+#ifdef FTRACE
+    ftrace(top->top->pc, top->top->next_pc);
+#endif
+
     exec_once();
     ++nr_inst;
-    trace_and_difftest();
+    wp_and_difftest();
     if (nr_inst >= MAX_CYCLE) {
       Log("Cycle limit exceed, abort");
       npc_state.state = NPC_ABORT;

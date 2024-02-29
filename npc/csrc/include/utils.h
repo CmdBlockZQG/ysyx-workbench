@@ -53,17 +53,4 @@ void set_npc_state(int state, int halt_ret);
     log_write(__VA_ARGS__); \
   } while (0)
 
-// ----------- elf -----------
-
-typedef uint32_t word_t;
-
-enum { ELF_SYM_FUNC, ELF_SYM_OBJECT };
-
-struct ElfSymbol {
-  char *name;
-  addr_t addr;
-  word_t size;
-  int type;
-};
-
 #endif

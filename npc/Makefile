@@ -29,6 +29,10 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I , $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -Wall -Werror -DTOP_NAME="\"V$(TOPNAME)\"" 
 
+# rules for llvm disasm
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+LDFLAGS += $(shell llvm-config --libs)
+
 LDFLAGS += -lreadline
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
@@ -63,6 +67,9 @@ run: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
-.PHONY: default all clean sim run
+run_nt: $(BIN)
+	$(BIN) $(ARGS) $(IMG)
+
+.PHONY: default all clean sim run run_nt
 
 include ../Makefile
