@@ -67,6 +67,9 @@ run: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
-.PHONY: default all clean sim run
+run_nt: $(BIN)
+	$(BIN) $(ARGS) $(IMG)
+
+.PHONY: default all clean sim run run_nt
 
 include ../Makefile

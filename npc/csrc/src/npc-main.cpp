@@ -25,11 +25,12 @@ static void load_img() {
   if (!img_file) {
     const uint32_t img[] = {
       0x00500093, // addi x1, x0, 5
+      0x008002ef, // jal x5, 8
       0x00608113, // addi x2, x1, 6
       0x00310093, // addi x1, x2, 3
       0x00108093, // addi x1, x1, 1
-      0xdeadbeef, // some data
       0x00100073, // ebreak
+      0xdeadbeef  // some data
     };
     memcpy(guest_to_host(MBASE), img, sizeof(img));
     Log("No image is given. Use the default built-in image.");
