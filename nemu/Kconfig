@@ -163,7 +163,7 @@ config DIFFTEST
 config MTRACE
   depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
   bool "Enable memory tracer"
-  default n
+  default y
 
 config MTRACE_START
   depends on MTRACE
@@ -178,15 +178,19 @@ config MTRACE_END
 config FTRACE
   depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
   bool "Enable function tracer"
+  default y
+
+config DTRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER && DEVICE
+  bool "Enable device tracer"
   default n
 
 config WATCHPOINT
-  bool "Enable tracepoints"
+  bool "Enable watchpoints"
   default y
   help
-    Enable tracepoints, part of sdb.
+    Enable watchpoints, part of sdb.
     Which stops the program when values of user-specified expressions change.
-    Note that this will significantly reduce the performance of NEMU.
 
 choice
   prompt "Reference design"
