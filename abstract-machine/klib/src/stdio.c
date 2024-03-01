@@ -50,10 +50,10 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
     // unsigned int (without leading zero) or * (not implemented yet)
     int field_width = 0; // 0 for unset
     if ('1' <= *fmt && *fmt <= '9') {
-      field_width = (*fmt++) + '0';
+      field_width = (*fmt++) - '0';
       while ('0' <= *fmt && *fmt <= '9') {
         field_width *= 10;
-        field_width += (*fmt++) + '0';
+        field_width += (*fmt++) - '0';
       }
     } else if (*fmt == '*') {
       field_width = va_arg(ap, int);
