@@ -75,6 +75,11 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         res[0] = '%';
         res[1] = '\0';
         break;
+      case 'c':
+        res = buf + 1;
+        res[0] = va_arg(ap, int);
+        res[1] = '\0';
+        break;
       case 's':
         res = va_arg(ap, char *);
         break;
