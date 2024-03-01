@@ -58,7 +58,7 @@ word_t mmio_read(paddr_t addr, int len) {
   IOMap *map = fetch_mmio_map(addr);
 #ifdef CONFIG_DTRACE
   if (map) { // if map is NULL, nemu will panic later
-    log_write("[DTRACE] Read %s@[" FMT_PADDR ", " FMT_PADDR "] at " FMT_PADDR "(+%u)",
+    log_write(ANSI_FMT("[DTRACE] Read %s@[" FMT_PADDR ", " FMT_PADDR "] at " FMT_PADDR "(+%u)\n", ANSI_FG_MAGENTA),
               map->name, map->low, map->high, addr, (uint32_t)(addr - map->low));
   }
 #endif
@@ -69,7 +69,7 @@ void mmio_write(paddr_t addr, int len, word_t data) {
   IOMap *map = fetch_mmio_map(addr);
 #ifdef CONFIG_DTRACE
   if (map) { // if map is NULL, nemu will panic later
-    log_write("[DTRACE] Write %d bytes to %s@[" FMT_PADDR ", " FMT_PADDR "] at " FMT_PADDR "(+%u)",
+    log_write(ANSI_FMT("[DTRACE] Write %d bytes to %s@[" FMT_PADDR ", " FMT_PADDR "] at " FMT_PADDR "(+%u)\n", ANSI_FG_MAGENTA),
               len, map->name, map->low, map->high, addr, (uint32_t)(addr - map->low));
   }
 #endif
