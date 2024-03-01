@@ -57,7 +57,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
       }
     } else if (*fmt == '*') {
       field_width = va_arg(ap, int);
-      panic("Not implemented");
+      panic(fmt);
     }
 
     // ----- precision -----
@@ -98,7 +98,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         }
         break;
       default:
-        panic("Not implemented");
+        panic(fmt);
         break;
     }
     ++fmt;
