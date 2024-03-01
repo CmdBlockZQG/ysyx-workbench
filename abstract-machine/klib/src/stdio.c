@@ -42,6 +42,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           pad = '0';
           ++fmt;
           continue;
+        default:
       }
       break;
     }
@@ -107,7 +108,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
     if (justify == 0 && field_width > res_len) {
       int i = field_width - res_len;
       while (t < n - 1 && i--) {
-        write_char(&out, pad);
+        write_char(&out, pad); ++t;
       }
     }
     while (*res && t < n - 1) write_char(&out, *res++), ++t;
@@ -115,7 +116,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
     if (justify == 1 && field_width > res_len) {
       int i = field_width - res_len;
       while (t < n - 1 && i--) {
-        write_char(&out, pad);
+        write_char(&out, pad); ++t;
       }
     }
   }
