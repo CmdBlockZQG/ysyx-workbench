@@ -42,6 +42,10 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           pad = '0';
           ++fmt;
           continue;
+        case '-':
+          justify = 1;
+          ++fmt;
+          continue;
         default:
       }
       break;
@@ -63,12 +67,24 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
     // ----- precision -----
 
     // ----- length modifier -----
+    int int_length = 0; // 0 for unset, 3 for l, 4 for ll
+    switch (*fmt++) {
+      case 'l':
+        if (*fmt == 'l') {
+          ++fmt;
+          int_length = 4; // ll
+        } else {
+          int_length = 3;
+        }
+        break;
+      default:
+    }
 
     // ----- flag override -----
     if (justify && pad == '0') pad = ' ';
 
     // ----- conversion specifier -----
-    char *res;
+    char *res, *p;
     switch (*fmt) {
       case '%':
         res = buf + 1;
@@ -84,19 +100,47 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         res = va_arg(ap, char *);
         break;
       case 'd':
-      case 'x':
-        int x = va_arg(ap, int);
-        int base = *fmt == 'd' ? 10 : 16;
-        char *p = buf + 1;
+        long long x;
+        switch (int_length) {
+          case 0: x = va_arg(ap, int); break;
+          case 3: x = va_arg(ap, long); break;
+          case 4: x = va_arg(ap, long long); break;
+          default: panic("not implemented"); break;
+        }
+        p = buf + 1;
         res = x < 0 ? buf : buf + 1; // '-'
         if (x == 0) {
           *p++ = '0';
           *p = '\0';
         } else {
           while (x) {
-            int dig = ABS(x % base);
+            *p++ = '0' + ABS(x % 10);
+            x /= 10;
+          }
+          *p = '\0';
+          reverse(buf + 1, p - buf - 1);
+        }
+        break;
+      case 'u':
+      case 'x':
+        unsigned long long ux;
+        switch (int_length) {
+          case 0: ux = va_arg(ap, unsigned int); break;
+          case 3: ux = va_arg(ap, unsigned long); break;
+          case 4: ux = va_arg(ap, unsigned long long); break;
+          default: panic("not implemented"); break;
+        }
+        int base = *fmt == 'u' ? 10 : 16;
+        p = buf + 1;
+        res = buf + 1;
+        if (ux == 0) {
+          *p++ = '0';
+          *p = '\0';
+        } else {
+          while (ux) {
+            int dig = ux % base;
             *p++ = (dig < 10 ? '0' : 'a' - 10) + dig;
-            x /= base;
+            ux /= base;
           }
           *p = '\0';
           reverse(buf + 1, p - buf - 1);
