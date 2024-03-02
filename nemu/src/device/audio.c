@@ -41,6 +41,7 @@ static int sbuf_p = 0;
 static SDL_AudioSpec s = {};
 
 void audio_callback(void *userdata, Uint8 *stream, int len) {
+  Log("callback");
   while (count > 0 && len > 0) {
     --count;
     --len;
@@ -68,8 +69,6 @@ static void audio_dev_open() {
 
 static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
   assert(is_write && len == 1);
-  static int test = 100;
-  if (test-- > 0) printf(ANSI_FMT("%02x", ANSI_FG_GREEN), sbuf[offset]);
   ++count;
 }
 

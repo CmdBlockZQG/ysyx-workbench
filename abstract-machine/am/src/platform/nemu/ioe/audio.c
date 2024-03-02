@@ -34,8 +34,6 @@ void __am_audio_status(AM_AUDIO_STATUS_T *stat) {
   stat->count = inl(AUDIO_COUNT_ADDR);
 }
 
-#include <stdio.h>
-
 void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   int audio_left = ctl->buf.end - ctl->buf.start;
   uint8_t *p = ctl->buf.start;
@@ -43,10 +41,6 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
     int nplay = buf_size - io_read(AM_AUDIO_STATUS).count;
     if (!nplay) continue;
     while (audio_left > 0 && nplay--) {
-      static int test = 100;
-      if (test-- > 0) {
-        printf("%02x", *p);
-      }
       outb(buf + buf_p, *p++);
       buf_p = (buf_p + 1) % buf_size;
       --audio_left;
