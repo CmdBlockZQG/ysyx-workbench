@@ -56,7 +56,6 @@ void audio_callback(void *userdata, Uint8 *stream, int len) {
 static void audio_dev_init() {
   s.format = AUDIO_S16SYS;
   s.userdata = NULL;
-  SDL_InitSubSystem(SDL_INIT_AUDIO);
 }
 
 static void audio_dev_open() {
@@ -64,6 +63,7 @@ static void audio_dev_open() {
   s.channels = channels;
   s.samples = samples;
   s.callback = audio_callback;
+  SDL_InitSubSystem(SDL_INIT_AUDIO);
   SDL_OpenAudio(&s, NULL);
 }
 
