@@ -81,8 +81,8 @@ static void audio_dev_open() {
 }
 
 static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
-  assert(is_write && len == 1);
-  ++count;
+  assert(is_write);
+  count += len;
   int n = MIN(4096, CONFIG_SB_SIZE - sbuf_p);
   if (count >= n) {
     Area buf;
