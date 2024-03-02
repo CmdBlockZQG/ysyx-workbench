@@ -40,8 +40,4 @@
 
 #define TODO() panic("please implement me")
 
-volatile static int dummy;
-volatile static int dummy;
-volatile static int dummy;
-
 #endif
