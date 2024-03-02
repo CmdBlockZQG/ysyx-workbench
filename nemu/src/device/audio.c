@@ -34,10 +34,8 @@ static int freq, channels, samples;
 static int count = 0;
 static int sbuf_p = 0;
 
-// TODO: CONFIG_TARGET_AM
-
+#ifndef CONFIG_TARGET_AM
 #include <SDL2/SDL.h>
-
 static SDL_AudioSpec s = {};
 
 void audio_callback(void *userdata, Uint8 *stream, int len) {
@@ -71,6 +69,29 @@ static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
   assert(is_write && len == 1);
   ++count;
 }
+#else
+static void audio_dev_init() {
+  assert(io_read(AM_AUDIO_CONFIG).present);
+}
+
+static void audio_dev_open() {
+  io_write(AM_AUDIO_CTRL, freq, channels, samples);
+}
+
+static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
+  assert(is_write && len == 1);
+  ++count;
+  int n = MIN(4096, CONFIG_SB_SIZE - sbuf_p);
+  if (count >= n) {
+    Area buf;
+    buf.start = sbuf + sbuf_p;
+    buf.end = buf.start + n;
+    io_write(AM_AUDIO_PLAY, buf);
+    sbuf_p = (sbuf_p + n) % CONFIG_SB_SIZE;
+    count -= n;
+  }
+}
+#endif
 
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   assert((offset & 0b11) == 0);
