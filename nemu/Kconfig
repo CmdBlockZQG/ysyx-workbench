@@ -186,6 +186,7 @@ config DTRACE
   default n
 
 config WATCHPOINT
+  depends on TRACE
   bool "Enable watchpoints"
   default y
   help

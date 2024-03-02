@@ -15,7 +15,6 @@
 
 #include <common.h>
 #include <device/map.h>
-#include <SDL2/SDL.h>
 
 enum {
   reg_freq,
@@ -71,11 +70,8 @@ static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
   SDL_UnlockAudio();
 }
 
-static void sbuf_io_handler_r(uint32_t offset, int len, bool is_write) {
-  SDL_LockAudio();
-}
-
 #else
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 static void audio_dev_init() {
   assert(io_read(AM_AUDIO_CONFIG).present);
 }
@@ -85,8 +81,8 @@ static void audio_dev_open() {
 }
 
 static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
-  assert(is_write && len == 1);
-  ++count;
+  assert(is_write);
+  count += len;
   int n = MIN(4096, CONFIG_SB_SIZE - sbuf_p);
   if (count >= n) {
     Area buf;
@@ -98,6 +94,10 @@ static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
   }
 }
 #endif
+
+static void sbuf_io_handler_r(uint32_t offset, int len, bool is_write) {
+  IFNDEF(CONFIG_TARGET_AM, SDL_LockAudio());
+}
 
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   assert((offset & 0b11) == 0);
