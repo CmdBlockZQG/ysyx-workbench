@@ -124,7 +124,7 @@ static void sdcard_io_handler(uint32_t offset, int len, bool is_write) {
 
 void init_sdcard() {
   base = (uint32_t *)new_space(0x80);
-  add_mmio_map("sdhci", CONFIG_SDCARD_CTL_MMIO, base, 0x80, sdcard_io_handler);
+  add_mmio_map("sdhci", CONFIG_SDCARD_CTL_MMIO, base, 0x80, sdcard_io_handler, NULL);
 
   Assert(C_SIZE < (1 << 12), "shoule be fit in 12 bits");
 

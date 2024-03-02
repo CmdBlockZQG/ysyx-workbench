@@ -40,10 +40,21 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   while (audio_left > 0) {
     int nplay = buf_size - io_read(AM_AUDIO_STATUS).count;
     if (!nplay) continue;
-    while (audio_left > 0 && nplay--) {
-      outb(buf + buf_p, *p++);
-      buf_p = (buf_p + 1) % buf_size;
-      --audio_left;
+    while (audio_left > 0 && nplay > 0) {
+      // write aligned 4 bytes at a time
+      uintptr_t addr = buf + buf_p;
+      int len = 0;
+      if (audio_left >= 4 && nplay >= 4 && !(addr & 0b11)) {
+        outl(addr, *(uint32_t *)p);
+        len = 4;
+      } else {
+        outb(addr, *p);
+        len = 1;
+      }
+      p += len;
+      audio_left -= len;
+      nplay -= len;
+      buf_p = (buf_p + len) % buf_size;
     }
   }
 }
