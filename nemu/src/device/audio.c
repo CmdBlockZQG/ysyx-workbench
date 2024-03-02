@@ -54,20 +54,18 @@ void audio_callback(void *userdata, Uint8 *stream, int len) {
 }
 
 static void audio_dev_init() {
-  Log("init");
-  SDL_Init(SDL_INIT_AUDIO);
+  SDL_InitSubSystem(SDL_INIT_AUDIO);
   s.format = AUDIO_S16SYS;
   s.userdata = NULL;
+  s.callback = audio_callback;
 }
 
 static void audio_dev_open() {
-  Log("open %d %d %d", freq, channels, samples);
   s.freq = freq;
   s.channels = channels;
   s.samples = samples;
-  s.callback = audio_callback;
-  SDL_InitSubSystem(SDL_INIT_AUDIO);
   SDL_OpenAudio(&s, NULL);
+  SDL_PauseAudio(0);
 }
 
 static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
