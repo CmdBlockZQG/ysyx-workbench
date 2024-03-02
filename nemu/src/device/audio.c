@@ -98,11 +98,11 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   switch (offset >> 2) {
     case reg_freq:
       assert(is_write);
-      freq = audio_base[reg_freq] + 1000;
+      freq = audio_base[reg_freq];
       break;
     case reg_channels:
       assert(is_write);
-      channels = audio_base[reg_channels];
+      channels = audio_base[reg_channels] + 1;
       break;
     case reg_samples:
       assert(is_write);
