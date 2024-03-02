@@ -106,7 +106,7 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
       break;
     case reg_samples:
       assert(is_write);
-      samples = audio_base[reg_samples];
+      samples = audio_base[reg_samples] + 512;
       break;
     case reg_sbuf_size:
       assert(!is_write);
