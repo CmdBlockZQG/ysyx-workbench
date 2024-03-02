@@ -68,8 +68,9 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
 
     // ----- length modifier -----
     int int_length = 0; // 0 for unset, 3 for l, 4 for ll
-    switch (*fmt++) {
+    switch (*fmt) {
       case 'l':
+        ++fmt;
         if (*fmt == 'l') {
           ++fmt;
           int_length = 4; // ll
