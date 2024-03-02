@@ -54,12 +54,14 @@ void audio_callback(void *userdata, Uint8 *stream, int len) {
 }
 
 static void audio_dev_init() {
+  Log("init");
   SDL_Init(SDL_INIT_AUDIO);
   s.format = AUDIO_S16SYS;
   s.userdata = NULL;
 }
 
 static void audio_dev_open() {
+  Log("open %d %d %d", freq, channels, samples);
   s.freq = freq;
   s.channels = channels;
   s.samples = samples;
