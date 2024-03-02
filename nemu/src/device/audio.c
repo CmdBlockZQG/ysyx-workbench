@@ -54,6 +54,7 @@ void audio_callback(void *userdata, Uint8 *stream, int len) {
 }
 
 static void audio_dev_init() {
+  SDL_Init(SDL_INIT_AUDIO);
   s.format = AUDIO_S16SYS;
   s.userdata = NULL;
 }
