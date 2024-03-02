@@ -30,7 +30,79 @@ enum {
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
 
+static int freq, channels, samples;
+static int count = 0;
+static int sbuf_p = 0;
+
+// TODO: CONFIG_TARGET_AM
+
+#include <SDL2/SDL.h>
+
+static SDL_AudioSpec s = {};
+
+void audio_callback(void *userdata, Uint8 *stream, int len) {
+  while (count > 0 && len > 0) {
+    --count;
+    --len;
+    *stream++ = sbuf[sbuf_p];
+    sbuf_p = (sbuf_p + 1) % CONFIG_SB_SIZE;
+  }
+  while (len--) {
+    *stream++ = 0;
+  }
+}
+
+static void audio_dev_init() {
+  s.format = AUDIO_S16SYS;
+  s.userdata = NULL;
+  SDL_InitSubSystem(SDL_INIT_AUDIO);
+}
+
+static void audio_dev_open() {
+  s.freq = freq;
+  s.channels = channels;
+  s.samples = samples;
+  s.callback = audio_callback;
+  SDL_OpenAudio(&s, NULL);
+}
+
+static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
+  assert(is_write && len == 1);
+  ++count;
+}
+
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
+  assert((offset & 0b11) == 0);
+  switch (offset >> 2) {
+    case reg_freq:
+      assert(is_write);
+      freq = audio_base[reg_freq];
+      break;
+    case reg_channels:
+      assert(is_write);
+      channels = audio_base[reg_channels];
+      break;
+    case reg_samples:
+      assert(is_write);
+      samples = audio_base[reg_samples];
+      break;
+    case reg_sbuf_size:
+      assert(!is_write);
+      audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
+      break;
+    case reg_init:
+      assert(is_write);
+      audio_dev_open();
+      audio_base[reg_init] = 0;
+      break;
+    case reg_count:
+      assert(!is_write);
+      audio_base[reg_count] = count;
+      break;
+    default:
+      assert(0);
+      break;
+  }
 }
 
 void init_audio() {
@@ -43,5 +115,7 @@ void init_audio() {
 #endif
 
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
-  add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
+  add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, sbuf_io_handler);
+
+  IFDEF(CONFIG_HAS_AUDIO, audio_dev_init());
 }
