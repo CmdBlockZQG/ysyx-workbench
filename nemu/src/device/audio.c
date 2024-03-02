@@ -41,7 +41,6 @@ static int sbuf_p = 0;
 static SDL_AudioSpec s = {};
 
 void audio_callback(void *userdata, Uint8 *stream, int len) {
-  Log("callback");
   while (count > 0 && len > 0) {
     --count;
     --len;
