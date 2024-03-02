@@ -72,7 +72,6 @@ static void sbuf_io_handler(uint32_t offset, int len, bool is_write) {
 }
 
 static void sbuf_io_handler_r(uint32_t offset, int len, bool is_write) {
-  assert(is_write && len == 1);
   SDL_LockAudio();
 }
 
