@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
   long img_size = load_img();
 
   /* load elf file */
-  init_elf(elf_file);
+  IFDEF(ITRACE, init_elf(elf_file));
 
   /* initialize llvm disasm */
   IFDEF(ITRACE, init_disasm(MUXDEF(RV64, "riscv64", "riscv32") "-pc-linux-gnu"));
