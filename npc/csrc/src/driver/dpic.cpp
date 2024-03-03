@@ -20,6 +20,17 @@ int mem_read(int raddr) {
 #ifdef MTRACE
   mtrace_read(raddr);
 #endif
+
+  if (raddr == rtc_mmio || raddr == rtc_mmio + 4) {
+    union {
+      uint64_t t;
+      int s[2];
+    } t;
+    t.t = std::chrono::time_point_cast<std::chrono::nanoseconds> \
+          (std::chrono::system_clock::now()).time_since_epoch().count();
+    return raddr == rtc_mmio ? t.s[0] : t.s[1];
+  }
+
   word_t rdata = addr_read((addr_t)raddr & ~0x3u, 4);
   return *(int *)&rdata;
 }
