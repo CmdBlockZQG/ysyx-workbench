@@ -22,7 +22,7 @@ int mem_read(int raddr) {
 #endif
 
   if (raddr == rtc_mmio || raddr == rtc_mmio + 4) {
-    difftest_skip_ref();
+    // difftest_skip_ref();
     union {
       uint64_t t;
       int s[2];
