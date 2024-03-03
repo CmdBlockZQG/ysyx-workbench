@@ -8,9 +8,10 @@
 static const addr_t serial_mmio = 0xa00003f8;
 static const addr_t rtc_mmio = 0xa0000048;
 
+void difftest_skip_ref();
+
 void halt() {
   // ret a0 x10
-  void difftest_skip_ref();
   difftest_skip_ref();
   set_npc_state(NPC_END, cpu_pc, gpr(10));
 }
@@ -31,9 +32,9 @@ void mem_write(int waddr, int wdata, char wmask) {
 
   if (waddr == serial_mmio) {
     putchar(wdata);
+    difftest_skip_ref();
     return;
   }
-  assert(waddr != serial_mmio);
 
   if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
   if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);
