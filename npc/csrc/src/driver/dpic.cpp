@@ -15,7 +15,9 @@ void difftest_skip_ref_next();
 
 void halt() {
   // ret a0 x10
+#ifdef DIFFTEST
   difftest_skip_ref();
+#endif
   set_npc_state(NPC_END, cpu_pc, gpr(10));
 }
 
