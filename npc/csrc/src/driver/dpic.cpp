@@ -8,7 +8,10 @@
 static const addr_t serial_mmio = 0xa00003f8;
 static const addr_t rtc_mmio = 0xa0000048;
 
+#ifdef DIFFTEST
 void difftest_skip_ref();
+void difftest_skip_ref_next();
+#endif
 
 void halt() {
   // ret a0 x10
@@ -30,7 +33,9 @@ int mem_read(int raddr) {
   static uint64_t boot_time = 0;
   if (!boot_time) boot_time = get_time();
   if (raddr == rtc_mmio || raddr == rtc_mmio + 4) {
-    difftest_skip_ref();
+#ifdef DIFFTEST
+    difftest_skip_ref_next();
+#endif
     union {
       uint64_t t;
       int s[2];
@@ -51,7 +56,9 @@ void mem_write(int waddr, int wdata, char wmask) {
 
   if (waddr == serial_mmio) {
     putchar(wdata);
+#ifdef DIFFTEST
     difftest_skip_ref();
+#endif
     return;
   }
 
