@@ -33,6 +33,7 @@ void mem_write(int waddr, int wdata, char wmask) {
     putchar(wdata);
     return;
   }
+  assert(waddr != serial_mmio);
 
   if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
   if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);
