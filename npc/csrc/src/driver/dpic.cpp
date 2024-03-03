@@ -28,7 +28,7 @@ int mem_read(int raddr) {
       uint64_t t;
       int s[2];
     } t;
-    t.t = std::chrono::time_point_cast<std::chrono::milliseconds> \
+    t.t = std::chrono::time_point_cast<std::chrono::microseconds> \
           (std::chrono::system_clock::now()).time_since_epoch().count();
     return raddr == rtc_mmio ? t.s[0] : t.s[1];
   }
