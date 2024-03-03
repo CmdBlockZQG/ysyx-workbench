@@ -19,6 +19,7 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 #ifdef DIFFTEST
 
 static bool is_skip_ref = false;
+static bool is_skip_ref_next = false;
 static int skip_dut_nr_inst = 0;
 
 static void difftest_regcpy() {
@@ -32,6 +33,10 @@ static void difftest_regcpy() {
 
 void difftest_skip_ref() {
   is_skip_ref = true;
+}
+
+void difftest_skip_ref_next() {
+  is_skip_ref_next = true;
 }
 
 void init_difftest(char *ref_so_file, long img_size) {
@@ -92,8 +97,13 @@ static void display_ref(diff_context_t *ref) {
 void difftest_step() {
   if (is_skip_ref) {
     difftest_regcpy();
-    is_skip_ref = false;
+    if (is_skip_ref_next) is_skip_ref_next = false;
+    else is_skip_ref = false;
     return;
+  }
+  if (is_skip_ref_next) {
+    is_skip_ref = true;
+    is_skip_ref_next = false;
   }
   ref_difftest_exec(1);
   diff_context_t ref;
