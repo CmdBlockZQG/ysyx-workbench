@@ -17,6 +17,7 @@ void halt() {
 }
 
 int mem_read(int raddr) {
+  raddr = raddr & ~0x3u;
 #ifdef MTRACE
   mtrace_read(raddr);
 #endif
@@ -32,7 +33,7 @@ int mem_read(int raddr) {
     return raddr == rtc_mmio ? t.s[0] : t.s[1];
   }
 
-  word_t rdata = addr_read((addr_t)raddr & ~0x3u, 4);
+  word_t rdata = addr_read((addr_t)raddr, 4);
   return *(int *)&rdata;
 }
 
