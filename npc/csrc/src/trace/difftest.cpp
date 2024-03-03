@@ -97,7 +97,8 @@ static void display_ref(diff_context_t *ref) {
 void difftest_step() {
   if (is_skip_ref) {
     difftest_regcpy();
-    is_skip_ref = false;
+    if (is_skip_ref_next) is_skip_ref_next = false;
+    else is_skip_ref = false;
     return;
   }
   if (is_skip_ref_next) {
