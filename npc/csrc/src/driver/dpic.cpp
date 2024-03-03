@@ -33,8 +33,6 @@ int mem_read(int raddr) {
     return raddr == rtc_mmio ? t.s[0] : t.s[1];
   }
 
-  assert(in_mem(raddr));
-
   word_t rdata = addr_read((addr_t)raddr, 4);
   return *(int *)&rdata;
 }
