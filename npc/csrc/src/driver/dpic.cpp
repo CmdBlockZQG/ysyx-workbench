@@ -16,20 +16,26 @@ void halt() {
   set_npc_state(NPC_END, cpu_pc, gpr(10));
 }
 
+static uint64_t get_time() {
+  return std::chrono::time_point_cast<std::chrono::microseconds> \
+         (std::chrono::high_resolution_clock::now()).time_since_epoch().count();
+}
+
 int mem_read(int raddr) {
   raddr = raddr & ~0x3u;
 #ifdef MTRACE
   mtrace_read(raddr);
 #endif
 
+  static uint64_t boot_time = 0;
+  if (!boot_time) boot_time = get_time();
   if (raddr == rtc_mmio || raddr == rtc_mmio + 4) {
     difftest_skip_ref();
     union {
       uint64_t t;
       int s[2];
     } t;
-    t.t = std::chrono::time_point_cast<std::chrono::microseconds> \
-          (std::chrono::high_resolution_clock::now()).time_since_epoch().count();
+    t.t = get_time() - boot_time;
     return raddr == rtc_mmio ? t.s[0] : t.s[1];
   }
 
