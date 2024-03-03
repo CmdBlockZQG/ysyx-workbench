@@ -5,6 +5,9 @@
 #include "mem.h"
 #include "trace.h"
 
+static const addr_t serial_mmio = 0xa00003f8;
+static const addr_t rtc_mmio = 0xa0000048;
+
 void halt() {
   // ret a0 x10
   void difftest_skip_ref();
@@ -25,6 +28,12 @@ void mem_write(int waddr, int wdata, char wmask) {
 #ifdef MTRACE
   mtrace_write(waddr, wdata, wmask);
 #endif
+
+  if (waddr == serial_mmio) {
+    putchar(wdata);
+    return;
+  }
+
   if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
   if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);
   if (wmask & 0b0100) addr_write(waddr + 2, 1, wdata >> 16);
