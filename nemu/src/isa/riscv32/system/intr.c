@@ -18,6 +18,7 @@
 extern word_t csr_mstatus, csr_mtvec, csr_mepc, csr_mcause;
 
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
+  Log("[ETRACE] exception triggered at pc = "FMT_PADDR, epc);
   csr_mepc = epc;
   csr_mcause = NO;
   return csr_mtvec;
