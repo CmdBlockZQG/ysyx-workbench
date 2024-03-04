@@ -37,6 +37,8 @@ f(30) f(31)
 #define OFFSET_STATUS ((NR_REGS + 1) * XLEN)
 #define OFFSET_EPC    ((NR_REGS + 2) * XLEN)
 
+.type __am_asm_trap, @function
+
 .align 3
 .globl __am_asm_trap
 __am_asm_trap:
@@ -69,3 +71,5 @@ __am_asm_trap:
 
   addi sp, sp, CONTEXT_SIZE
   mret
+
+.size __am_asm_trap, . - __am_asm_trap
