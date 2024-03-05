@@ -28,7 +28,6 @@ static void difftest_regcpy() {
     ctx.gpr[i] = gpr(i);
   }
   ctx.pc = cpu_pc;
-  Log(FMT_ADDR, cpu_pc);
   ref_difftest_regcpy(&ctx, DIFFTEST_TO_REF);
 }
 
