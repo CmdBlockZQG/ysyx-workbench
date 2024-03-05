@@ -58,6 +58,7 @@ void mem_write(int waddr, int wdata, char wmask) {
 
   if (waddr == serial_mmio) {
     putchar(wdata);
+    fflush(stdout);
 #ifdef DIFFTEST
     difftest_skip_ref();
 #endif
