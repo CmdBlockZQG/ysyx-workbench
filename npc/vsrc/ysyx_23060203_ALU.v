@@ -12,11 +12,12 @@ module ysyx_23060203_ALU (
   `include "params/alu.v"
 
   // 需要做减法的情况：减法、比较（有符号/无符号）
-  wire sub = funcs | (funct == ALU_LTS) | (funct == ALU_LTU);
-  // wire sub = ((funct == ALU_ADD) & funcs) | (funct == ALU_LTS) | (funct == ALU_LTU);
+  // csrrw csrrwi会将binv设为1，这样b就会被取反
+  wire binv = funcs | (funct == ALU_LTS) | (funct == ALU_LTU);
+  // wire binv = ((funct == ALU_ADD) & funcs) | (funct == ALU_LTS) | (funct == ALU_LTU);
   // 这里简化是因为funcs只在减法和位移时为1，而位移时位移位数有单独的bs，不会被取反影响
   wire [31:0] a = alu_a;
-  wire [31:0] b = alu_b ^ {32{sub}}; // 做减法需要将b取反
+  wire [31:0] b = alu_b ^ {32{binv}}; // 做减法需要将b取反
   wire [31:0] bs = {27'b0, alu_b[4:0]}; // 位移指令，移动位数高位舍弃
 
   reg [31:0] e; // 直接计算结果
@@ -29,7 +30,7 @@ module ysyx_23060203_ALU (
   always_comb begin
     cf = 0;
     case (funct)
-      ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, sub}; // 减法需要加一个1
+      ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, binv}; // 减法需要加一个1
       ALU_SHL: e = a << bs;
       ALU_XOR: e = a ^ b;
       ALU_SHR: e = funcs ? sra : a >> bs; // 0逻辑，1算数

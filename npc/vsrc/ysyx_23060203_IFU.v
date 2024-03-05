@@ -16,7 +16,7 @@ module ysyx_23060203_IFU (
   end
 
   // -------------------- EBREAK --------------------
-  always @(posedge clk) begin
+  always_comb begin
     if (rstn & inst == 32'h100073) begin
       halt();
     end
