@@ -17,6 +17,19 @@ module top(
   );
 
 
+  wire [31:0] csr_rdata;
+  ysyx_23060203_CSR CSR (
+    .rstn(rstn), .clk(clk),
+
+    .raddr(csr_raddr), .rdata(csr_rdata),
+
+    .wen1(csr_wen1),
+    .waddr1(csr_waddr1), .wdata1(csr_wdata1),
+    .wen2(csr_wen2),
+    .waddr2(csr_waddr2), .wdata2(csr_wdata2)
+  );
+
+
   wire [31:0] pc/*verilator public*/;
   wire [31:0] next_pc/*verilator public*/;
   ysyx_23060203_PC PC (
@@ -42,6 +55,8 @@ module top(
 
   wire [4:0] reg_raddr1, reg_raddr2;
 
+  wire [11:0] csr_raddr;
+
   wire [31:0] alu_a, alu_b;
   wire [2:0] alu_funct;
   wire alu_funcs;
@@ -49,21 +64,24 @@ module top(
   wire [4:0] opcode;
   wire [2:0] funct;
   wire [4:0] rd;
-  wire [11:0] csr;
   wire [31:0] src1, src2, imm;
+  wire [31:0] csr;
 
   ysyx_23060203_IDU IDU (
     .inst(inst), .pc(pc),
     // 连接寄存器文件
     .reg_raddr1(reg_raddr1), .reg_rdata1(reg_rdata1),
     .reg_raddr2(reg_raddr2), .reg_rdata2(reg_rdata2),
+    // 连接CSR读端口
+    .csr_raddr(csr_raddr), .csr_rdata(csr_rdata),
     // 产生ALU输入
     .alu_a(alu_a), .alu_b(alu_b),
     .alu_funct(alu_funct), .alu_funcs(alu_funcs),
     // 产生EXU输入
     .opcode(opcode), .funct(funct),
-    .rd(rd), .csr(csr),
-    .src1(src1), .src2(src2), .imm(imm)
+    .rd(rd),
+    .src1(src1), .src2(src2), .imm(imm),
+    .csr(csr)
   );
 
 
@@ -90,11 +108,15 @@ module top(
 
   wire pc_ovrd;
   wire [31:0] pc_inc, pc_ovrd_addr;
+  wire csr_wen1, csr_wen2;
+  wire [11:0] csr_waddr1, csr_waddr2;
+  wire [31:0] csr_wdata1, csr_wdata2;
   ysyx_23060203_EXU EXU (
     // 译码结果
     .opcode(opcode), .funct(funct),
-    .rd(rd), .csr(csr),
+    .rd(rd),
     .src1(src1), .src2(src2), .imm(imm),
+    .csr(csr),
     // alu结果
     .alu_val(alu_val),
     // 寄存器写
@@ -110,6 +132,11 @@ module top(
     .mem_wfunc(mem_wfunc),
     .mem_waddr(mem_waddr),
     .mem_wdata(mem_wdata),
+    // 连接CSR写端口
+    .csr_wen1(csr_wen1),
+    .csr_waddr1(csr_waddr1), .csr_wdata1(csr_wdata1),
+    .csr_wen2(csr_wen2),
+    .csr_waddr2(csr_waddr2), .csr_wdata2(csr_wdata2),
     // 连接PC
     .pc_inc(pc_inc),
     .pc_ovrd(pc_ovrd),

@@ -10,6 +10,10 @@ module ysyx_23060203_IDU (
   output [4:0] reg_raddr2,
   input [31:0] reg_rdata2,
 
+  // 连接CSR寄存器
+  output [11:0] csr_raddr,
+  input [31:0] csr_rdata,
+
   // 连接ALU输入
   output reg [31:0] alu_a,
   output reg [31:0] alu_b,
@@ -20,19 +24,19 @@ module ysyx_23060203_IDU (
   output [4:0] opcode,
   output [2:0] funct,
   output [4:0] rd,
-  output [11:0] csr,
   output [31:0] src1,
   output [31:0] src2,
-  output [31:0] imm
+  output [31:0] imm,
+  output [31:0] csr
 );
   `include "params/opcode.v"
   `include "params/alu.v"
   `include "params/branch.v"
+  `include "params/csr.v"
 
   // -------------------- 指令译码 --------------------
   assign opcode = inst[6:2];
   assign funct = inst[14:12];
-  assign csr = inst[31:20];
 
   // -------------------- 寄存器译码 --------------------
   wire [4:0] rs1, rs2;
@@ -57,31 +61,51 @@ module ysyx_23060203_IDU (
 
   always_comb begin // 根据指令类型选择立即数
     case (opcode)
-      OP_CALRI, OP_LOAD, OP_JALR : imm = immI;
-      OP_STORE                   : imm = immS;
-      OP_BRANCH                  : imm = immB;
-      OP_LUI, OP_AUIPC           : imm = immU;
-      OP_JAL                     : imm = immJ;
-      default                    : imm = 32'b0; // CALRR 无立即数
+      OP_CALRI, OP_LOAD, OP_JALR, OP_SYS : imm = immI;
+      OP_STORE                           : imm = immS;
+      OP_BRANCH                          : imm = immB;
+      OP_LUI, OP_AUIPC                   : imm = immU;
+      OP_JAL                             : imm = immJ;
+      default                            : imm = 32'b0; // CALRR 无立即数
     endcase
   end
 
+  // -------------------- CSR译码 --------------------
+  wire [31:0] zimm = {27'b0, inst[19:15]};
+  // ecall需要读取mtvec，mret需要读MEPC
+  assign csr_raddr = |funct ? inst[31:20] : (inst[31:20] == 12'b0 ? CSR_MTVEC : CSR_MEPC);
+  assign csr = csr_rdata;
+
   // -------------------- ALU连线 --------------------
+
+  reg [31:0] csr_alu_a;
+  always_comb begin // CSR操作时alu操作数A，在opcode不为OP_SYS时无效
+    case (funct)
+      3'b000            : csr_alu_a = pc;
+      CSRF_RW, CSRF_RWI : csr_alu_a = 32'b0;
+      default           : csr_alu_a = csr;
+    endcase
+  end
+
   always_comb begin // ALU A
     case (opcode)
-      OP_LOAD, OP_STORE, OP_CALRI, OP_CALRR, OP_BRANCH : alu_a = src1;
-      OP_AUIPC, OP_JAL, OP_JALR                        : alu_a = pc;
-      // LUI                                           : alu_a = 32'b0;
-      default                                          : alu_a = 32'b0; // 归并到default
+      OP_LOAD, OP_STORE, OP_CALRI,
+              OP_CALRR, OP_BRANCH  : alu_a = src1;
+      OP_AUIPC, OP_JAL, OP_JALR    : alu_a = pc;
+      OP_SYS                       : alu_a = csr_alu_a;
+      // OP_LUI                    : alu_a = 32'b0;
+      default                      : alu_a = 32'b0; // 归并到default
     endcase
   end
 
   always_comb begin // ALU B
     case (opcode)
-      OP_CALRR, OP_BRANCH                           : alu_b = src2;
-      OP_LUI, OP_AUIPC, OP_LOAD, OP_STORE, OP_CALRI : alu_b = imm;
-      // JAL, JALR                                  : alu_b = 32'd4;
-      default                                       : alu_b = 32'd4; // 归并到default
+      OP_CALRR, OP_BRANCH        : alu_b = src2;
+      OP_LUI, OP_AUIPC, OP_LOAD,
+              OP_STORE, OP_CALRI : alu_b = imm;
+      OP_SYS                     : alu_b = funct[2] ? zimm : src1; // ecall全是0，src1读取x0也是0
+      // OP_JAL, OP_JALR         : alu_b = 32'd4;
+      default                    : alu_b = 32'd4; // 归并到default
     endcase
   end
 
@@ -95,10 +119,22 @@ module ysyx_23060203_IDU (
     endcase
   end
 
+  reg [2:0] csr_alu_funct;
+  always_comb begin // CSR操作时alu功能选择，在opcode不为OP_SYS时无效
+    case (funct)
+      CSRF_RS, CSRF_RSI: csr_alu_funct = ALU_OR;
+      CSRF_RC, CSRF_RCI: csr_alu_funct = ALU_AND;
+      // CSRF_RW, CSRF_RWI: csr_alu_funct = ALU_XOR;
+      // 3'b000的ECALL因为要传递PC，也用XOR
+      default          : csr_alu_funct = ALU_XOR; // 归并到default
+    endcase
+  end
+
   always_comb begin // ALU Function
     case (opcode)
       OP_CALRI, OP_CALRR : alu_funct = funct;
       OP_BRANCH          : alu_funct = branch_alu_funct;
+      OP_SYS             : alu_funct = csr_alu_funct;
       default            : alu_funct = ALU_ADD;
       // LUI, AUIPC, JAL, JALR, LOAD, STORE 都是直接加法
     endcase
@@ -107,5 +143,8 @@ module ysyx_23060203_IDU (
   wire funcs = inst[30]; // 带有功能切换的运算，切换标志位
   // R型运算指令直接取出那个位即可。I型运算指令只有位移指令有。左移指令只能是逻辑，所以这里只考虑了右移。
   wire funcs_en = (opcode == OP_CALRR) | ((opcode == OP_CALRI) & (funct == ALU_SHR));
-  assign alu_funcs = funcs & funcs_en;
+  // csr clear需要取反，csrrc和csrrci的funct低两位都是1
+  wire funcs_csr = (opcode == OP_SYS) & funct[1] & funct[0];
+
+  assign alu_funcs = (funcs & funcs_en) | funcs_csr;
 endmodule
