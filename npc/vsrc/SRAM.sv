@@ -12,7 +12,7 @@ module SRAM (
   reg reading, writing;
   always @(posedge clk) begin
     rstn_prev <= rstn;
-    if (rstn) begin // 复位
+    if (~rstn) begin // 复位
       read.arready <= 0;
       read.rvalid <= 0;
       reading <= 0;
@@ -21,7 +21,7 @@ module SRAM (
       write.wready <= 0;
       write.bvalid <= 0;
       writing <= 0;
-    end else if (~rstn & rstn_prev) begin // 复位释放
+    end else if (rstn & ~rstn_prev) begin // 复位释放
       read.arready <= 1;
       read.rvalid <= 0;
       reading <= 0;
@@ -35,24 +35,20 @@ module SRAM (
 
   reg [31:0] raddr;
   always @(posedge clk) begin
-    if (read.arready) begin
-      // 等待arvalid
-      if (read.arvalid) begin // 握手成功
-        read.arready <= 0;
-        raddr <= read.araddr;
-        reading <= 1;
-      end
-    end else begin
-      if (reading & ~read.rvalid) begin
-        reading <= 0;
-        read.rvalid <= 1;
-        read.rdata <= mem_read(raddr);
-        read.rresp <= 2'b00;
-        read.arready <= 1;
-      end
+    if (read.rvalid & read.rready) read.rvalid <= 0;
+    if (read.arready & read.arvalid) begin
+      read.arready <= 0;
+      raddr <= read.araddr;
+      reading <= 1;
     end
 
-    if (read.rvalid & read.rready) read.rvalid <= 0;
+    if (~read.arready & reading & ~read.rvalid) begin
+      reading <= 0;
+      read.rvalid <= 1;
+      read.rdata <= mem_read(raddr);
+      read.rresp <= 2'b00;
+      read.arready <= 1;
+    end
   end
 
   reg [31:0] waddr, wdata;
