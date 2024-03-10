@@ -24,7 +24,7 @@ module ysyx_23060203_MemArb (
       lsu_r.arready <= 1;
       ifu_r.rvalid <= 0;
       ram_r.arvalid <= 0;
-      ram_r.rready <= 0;
+      ram_r.rready <= 1;
     end
   end
 
@@ -44,15 +44,29 @@ module ysyx_23060203_MemArb (
     end
 
     // 向slave传递地址
-    if (~ifu_r.arready & ~lsu_r.arready) begin
-      // 同时读请求
-      if (dev[0]) begin // 轮到ifu
+    if (~ram_r.arvalid) begin
+      if (~ifu_r.arready & ~lsu_r.arready) begin
+        // 同时读请求
+        if (dev[0]) begin // 轮到ifu
+          dev[0] <= 0;
+          ram_r.arvalid <= 1;
+          ram_r.araddr <= ifu_raddr;
+          dev[1] <= 0;
+          ifu_r.arready <= 1;
+        end else begin // 轮到lsu
+          dev[0] <= 1;
+          ram_r.arvalid <= 1;
+          ram_r.araddr <= lsu_raddr;
+          dev[1] <= 1;
+          lsu_r.arready <= 1;
+        end
+      end else if (~ifu_r.arready) begin
         dev[0] <= 0;
         ram_r.arvalid <= 1;
         ram_r.araddr <= ifu_raddr;
         dev[1] <= 0;
         ifu_r.arready <= 1;
-      end else begin // 轮到lsu
+      end else if (~lsu_r.arready) begin
         dev[0] <= 1;
         ram_r.arvalid <= 1;
         ram_r.araddr <= lsu_raddr;
@@ -64,7 +78,6 @@ module ysyx_23060203_MemArb (
     // 确认slave收到地址
     if (ram_r.arvalid & ram_r.arready) begin
       ram_r.arvalid <= 0;
-      ram_r.rready <= 1;
       dev[2] <= dev[1];
     end
 
