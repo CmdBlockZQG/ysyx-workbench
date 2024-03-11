@@ -5,21 +5,17 @@ module ysyx_23060203_IFU (
   input rstn, clk,
 
   // 接收EXU跳转控制信号
-  input [31:0] inc, // pc增量，默认情况下应该是4
-  input ovrd, // 新地址不再由原来的pc加上增量得到
-  input [31:0] ovrd_addr, // ovrd为1时有效，用于替换pc
+  input [31:0] npc,
   decouple_if.in npc_in,
 
+  // 向IDU传递pc和inst
   output reg [31:0] pc,
   output reg [31:0] inst,
   decouple_if.out inst_out,
 
+  // 连接指令内存
   axi_r_if.master ram_r
 );
-  wire [31:0] npc_base = ovrd ? ovrd_addr : pc;
-  wire [31:0] npc_orig = npc_base + inc;
-  wire [31:0] next_pc = {npc_orig[31:1], 1'b0};
-
   reg rstn_prev;
   reg [31:0] inst_reg, npc_reg;
   reg [31:0] pc_reg [3];
@@ -45,11 +41,11 @@ module ysyx_23060203_IFU (
       if (~ram_r.arvalid) begin // 尝试向ram传递地址
         ram_r.arvalid <= 1;
         npc_in.ready <= 1;
-        ram_r.araddr <= next_pc;
-        pc_reg[0] <= next_pc;
+        ram_r.araddr <= npc;
+        pc_reg[0] <= npc;
       end else begin // ram暂时无法接收地址，暂存
         npc_in.ready <= 0;
-        npc_reg <= next_pc;
+        npc_reg <= npc;
       end
     end
 

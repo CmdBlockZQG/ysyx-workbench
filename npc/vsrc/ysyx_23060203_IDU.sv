@@ -1,8 +1,11 @@
+`include "interface/decouple.sv"
+
 module ysyx_23060203_IDU (
   // 组合逻辑,无时钟和复位
 
   input [31:0] inst, // 指令输入
   input [31:0] pc, // PC输入
+  decouple_if.in inst_in,
 
   // 连接寄存器文件，译码寄存器
   output [4:0] reg_raddr1,
@@ -19,22 +22,28 @@ module ysyx_23060203_IDU (
   output reg [31:0] alu_b,
   output [2:0] alu_funct,
   output alu_funcs,
-
   // 连接EXU输入
+  output [31:0] pc_pass,
   output [4:0] opcode,
   output [2:0] funct,
   output [4:0] rd,
   output [31:0] src1,
   output [31:0] src2,
   output [31:0] imm,
-  output [31:0] csr
+  output [31:0] csr,
+  // 总线
+  decouple_if.out id_out
 );
-  `include "params/opcode.v"
-  `include "params/alu.v"
-  `include "params/branch.v"
-  `include "params/csr.v"
+  `include "params/opcode.sv"
+  `include "params/alu.sv"
+  `include "params/branch.sv"
+  `include "params/csr.sv"
+
+  assign inst_in.ready = id_out.ready;
+  assign id_out.valid = inst_in.valid;
 
   // -------------------- 指令译码 --------------------
+  assign pc_pass = pc;
   assign opcode = inst[6:2];
   assign funct = inst[14:12];
 

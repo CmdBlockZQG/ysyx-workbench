@@ -9,7 +9,7 @@ module ysyx_23060203_ALU (
 
   output reg [31:0] val
 );
-  `include "params/alu.v"
+  `include "params/alu.sv"
 
   // 需要做减法的情况：减法、比较（有符号/无符号）
   // csrrw csrrwi会将binv设为1，这样b就会被取反
