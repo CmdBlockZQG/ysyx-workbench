@@ -16,14 +16,13 @@ module ysyx_23060203_IFU (
 
   axi_r_if.master ram_r
 );
-
-  // FIXME: 这个pc传递还是错的
   wire [31:0] npc_base = ovrd ? ovrd_addr : pc;
   wire [31:0] npc_orig = npc_base + inc;
   wire [31:0] next_pc = {npc_orig[31:1], 1'b0};
 
   reg rstn_prev;
   reg [31:0] inst_reg, npc_reg;
+  reg [31:0] pc_reg [3];
   always @(posedge clk) begin
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
@@ -37,46 +36,62 @@ module ysyx_23060203_IFU (
       inst_out.valid <= 0;
       ram_r.arvalid <= 1;
       ram_r.rready <= 1;
-      ram_r.araddr <= 32'h80000000;
+      ram_r.araddr <= pc;
+      pc_reg[0] <= pc;
     end
 
-    // 向ram传递地址
+    // 读入npc
+    if (npc_in.ready & npc_in.valid) begin
+      if (~ram_r.arvalid) begin // 尝试向ram传递地址
+        ram_r.arvalid <= 1;
+        npc_in.ready <= 1;
+        ram_r.araddr <= next_pc;
+        pc_reg[0] <= next_pc;
+      end else begin // ram暂时无法接收地址，暂存
+        npc_in.ready <= 0;
+        npc_reg <= next_pc;
+      end
+    end
+
+    // 向ram传递暂存的地址
     if (~ram_r.arvalid & ~npc_in.ready) begin
       ram_r.arvalid <= 1;
       npc_in.ready <= 1;
       ram_r.araddr <= npc_reg;
+      pc_reg[0] <= npc_reg;
     end
 
     // 确认ram收到地址
     if (ram_r.arvalid & ram_r.arready) begin
       ram_r.arvalid <= 0;
+      pc_reg[1] <= pc_reg[0];
     end
 
-    // 从ram接收指令
+    // 从ram接收指令 TEMP: 暂时不考虑错误处理，不管resp
     if (ram_r.rready & ram_r.rvalid) begin
-      ram_r.rready <= 0;
-      // TEMP: 暂时不考虑错误处理，不管resp
-      // resp_reg <= ram_r.rresp
-      inst_reg <= ram_r.rdata;
+      if (~inst_out.valid) begin
+        ram_r.rready <= 1;
+        inst_out.valid <= 1;
+        inst <= ram_r.rdata;
+        pc <= pc_reg[1];
+      end else begin
+        ram_r.rready <= 0;
+        inst_reg <= ram_r.rdata;
+        pc_reg[2] <= pc_reg[1];
+      end
     end
 
-    // 向下面的模块传递指令
+    // 向下面的模块传递指令 TEMP: 暂时不考虑错误处理，不管resp
     if (~ram_r.rready & ~inst_out.valid) begin
       ram_r.rready <= 1;
       inst_out.valid <= 1;
       inst <= inst_reg;
-      // TEMP: 暂时不考虑错误处理，不管resp
+      pc <= pc_reg[2];
     end
 
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
       inst_out.valid <= 0;
-    end
-
-    // 读入npc
-    if (npc_in.ready & npc_in.valid) begin
-      npc_in.ready <= 0;
-      npc_reg <= next_pc;
     end
   end
 endmodule

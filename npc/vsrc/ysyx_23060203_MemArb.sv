@@ -29,48 +29,45 @@ module ysyx_23060203_MemArb (
   end
 
   reg [31:0] ifu_raddr, lsu_raddr;
-  reg dev [4];
+  reg dev [3];
   reg [31:0] rdata;
   reg [1:0] rresp;
   always @(posedge clk) begin
     // 从master读取地址
     if (ifu_r.arready & ifu_r.arvalid) begin
-      ifu_r.arready <= 0;
-      ifu_raddr <= ifu_r.araddr;
-    end
-    if (lsu_r.arready & lsu_r.arvalid) begin
-      lsu_r.arready <= 0;
-      lsu_raddr <= lsu_r.araddr;
-    end
-
-    // 向slave传递地址
-    if (~ram_r.arvalid) begin
-      if (~ifu_r.arready & ~lsu_r.arready) begin
-        // 同时读请求
-        if (dev[0]) begin // 轮到ifu
-          dev[0] <= 0;
-          ram_r.arvalid <= 1;
-          ram_r.araddr <= ifu_raddr;
-          dev[1] <= 0;
-          ifu_r.arready <= 1;
-        end else begin // 轮到lsu
-          dev[0] <= 1;
-          ram_r.arvalid <= 1;
-          ram_r.araddr <= lsu_raddr;
-          dev[1] <= 1;
-          lsu_r.arready <= 1;
-        end
-      end else if (~ifu_r.arready) begin
+      if (lsu_r.arready) begin // 没有暂存的读地址，可以直接向slave传递地址
         dev[0] <= 0;
         ram_r.arvalid <= 1;
-        ram_r.araddr <= ifu_raddr;
-        dev[1] <= 0;
+        ram_r.araddr <= ifu_r.araddr;
         ifu_r.arready <= 1;
-      end else if (~lsu_r.arready) begin
+      end else begin // 暂存地址
+        ifu_r.arready <= 0;
+        ifu_raddr <= ifu_r.araddr;
+      end
+    end
+    if (lsu_r.arready & lsu_r.arvalid) begin
+      if (ifu_r.arready) begin
         dev[0] <= 1;
         ram_r.arvalid <= 1;
         ram_r.araddr <= lsu_raddr;
-        dev[1] <= 1;
+        lsu_r.arready <= 1;
+      end else begin
+        lsu_r.arready <= 0;
+        lsu_raddr <= lsu_r.araddr;
+      end
+    end
+
+    // 向slave传递暂存的地址
+    if (~ram_r.arvalid) begin
+      if (~ifu_r.arready & (lsu_r.arready | dev[0])) begin
+        dev[0] <= 0;
+        ram_r.arvalid <= 1;
+        ram_r.araddr <= ifu_raddr;
+        ifu_r.arready <= 1;
+      end else if (~lsu_r.arready & (ifu_r.arready | ~dev[0])) begin
+        dev[0] <= 1;
+        ram_r.arvalid <= 1;
+        ram_r.araddr <= lsu_raddr;
         lsu_r.arready <= 1;
       end
     end
@@ -78,25 +75,37 @@ module ysyx_23060203_MemArb (
     // 确认slave收到地址
     if (ram_r.arvalid & ram_r.arready) begin
       ram_r.arvalid <= 0;
-      dev[2] <= dev[1];
+      dev[1] <= dev[0];
     end
 
     // 从slave接收数据
     if (ram_r.rready & ram_r.rvalid) begin
-      ram_r.rready <= 0;
-      rdata <= ram_r.rdata;
-      rresp <= ram_r.rresp;
-      dev[3] <= dev[2];
+      if (dev[1] & ~lsu_r.rvalid) begin
+        ram_r.rready <= 1;
+        lsu_r.rvalid <= 1;
+        lsu_r.rdata <= ram_r.rdata;
+        lsu_r.rresp <= ram_r.rresp;
+      end else if (~dev[1] & ~ifu_r.rvalid) begin
+        ram_r.rready <= 1;
+        ifu_r.rvalid <= 1;
+        ifu_r.rdata <= ram_r.rdata;
+        ifu_r.rresp <= ram_r.rresp;
+      end else begin // 暂存
+        ram_r.rready <= 0;
+        rdata <= ram_r.rdata;
+        rresp <= ram_r.rresp;
+        dev[2] <= dev[1];
+      end
     end
 
-    // 向master传递数据
+    // 向master传递暂存的数据
     if (~ram_r.rready) begin
-      if (dev[3] & ~lsu_r.rvalid) begin
+      if (dev[2] & ~lsu_r.rvalid) begin
         ram_r.rready <= 1;
         lsu_r.rvalid <= 1;
         lsu_r.rdata <= rdata;
         lsu_r.rresp <= rresp;
-      end else if (~dev[3] & ~ifu_r.rvalid) begin
+      end else if (~dev[2] & ~ifu_r.rvalid) begin
         ram_r.rready <= 1;
         ifu_r.rvalid <= 1;
         ifu_r.rdata <= rdata;
