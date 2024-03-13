@@ -204,19 +204,22 @@ module ysyx_23060203_LSU (
 
     // 向ram发送写请求
     if (~wreq.ready) begin
-      if (wreq_flag_aw) begin
+      if (wreq_flag_aw & ~ram_w.awvalid) begin
         ram_w.awvalid <= 1;
         ram_w.awaddr <= waddr_reg;
         wreq_flag_aw <= 0;
+        if ((wreq_flag_w & ~ram_w.wvalid) | ~wreq_flag_w) begin
+          wreq.ready <= 1;
+        end
       end
-      if (wreq_flag_w) begin
+      if (wreq_flag_w & ~ram_w.wvalid) begin
         ram_w.wvalid <= 1;
         ram_w.wdata <= wdata_reg;
         ram_w.wstrb <= wstrb_reg;
         wreq_flag_w <= 0;
-      end
-      if (~wreq_flag_aw & ~wreq_flag_w) begin
-        wreq.ready <= 1;
+        if ((wreq_flag_aw & ~ram_w.awvalid) | ~wreq_flag_aw) begin
+          wreq.ready <= 1;
+        end
       end
     end
 
