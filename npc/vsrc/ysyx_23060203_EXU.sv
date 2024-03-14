@@ -28,10 +28,10 @@ module ysyx_23060203_EXU (
   output [31:0] gpr_wdata,
 
   // CSR写
-  output csr_wen1, // 写入使能
+  output reg csr_wen1, // 写入使能
   output [11:0] csr_waddr1, // 写入地址
   output [31:0] csr_wdata1, // 写入数据
-  output csr_wen2, // 写入使能
+  output reg csr_wen2, // 写入使能
   output [11:0] csr_waddr2, // 写入地址
   output [31:0] csr_wdata2, // 写入数据
 
@@ -80,11 +80,22 @@ module ysyx_23060203_EXU (
     case (opcode)
       OP_LUI, OP_AUIPC, OP_JAL, OP_JALR,
                       OP_CALRI, OP_CALRR : id_gpr_wdata = alu_val;
-      OP_LOAD                            : id_gpr_wdata = 32'b0; // 单独处理
       OP_SYS                             : id_gpr_wdata = csr;
-      default                            : id_gpr_wdata = alu_val;
+      default                            : id_gpr_wdata = alu_val; // LOAD指令单独处理，不使用这里的结果
     endcase
   end
+
+  // -------------------- CSR写 --------------------
+  wire [11:0] csr_addr = imm[11:0];
+  wire ecall = (opcode == OP_SYS) & (csr_addr == 12'b0);
+  // csr操作指令funct不是全0，ecall的csr地址是全0
+  wire id_csr_wen1 = (opcode == OP_SYS) & ((|funct) | (csr_addr == 12'b0));
+  assign csr_waddr1 = (|funct) ? csr_addr : CSR_MEPC; // ecall向mepc写入pc
+  assign csr_wdata1 = alu_val;
+
+  wire id_csr_wen2 = ecall; // ecall
+  assign csr_waddr2 = CSR_MCAUSE;
+  assign csr_wdata2 = 32'd11; // 11表示sys call
 
   // -------------------- 控制跳转 --------------------
   reg [31:0] pc_inc;
@@ -119,10 +130,9 @@ module ysyx_23060203_EXU (
   // -------------------- 时序逻辑 --------------------
   reg rstn_prev;
   // 暂存寄存器
-  reg [31:0] npc_reg, alu_val_reg, src2_reg, gpr_wdata_reg;
+  reg [31:0] npc_reg, alu_val_reg, src2_reg;
   reg [2:0] funct_reg;
   reg [4:0] opcode_reg, rd_reg;
-  reg gpr_wen_reg;
   // 每个步骤的处理状态寄存器
   reg npc_flag, gpr_flag, load_flag, store_flag;
   always @(posedge clk) begin
@@ -145,22 +155,67 @@ module ysyx_23060203_EXU (
       mem_wres.ready <= 1;
     end
 
-    // 从idu接收指令 TODO: id_in.ready <= 1;
+    // 从idu接收指令
     if (id_in.ready & id_in.valid) begin
-      id_in.ready <= 0;
-      npc_reg <= id_npc;
       alu_val_reg <= alu_val;
       src2_reg <= src2;
-      gpr_wdata_reg <= id_gpr_wdata;
       funct_reg <= funct;
       opcode_reg <= opcode;
       rd_reg <= rd;
-      gpr_wen_reg <= id_gpr_wen;
 
-      npc_flag <= 1;
-      gpr_flag <= id_gpr_wen;
-      load_flag <= (opcode == OP_LOAD);
-      store_flag <= (opcode == OP_STORE);
+      if (~npc_out.valid) begin
+        npc_out.valid <= 1;
+        npc <= id_npc;
+        npc_flag <= 0;
+      end else begin
+        npc_reg <= id_npc;
+        npc_flag <= 1;
+      end
+
+      if (opcode == OP_LOAD) begin
+        if (~mem_rreq.valid) begin
+          mem_rreq.valid <= 1;
+          mem_raddr <= alu_val;
+          mem_rfunc <= funct;
+          load_flag <= 0;
+        end else begin
+          load_flag <= 1;
+        end
+      end else begin
+        load_flag <= 0;
+      end
+
+      if (opcode == OP_STORE) begin
+        if (~mem_wreq.valid) begin
+          mem_wreq.valid <= 1;
+          mem_wfunc <= funct;
+          mem_waddr <= alu_val;
+          mem_wdata <= src2;
+          store_flag <= 0;
+        end else begin
+          store_flag <= 1;
+        end
+      end else begin
+        store_flag <= 0;
+      end
+
+      if (id_gpr_wen) begin
+        if (opcode != OP_LOAD) begin
+          gpr_wen <= 1;
+          gpr_waddr <= rd;
+          gpr_wdata <= id_gpr_wdata;
+          gpr_flag <= 0;
+        end else begin
+          gpr_flag <= 1;
+        end
+      end else begin
+        gpr_flag <= 0;
+      end
+
+      csr_wen1 <= id_csr_wen1;
+      csr_wen2 <= id_csr_wen2;
+
+      id_in.ready <= ~npc_out.valid & (opcode != OP_LOAD) & (opcode != OP_STORE);
     end
 
     if (~id_in.ready) begin
@@ -169,6 +224,9 @@ module ysyx_23060203_EXU (
         npc_out.valid <= 1;
         npc <= npc_reg;
         npc_flag <= 0;
+        if ((~load_flag | ~mem_rreq.valid) & (~store_flag | ~mem_wreq.valid)) begin
+          id_in.ready <= 1;
+        end
       end
       // 读内存请求
       if (~mem_rreq.valid & load_flag) begin
@@ -176,6 +234,9 @@ module ysyx_23060203_EXU (
         mem_raddr <= alu_val_reg;
         mem_rfunc <= funct_reg;
         load_flag <= 0;
+        if ((~npc_flag | ~npc_out.valid) & (~store_flag | ~mem_wreq.valid)) begin
+          id_in.ready <= 1;
+        end
       end
       // 写内存请求
       if (~mem_wreq.valid & store_flag) begin
@@ -184,14 +245,8 @@ module ysyx_23060203_EXU (
         mem_waddr <= alu_val_reg;
         mem_wdata <= src2_reg;
         store_flag <= 0;
-      end
-      // 写寄存器请求
-      if (gpr_flag) begin
-        if (opcode != OP_LOAD) begin
-          gpr_wen <= 1;
-          gpr_waddr <= rd_reg;
-          gpr_wdata <= gpr_wdata_reg;
-          gpr_flag <= 0;
+        if ((~npc_flag | ~npc_out.valid) & (~load_flag | ~mem_rreq.valid)) begin
+          id_in.ready <= 1;
         end
       end
     end
@@ -209,21 +264,26 @@ module ysyx_23060203_EXU (
       mem_wreq.valid <= 0;
     end
     // 确认GPR写入
+    // 因为不可能连续两个周期写，所以这个是对的
     if (gpr_wen) begin
       gpr_wen <= 0;
     end
+    // CSR同理
+    if (csr_wen1) begin
+      csr_wen1 <= 0;
+    end
+    if (csr_wen2) begin
+      csr_wen2 <= 0;
+    end
+
+    // 接收内存读请求回复，写入寄存器
+    if (mem_rres.valid & mem_rres.ready) begin
+      gpr_wen <= 1;
+      gpr_waddr <= rd_reg;
+      gpr_wdata <= mem_rdata;
+      gpr_flag <= 0;
+    end
+    // TEMP: 忽略写请求回复
 
   end
-
-  // -------------------- CSR写 --------------------
-  wire [11:0] csr_addr = imm[11:0];
-  wire ecall = (opcode == OP_SYS) & (csr_addr == 12'b0);
-  // csr操作指令funct不是全0，ecall的csr地址是全0
-  assign csr_wen1 = (opcode == OP_SYS) & ((|funct) | (csr_addr == 12'b0));
-  assign csr_waddr1 = (|funct) ? csr_addr : CSR_MEPC; // ecall向mepc写入pc
-  assign csr_wdata1 = alu_val;
-
-  assign csr_wen2 = ecall; // ecall
-  assign csr_waddr2 = CSR_MCAUSE;
-  assign csr_wdata2 = 32'd11; // 11表示sys call
 endmodule
