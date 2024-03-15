@@ -16,6 +16,8 @@ module ysyx_23060203_IFU (
   // 连接指令内存
   axi_r_if.master ram_r
 );
+  `include "DPIC.sv"
+
   reg rstn_prev;
   reg [31:0] inst_reg, npc_reg;
   reg [31:0] pc_reg [3];
@@ -88,6 +90,9 @@ module ysyx_23060203_IFU (
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
       inst_out.valid <= 0;
+      if (inst == 32'h100073) begin
+        halt();
+      end
     end
   end end
 endmodule
