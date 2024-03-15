@@ -21,8 +21,8 @@ void init_top(int argc, char **argv) {
   top->rstn = 0;
   int n = 20;
   while (n--) {
-    top->clk = 0; top->eval();
-    top->clk = 1; top->eval();
+    top->clk = 0; driver_step();// top->eval();
+    top->clk = 1; driver_step();// top->eval();
   }
   top->rstn = 1;
 }
