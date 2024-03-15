@@ -8,20 +8,9 @@ module SRAM (
 );
   `include "DPIC.sv"
 
-  reg rstn_prev;
   reg reading, writing;
   always @(posedge clk) begin
-    rstn_prev <= rstn;
     if (~rstn) begin // 复位
-      read.arready <= 0;
-      read.rvalid <= 0;
-      reading <= 0;
-
-      write.awready <= 0;
-      write.wready <= 0;
-      write.bvalid <= 0;
-      writing <= 0;
-    end else if (rstn & ~rstn_prev) begin // 复位释放
       read.arready <= 1;
       read.rvalid <= 0;
       reading <= 0;

@@ -136,16 +136,7 @@ module ysyx_23060203_EXU (
   // 每个步骤的处理状态寄存器
   reg npc_flag, gpr_flag, load_flag, store_flag;
   always @(posedge clk) begin
-    rstn_prev <= rstn;
     if (~rstn) begin
-      id_in.ready <= 0;
-      npc_out.valid <= 0;
-
-      mem_rreq.valid <= 0;
-      mem_rres.ready <= 0;
-      mem_wreq.valid <= 0;
-      mem_wres.ready <= 0;
-    end else if (rstn & ~rstn_prev) begin
       id_in.ready <= 1;
       npc_out.valid <= 0;
 

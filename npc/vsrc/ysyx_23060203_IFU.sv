@@ -22,16 +22,13 @@ module ysyx_23060203_IFU (
   always @(posedge clk) begin
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
-      npc_in.ready <= 0;
-      inst_out.valid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 0;
-      pc <= 32'h80000000;
-    end else if (rstn & ~rstn_prev) begin // 复位释放
       npc_in.ready <= 1;
       inst_out.valid <= 0;
-      ram_r.arvalid <= 1;
+      ram_r.arvalid <= 0;
       ram_r.rready <= 1;
+      pc <= 32'h80000000;
+    end else if (rstn & ~rstn_prev) begin // 复位释放
+      ram_r.arvalid <= 1;
       ram_r.araddr <= pc;
       pc_reg[0] <= pc;
     end

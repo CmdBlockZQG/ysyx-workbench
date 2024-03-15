@@ -90,22 +90,7 @@ module ysyx_23060203_LSU (
   end
 
   always @(posedge clk) begin
-    rstn_prev <= rstn;
     if (~rstn) begin
-      rreq.ready <= 0;
-      rres.valid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 0;
-
-      wreq.ready <= 0;
-      wres.valid <= 0;
-      ram_w.awvalid <= 0;
-      ram_w.wvalid <= 0;
-      ram_w.bready <= 0;
-
-      wreq_flag_aw <= 0;
-      wreq_flag_w <= 0;
-    end else if (rstn & ~rstn_prev) begin
       rreq.ready <= 1;
       rres.valid <= 0;
       ram_r.arvalid <= 0;

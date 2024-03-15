@@ -10,19 +10,11 @@ module ysyx_23060203_MemArb (
 );
   reg rstn_prev;
   always @(posedge clk) begin
-    rstn_prev <= rstn;
     if (~rstn) begin
-      ifu_r.arready <= 0;
-      ifu_r.rvalid <= 0;
-      lsu_r.arready <= 0;
-      lsu_r.rvalid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 0;
-    end else if (rstn & ~rstn_prev) begin
       ifu_r.arready <= 1;
       ifu_r.rvalid <= 0;
       lsu_r.arready <= 1;
-      ifu_r.rvalid <= 0;
+      lsu_r.rvalid <= 0;
       ram_r.arvalid <= 0;
       ram_r.rready <= 1;
     end
