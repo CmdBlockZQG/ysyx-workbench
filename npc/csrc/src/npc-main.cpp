@@ -109,6 +109,9 @@ int main(int argc, char *argv[]) {
   /* initialize wave output */
   init_wave(wave_file);
 
+  /* reset circuit */
+  reset_top();
+
   /* initialize memory */
   init_mem();
 

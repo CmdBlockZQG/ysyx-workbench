@@ -16,15 +16,6 @@ void init_top(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   top = new Vtop{contextp};
-
-  // reset for 20 clock cycle
-  top->rstn = 0;
-  int n = 20;
-  while (n--) {
-    top->clk = 0; driver_step();// top->eval();
-    top->clk = 1; driver_step();// top->eval();
-  }
-  top->rstn = 1;
 }
 
 void init_wave(const char *filename) {
@@ -57,4 +48,15 @@ void driver_step() {
   if (nvboard) nvboard_update();
   contextp->timeInc(1);
   if (trace_file) trace_file->dump(contextp->time());
+}
+
+void reset_top() {
+  // reset for 20 clock cycle
+  top->rstn = 0;
+  int n = 20;
+  while (n--) {
+    top->clk = 0; driver_step();// top->eval();
+    top->clk = 1; driver_step();// top->eval();
+  }
+  top->rstn = 1;
 }
