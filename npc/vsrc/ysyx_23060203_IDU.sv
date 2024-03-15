@@ -8,10 +8,10 @@ module ysyx_23060203_IDU (
   decouple_if.in inst_in,
 
   // 连接寄存器文件，译码寄存器
-  output [4:0] reg_raddr1,
-  input [31:0] reg_rdata1,
-  output [4:0] reg_raddr2,
-  input [31:0] reg_rdata2,
+  output [4:0] gpr_raddr1,
+  input [31:0] gpr_rdata1,
+  output [4:0] gpr_raddr2,
+  input [31:0] gpr_rdata2,
 
   // 连接CSR寄存器
   output [11:0] csr_raddr,
@@ -23,7 +23,6 @@ module ysyx_23060203_IDU (
   output [2:0] alu_funct,
   output alu_funcs,
   // 连接EXU输入
-  output [31:0] pc_pass,
   output [4:0] opcode,
   output [2:0] funct,
   output [4:0] rd,
@@ -43,7 +42,6 @@ module ysyx_23060203_IDU (
   assign id_out.valid = inst_in.valid;
 
   // -------------------- 指令译码 --------------------
-  assign pc_pass = pc;
   assign opcode = inst[6:2];
   assign funct = inst[14:12];
 
@@ -55,10 +53,10 @@ module ysyx_23060203_IDU (
   assign rs2 = inst[24:20];
 
   // 寄存器文件的读取是组合逻辑
-  assign reg_raddr1 = rs1;
-  assign src1 = reg_rdata1;
-  assign reg_raddr2 = rs2;
-  assign src2 = reg_rdata2;
+  assign gpr_raddr1 = rs1;
+  assign src1 = gpr_rdata1;
+  assign gpr_raddr2 = rs2;
+  assign src2 = gpr_rdata2;
 
   // -------------------- 立即数译码 --------------------
   wire [31:0] immI, immS, immB, immU, immJ;
