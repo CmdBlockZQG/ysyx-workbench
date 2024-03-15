@@ -62,6 +62,8 @@ module SRAM (
       writing <= 0;
       write.bresp <= 2'b00;
       write.bvalid <= 1;
+      write.awready <= 1;
+      write.wready <= 1;
     end
 
     if (write.bvalid & write.bready) write.bvalid <= 0;
