@@ -105,7 +105,9 @@ module ysyx_23060203_LSU (
       wreq_flag_aw <= 0;
       wreq_flag_w <= 0;
     end
+  end
 
+  always @(posedge clk) begin if (rstn) begin
     // -------------------- 读请求 --------------------
 
     // 接收访存请求
@@ -226,5 +228,5 @@ module ysyx_23060203_LSU (
     if (wres.valid & wres.ready) begin
       wres.valid <= 0;
     end
-  end
+  end end
 endmodule

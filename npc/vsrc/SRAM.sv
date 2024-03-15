@@ -23,7 +23,7 @@ module SRAM (
   end
 
   reg [31:0] raddr;
-  always @(posedge clk) begin
+  always @(posedge clk) begin if (rstn) begin
     if (read.rvalid & read.rready) read.rvalid <= 0;
     if (read.arready & read.arvalid) begin
       read.arready <= 0;
@@ -38,13 +38,13 @@ module SRAM (
       read.rresp <= 2'b00;
       read.arready <= 1;
     end
-  end
+  end end
 
   reg [31:0] waddr, wdata;
   reg [3:0] wmask_reg;
   wire waddr_handshake = write.awready & write.awvalid;
   wire wdata_handshake = write.wready & write.wvalid;
-  always @(posedge clk) begin
+  always @(posedge clk) begin if (rstn) begin
     if (waddr_handshake) begin
       waddr <= write.awaddr;
       write.awready <= 0;
@@ -65,5 +65,5 @@ module SRAM (
     end
 
     if (write.bvalid & write.bready) write.bvalid <= 0;
-  end
+  end end
 endmodule

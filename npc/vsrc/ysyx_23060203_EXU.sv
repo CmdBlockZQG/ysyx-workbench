@@ -135,6 +135,7 @@ module ysyx_23060203_EXU (
   reg [4:0] opcode_reg, rd_reg;
   // 每个步骤的处理状态寄存器
   reg npc_flag, gpr_flag, load_flag, store_flag;
+
   always @(posedge clk) begin
     if (~rstn) begin
       id_in.ready <= 1;
@@ -145,7 +146,9 @@ module ysyx_23060203_EXU (
       mem_wreq.valid <= 0;
       mem_wres.ready <= 1;
     end
+  end
 
+  always @(posedge clk) begin if (rstn) begin
     // 从idu接收指令
     if (id_in.ready & id_in.valid) begin
       alu_val_reg <= alu_val;
@@ -275,6 +278,5 @@ module ysyx_23060203_EXU (
       gpr_flag <= 0;
     end
     // TEMP: 忽略写请求回复
-
-  end
+  end end
 endmodule

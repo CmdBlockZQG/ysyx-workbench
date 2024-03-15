@@ -19,6 +19,7 @@ module ysyx_23060203_IFU (
   reg rstn_prev;
   reg [31:0] inst_reg, npc_reg;
   reg [31:0] pc_reg [3];
+
   always @(posedge clk) begin
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
@@ -32,7 +33,9 @@ module ysyx_23060203_IFU (
       ram_r.araddr <= pc;
       pc_reg[0] <= pc;
     end
+  end
 
+  always @(posedge clk) begin if (rstn) begin
     // 读入npc
     if (npc_in.ready & npc_in.valid) begin
       if (~ram_r.arvalid) begin // 尝试向ram传递地址
@@ -86,5 +89,5 @@ module ysyx_23060203_IFU (
     if (inst_out.valid & inst_out.ready) begin
       inst_out.valid <= 0;
     end
-  end
+  end end
 endmodule
