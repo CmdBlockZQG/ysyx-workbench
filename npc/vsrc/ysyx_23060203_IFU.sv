@@ -1,5 +1,5 @@
-// `include "interface/axi.sv"
-// `include "interface/decouple.sv"
+`include "interface/axi.sv"
+`include "interface/decouple.sv"
 
 module ysyx_23060203_IFU (
   input rstn, clk,

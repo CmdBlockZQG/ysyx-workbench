@@ -1,4 +1,4 @@
-// `include "interface/decouple.sv"
+`include "interface/decouple.sv"
 
 module ysyx_23060203_EXU (
   input rstn, clk,

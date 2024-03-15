@@ -1,4 +1,4 @@
-// `include "interface/decouple.sv"
+`include "interface/decouple.sv"
 
 module ysyx_23060203_IDU (
   // 组合逻辑,无时钟和复位

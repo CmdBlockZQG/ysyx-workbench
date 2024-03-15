@@ -1,4 +1,4 @@
-// `include "interface/axi.sv"
+`include "interface/axi.sv"
 
 module ysyx_23060203_MemArb (
   input rstn, clk,

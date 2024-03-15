@@ -1,4 +1,4 @@
-// `include "interface/axi.sv"
+`include "interface/axi.sv"
 
 module SRAM (
   input rstn, clk,

@@ -1,5 +1,5 @@
-// `include "interface/axi.sv"
-// `include "interface/decouple.sv"
+`include "interface/axi.sv"
+`include "interface/decouple.sv"
 
 module top (
   input rstn, clk

@@ -5,6 +5,7 @@ INC_PATH = $(abspath ./csrc/include)
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
 					-O3 --x-assign fast --x-initial fast --noassert
+VERILATOR_FLAGS = -Wno-MODDUP
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -42,7 +43,8 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		-y "$(abspath ./vsrc)" \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS)) \
-		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN)) \
+		$(VERILATOR_FLAGS)
 
 default: $(BIN)
 
