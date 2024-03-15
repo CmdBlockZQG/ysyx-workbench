@@ -8,7 +8,6 @@ module ysyx_23060203_MemArb (
 
   axi_r_if.master ram_r
 );
-  reg rstn_prev;
   always @(posedge clk) begin
     if (~rstn) begin
       ifu_r.arready <= 1;

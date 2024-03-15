@@ -128,14 +128,6 @@ module ysyx_23060203_EXU (
   wire [31:0] id_npc = {npc_orig[31:1], 1'b0};
 
   // -------------------- 时序逻辑 --------------------
-  reg rstn_prev;
-  // 暂存寄存器
-  reg [31:0] npc_reg, alu_val_reg, src2_reg;
-  reg [2:0] funct_reg;
-  reg [4:0] opcode_reg, rd_reg;
-  // 每个步骤的处理状态寄存器
-  reg npc_flag, gpr_flag, load_flag, store_flag;
-
   always @(posedge clk) begin
     if (~rstn) begin
       id_in.ready <= 1;
@@ -148,6 +140,16 @@ module ysyx_23060203_EXU (
     end
   end
 
+  // 暂存寄存器
+  reg [31:0] npc_reg, alu_val_reg, src2_reg;
+  reg [2:0] funct_reg;
+  reg [4:0] opcode_reg, rd_reg;
+  // 每个步骤的处理状态寄存器
+  reg npc_flag, load_flag, store_flag, mem_res_flag;
+  // 辅助组合
+  wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
+  wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
+  wire mem_res_hs = mem_r_res_hs | mem_w_res_hs;
   always @(posedge clk) begin if (rstn) begin
     // 从idu接收指令
     if (id_in.ready & id_in.valid) begin
@@ -193,17 +195,12 @@ module ysyx_23060203_EXU (
         store_flag <= 0;
       end
 
-      if (id_gpr_wen) begin
-        if (opcode != OP_LOAD) begin
-          gpr_wen <= 1;
-          gpr_waddr <= rd;
-          gpr_wdata <= id_gpr_wdata;
-          gpr_flag <= 0;
-        end else begin
-          gpr_flag <= 1;
-        end
-      end else begin
-        gpr_flag <= 0;
+      mem_res_flag <= (opcode == OP_LOAD) | (opcode == OP_STORE);
+
+      if (id_gpr_wen & opcode != OP_LOAD) begin
+        gpr_wen <= 1;
+        gpr_waddr <= rd;
+        gpr_wdata <= id_gpr_wdata;
       end
 
       csr_wen1 <= id_csr_wen1;
@@ -218,7 +215,7 @@ module ysyx_23060203_EXU (
         npc_out.valid <= 1;
         npc <= npc_reg;
         npc_flag <= 0;
-        if ((~load_flag | ~mem_rreq.valid) & (~store_flag | ~mem_wreq.valid)) begin
+        if (~mem_res_flag | mem_res_hs) begin
           id_in.ready <= 1;
         end
       end
@@ -228,9 +225,6 @@ module ysyx_23060203_EXU (
         mem_raddr <= alu_val_reg;
         mem_rfunc <= funct_reg;
         load_flag <= 0;
-        if ((~npc_flag | ~npc_out.valid) & (~store_flag | ~mem_wreq.valid)) begin
-          id_in.ready <= 1;
-        end
       end
       // 写内存请求
       if (~mem_wreq.valid & store_flag) begin
@@ -239,7 +233,26 @@ module ysyx_23060203_EXU (
         mem_waddr <= alu_val_reg;
         mem_wdata <= src2_reg;
         store_flag <= 0;
-        if ((~npc_flag | ~npc_out.valid) & (~load_flag | ~mem_rreq.valid)) begin
+      end
+
+      // 确认lsu收到读内存请求
+      if (mem_rreq.valid & mem_rreq.ready) begin
+        mem_rreq.valid <= 0;
+      end
+      // 确认lsu收到写内存请求
+      if (mem_wreq.valid & mem_wreq.ready) begin
+        mem_wreq.valid <= 0;
+      end
+
+      // 接收访存请求回复
+      if (mem_r_res_hs) begin
+        gpr_wen <= 1;
+        gpr_waddr <= rd_reg;
+        gpr_wdata <= mem_rdata;
+      end
+      if (mem_res_hs) begin
+        mem_res_flag <= 0;
+        if (~npc_flag | ~npc_out.valid) begin
           id_in.ready <= 1;
         end
       end
@@ -248,14 +261,6 @@ module ysyx_23060203_EXU (
     // 确认ifu收到npc
     if (npc_out.valid & npc_out.ready) begin
       npc_out.valid <= 0;
-    end
-    // 确认lsu收到读内存请求
-    if (mem_rreq.valid & mem_rreq.ready) begin
-      mem_rreq.valid <= 0;
-    end
-    // 确认lsu收到写内存请求
-    if (mem_wreq.valid & mem_wreq.ready) begin
-      mem_wreq.valid <= 0;
     end
     // 确认GPR写入
     // 因为不可能连续两个周期写，所以这个是对的
@@ -270,13 +275,5 @@ module ysyx_23060203_EXU (
       csr_wen2 <= 0;
     end
 
-    // 接收内存读请求回复，写入寄存器
-    if (mem_rres.valid & mem_rres.ready) begin
-      gpr_wen <= 1;
-      gpr_waddr <= rd_reg;
-      gpr_wdata <= mem_rdata;
-      gpr_flag <= 0;
-    end
-    // TEMP: 忽略写请求回复
   end end
 endmodule

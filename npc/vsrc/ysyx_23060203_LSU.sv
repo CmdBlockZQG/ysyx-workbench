@@ -23,7 +23,6 @@ module ysyx_23060203_LSU (
   axi_w_if.master ram_w
 );
   `include "params/mem.sv"
-  reg rstn_prev;
 
   // 暂存寄存器
   reg [31:0] raddr_reg, rdata_reg;
