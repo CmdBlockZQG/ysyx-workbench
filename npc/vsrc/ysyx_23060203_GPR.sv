@@ -1,4 +1,4 @@
-module ysyx_23060203_RegFile #(integer NR_REG = 16) (
+module ysyx_23060203_GPR #(integer NR_REG = 16) (
   input rstn, clk,
 
   input wen, // 写入使能
