@@ -8,20 +8,9 @@ module SRAM (
 );
   `include "DPIC.sv"
 
-  reg rstn_prev;
   reg reading, writing;
   always @(posedge clk) begin
-    rstn_prev <= rstn;
     if (~rstn) begin // 复位
-      read.arready <= 0;
-      read.rvalid <= 0;
-      reading <= 0;
-
-      write.awready <= 0;
-      write.wready <= 0;
-      write.bvalid <= 0;
-      writing <= 0;
-    end else if (rstn & ~rstn_prev) begin // 复位释放
       read.arready <= 1;
       read.rvalid <= 0;
       reading <= 0;
@@ -34,7 +23,7 @@ module SRAM (
   end
 
   reg [31:0] raddr;
-  always @(posedge clk) begin
+  always @(posedge clk) begin if (rstn) begin
     if (read.rvalid & read.rready) read.rvalid <= 0;
     if (read.arready & read.arvalid) begin
       read.arready <= 0;
@@ -49,13 +38,13 @@ module SRAM (
       read.rresp <= 2'b00;
       read.arready <= 1;
     end
-  end
+  end end
 
   reg [31:0] waddr, wdata;
   reg [3:0] wmask_reg;
   wire waddr_handshake = write.awready & write.awvalid;
   wire wdata_handshake = write.wready & write.wvalid;
-  always @(posedge clk) begin
+  always @(posedge clk) begin if (rstn) begin
     if (waddr_handshake) begin
       waddr <= write.awaddr;
       write.awready <= 0;
@@ -73,8 +62,10 @@ module SRAM (
       writing <= 0;
       write.bresp <= 2'b00;
       write.bvalid <= 1;
+      write.awready <= 1;
+      write.wready <= 1;
     end
 
     if (write.bvalid & write.bready) write.bvalid <= 0;
-  end
+  end end
 endmodule

@@ -16,26 +16,28 @@ module ysyx_23060203_IFU (
   // 连接指令内存
   axi_r_if.master ram_r
 );
+  `include "DPIC.sv"
+
   reg rstn_prev;
   reg [31:0] inst_reg, npc_reg;
   reg [31:0] pc_reg [3];
+
   always @(posedge clk) begin
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
-      npc_in.ready <= 0;
-      inst_out.valid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 0;
-      pc <= 32'h80000000;
-    end else if (rstn & ~rstn_prev) begin // 复位释放
       npc_in.ready <= 1;
       inst_out.valid <= 0;
-      ram_r.arvalid <= 1;
+      ram_r.arvalid <= 0;
       ram_r.rready <= 1;
+      pc <= 32'h80000000;
+    end else if (rstn & ~rstn_prev) begin // 复位释放
+      ram_r.arvalid <= 1;
       ram_r.araddr <= pc;
       pc_reg[0] <= pc;
     end
+  end
 
+  always @(posedge clk) begin if (rstn) begin
     // 读入npc
     if (npc_in.ready & npc_in.valid) begin
       if (~ram_r.arvalid) begin // 尝试向ram传递地址
@@ -88,6 +90,9 @@ module ysyx_23060203_IFU (
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
       inst_out.valid <= 0;
+      if (inst == 32'h100073) begin
+        halt();
+      end
     end
-  end
+  end end
 endmodule

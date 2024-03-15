@@ -8,21 +8,12 @@ module ysyx_23060203_MemArb (
 
   axi_r_if.master ram_r
 );
-  reg rstn_prev;
   always @(posedge clk) begin
-    rstn_prev <= rstn;
     if (~rstn) begin
-      ifu_r.arready <= 0;
-      ifu_r.rvalid <= 0;
-      lsu_r.arready <= 0;
-      lsu_r.rvalid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 0;
-    end else if (rstn & ~rstn_prev) begin
       ifu_r.arready <= 1;
       ifu_r.rvalid <= 0;
       lsu_r.arready <= 1;
-      ifu_r.rvalid <= 0;
+      lsu_r.rvalid <= 0;
       ram_r.arvalid <= 0;
       ram_r.rready <= 1;
     end
@@ -32,10 +23,10 @@ module ysyx_23060203_MemArb (
   reg dev [3];
   reg [31:0] rdata;
   reg [1:0] rresp;
-  always @(posedge clk) begin
+  always @(posedge clk) begin if (rstn) begin
     // 从master读取地址
     if (ifu_r.arready & ifu_r.arvalid) begin
-      if (lsu_r.arready) begin // 没有暂存的读地址，可以直接向slave传递地址
+      if (lsu_r.arready & ~lsu_r.arvalid) begin // 没有暂存的读地址，可以直接向slave传递地址
         dev[0] <= 0;
         ram_r.arvalid <= 1;
         ram_r.araddr <= ifu_r.araddr;
@@ -49,7 +40,7 @@ module ysyx_23060203_MemArb (
       if (ifu_r.arready) begin
         dev[0] <= 1;
         ram_r.arvalid <= 1;
-        ram_r.araddr <= lsu_raddr;
+        ram_r.araddr <= lsu_r.araddr;
         lsu_r.arready <= 1;
       end else begin
         lsu_r.arready <= 0;
@@ -120,5 +111,5 @@ module ysyx_23060203_MemArb (
     if (lsu_r.rvalid & lsu_r.rready) begin
       lsu_r.rvalid <= 0;
     end
-  end
+  end end
 endmodule
