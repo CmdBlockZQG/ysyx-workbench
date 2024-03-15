@@ -55,8 +55,8 @@ void reset_top() {
   top->rstn = 0;
   int n = 20;
   while (n--) {
-    top->clk = 0; driver_step();// top->eval();
-    top->clk = 1; driver_step();// top->eval();
+    top->clk = 0; top->eval(); // driver_step();
+    top->clk = 1; top->eval(); // driver_step();
   }
   top->rstn = 1;
 }

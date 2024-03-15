@@ -13,7 +13,7 @@ static void locate_object_sym(addr_t addr) {
   }
 }
 
-static const addr_t mtrace_start = 0x00000000;
+static const addr_t mtrace_start = 0x80000000;
 static const addr_t mtrace_end = 0x87ffffff;
 
 void mtrace_read(addr_t addr) {
