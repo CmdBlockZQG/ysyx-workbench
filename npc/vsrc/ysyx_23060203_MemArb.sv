@@ -40,7 +40,7 @@ module ysyx_23060203_MemArb (
       if (ifu_r.arready) begin
         dev[0] <= 1;
         ram_r.arvalid <= 1;
-        ram_r.araddr <= lsu_raddr;
+        ram_r.araddr <= lsu_r.araddr;
         lsu_r.arready <= 1;
       end else begin
         lsu_r.arready <= 0;
