@@ -8,108 +8,51 @@ module ysyx_23060203_MemArb (
 
   axi_r_if.master ram_r
 );
-  always @(posedge clk) begin
-    if (~rstn) begin
-      ifu_r.arready <= 1;
-      ifu_r.rvalid <= 0;
-      lsu_r.arready <= 1;
-      lsu_r.rvalid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 1;
+
+  reg req_ready;
+  // 约定：dev0表示ifu，dev1表示lsu
+  reg lst_dev;
+  wire res_dev = lst_dev;
+  wire req_dev = (ifu_r.arvalid & lsu_r.arvalid) ? ~lst_dev : lsu_r.arvalid;
+
+  assign ram_r.araddr = req_dev ? lsu_r.araddr : ifu_r.araddr;
+  always_comb begin
+    if (req_ready) begin
+      ram_r.arvalid = req_dev ? lsu_r.arvalid : ifu_r.arvalid;
+      ifu_r.arready = ~req_dev ? ram_r.arready : 0;
+      lsu_r.arready = req_dev ? ram_r.arready : 0;
+    end else begin
+      ram_r.arvalid = 0;
+      ifu_r.arready = 0;
+      lsu_r.arready = 0;
     end
   end
 
-  reg [31:0] ifu_raddr, lsu_raddr;
-  reg dev [3];
-  reg [31:0] rdata;
-  reg [1:0] rresp;
+  assign ifu_r.rdata = ram_r.rdata;
+  assign lsu_r.rdata = ram_r.rdata;
+  assign ifu_r.rresp = ram_r.rresp;
+  assign lsu_r.rresp = ram_r.rresp;
+  assign ifu_r.rvalid = ~res_dev ? ram_r.rvalid : 0;
+  assign lsu_r.rvalid = res_dev ? ram_r.rvalid : 0;
+  assign ram_r.rready = res_dev ? lsu_r.rready : ifu_r.rready;
+
+  always @(posedge clk) begin
+    if (~rstn) begin
+      req_ready <= 1;
+      lst_dev <= 0;
+    end
+  end
+
   always @(posedge clk) begin if (rstn) begin
-    // 从master读取地址
-    if (ifu_r.arready & ifu_r.arvalid) begin
-      if (lsu_r.arready & ~ram_r.arvalid & ~lsu_r.arvalid) begin // 没有暂存的读地址，可以直接向slave传递地址
-        dev[0] <= 0;
-        ram_r.arvalid <= 1;
-        ram_r.araddr <= ifu_r.araddr;
-        ifu_r.arready <= 1;
-      end else begin // 暂存地址
-        ifu_r.arready <= 0;
-        ifu_raddr <= ifu_r.araddr;
-      end
-    end
-    if (lsu_r.arready & lsu_r.arvalid) begin
-      if (ifu_r.arready & ~ram_r.arvalid) begin
-        dev[0] <= 1;
-        ram_r.arvalid <= 1;
-        ram_r.araddr <= lsu_r.araddr;
-        lsu_r.arready <= 1;
-      end else begin
-        lsu_r.arready <= 0;
-        lsu_raddr <= lsu_r.araddr;
-      end
-    end
-
-    // 向slave传递暂存的地址
-    if (~ram_r.arvalid) begin
-      if (~ifu_r.arready & (lsu_r.arready | dev[0])) begin
-        dev[0] <= 0;
-        ram_r.arvalid <= 1;
-        ram_r.araddr <= ifu_raddr;
-        ifu_r.arready <= 1;
-      end else if (~lsu_r.arready & (ifu_r.arready | ~dev[0])) begin
-        dev[0] <= 1;
-        ram_r.arvalid <= 1;
-        ram_r.araddr <= lsu_raddr;
-        lsu_r.arready <= 1;
-      end
-    end
-
-    // 确认slave收到地址
     if (ram_r.arvalid & ram_r.arready) begin
-      ram_r.arvalid <= 0;
-      dev[1] <= dev[0];
+      lst_dev <= req_dev;
+      // res_dev <= req_dev;
     end
 
-    // 从slave接收数据
-    if (ram_r.rready & ram_r.rvalid) begin
-      if (dev[1] & ~lsu_r.rvalid) begin
-        ram_r.rready <= 1;
-        lsu_r.rvalid <= 1;
-        lsu_r.rdata <= ram_r.rdata;
-        lsu_r.rresp <= ram_r.rresp;
-      end else if (~dev[1] & ~ifu_r.rvalid) begin
-        ram_r.rready <= 1;
-        ifu_r.rvalid <= 1;
-        ifu_r.rdata <= ram_r.rdata;
-        ifu_r.rresp <= ram_r.rresp;
-      end else begin // 暂存
-        ram_r.rready <= 0;
-        rdata <= ram_r.rdata;
-        rresp <= ram_r.rresp;
-        dev[2] <= dev[1];
-      end
-    end
-
-    // 向master传递暂存的数据
-    if (~ram_r.rready) begin
-      if (dev[2] & ~lsu_r.rvalid) begin
-        ram_r.rready <= 1;
-        lsu_r.rvalid <= 1;
-        lsu_r.rdata <= rdata;
-        lsu_r.rresp <= rresp;
-      end else if (~dev[2] & ~ifu_r.rvalid) begin
-        ram_r.rready <= 1;
-        ifu_r.rvalid <= 1;
-        ifu_r.rdata <= rdata;
-        ifu_r.rresp <= rresp;
-      end
-    end
-
-    // 确认master收到数据
-    if (ifu_r.rvalid & ifu_r.rready) begin
-      ifu_r.rvalid <= 0;
-    end
-    if (lsu_r.rvalid & lsu_r.rready) begin
-      lsu_r.rvalid <= 0;
+    if (ram_r.rvalid & ram_r.rready) begin
+      req_ready <= 1;
+    end else if (ram_r.arvalid & ram_r.arready) begin
+      req_ready <= 0;
     end
   end end
 endmodule
