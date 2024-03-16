@@ -106,7 +106,7 @@ module ysyx_23060203_LSU (
   assign ram_r.araddr = raddr;
   assign rreq.ready = ram_r.arready;
   // TEMP: 忽略回复错误处理
-  assign rdata = ram_r.rdata;
+  assign rdata = ram_r_rdata_word;
   assign rres.valid = ram_r.rvalid;
   assign ram_r.rready = rres.ready;
 
