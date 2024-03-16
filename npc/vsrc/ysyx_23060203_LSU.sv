@@ -24,14 +24,10 @@ module ysyx_23060203_LSU (
 );
   `include "params/mem.sv"
 
+  // -------------------- 读请求 --------------------
   // 暂存寄存器
-  reg [31:0] raddr_reg, rdata_reg;
   reg [1:0] raddr_align_reg;
   reg [2:0] rfunc_reg;
-
-  reg [31:0] waddr_reg, wdata_reg;
-  reg [3:0] wstrb_reg;
-  reg wreq_flag_aw, wreq_flag_w;
 
   // 组合逻辑
   reg [31:0] ram_r_rdata_shifted;
@@ -56,52 +52,7 @@ module ysyx_23060203_LSU (
     endcase
   end
 
-  reg [31:0] wdata_aligned;
-  always_comb begin
-    case (waddr[1:0])
-      2'b00: wdata_aligned = wdata;
-      2'b01: wdata_aligned = {wdata[23:0], 8'b0};
-      2'b10: wdata_aligned = {wdata[15:0], 16'b0};
-      2'b11: wdata_aligned = {wdata[7:0], 24'b0};
-      default: wdata_aligned = wdata;
-    endcase
-  end
-
-  reg [3:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
-  always_comb begin
-    case (wfunc)
-      ST_B: wmask = 4'b0001;
-      ST_H: wmask = 4'b0011;
-      // ST_W: wmask = 4'b1111;
-      default: wmask = 4'b1111; // 合并ST_W
-    endcase
-  end
-
-  reg [3:0] wmask_aligned;
-  always_comb begin
-    case (waddr[1:0])
-      2'b00: wmask_aligned = wmask;
-      2'b01: wmask_aligned = {wmask[2:0], 1'b0};
-      2'b10: wmask_aligned = {wmask[1:0], 2'b0};
-      2'b11: wmask_aligned = {wmask[0:0], 3'b0};
-      default: wmask_aligned = wmask;
-    endcase
-  end
-
-  always @(posedge clk) begin
-    if (~rstn) begin
-      wreq.ready <= 1;
-      wres.valid <= 0;
-      ram_w.awvalid <= 0;
-      ram_w.wvalid <= 0;
-      ram_w.bready <= 1;
-
-      wreq_flag_aw <= 0;
-      wreq_flag_w <= 0;
-    end
-  end
-
-  // -------------------- 读请求 --------------------
+  // 信号转发
   assign ram_r.arvalid = rreq.valid;
   assign ram_r.araddr = raddr;
   assign rreq.ready = ram_r.arready;
@@ -116,70 +67,49 @@ module ysyx_23060203_LSU (
   assign rres.valid = ram_r.rvalid;
   assign ram_r.rready = rres.ready;
 
-  always @(posedge clk) begin if (rstn) begin
-    // -------------------- 写请求 --------------------
-    // 接收写请求
-    if (wreq.valid & wreq.ready) begin
-      if (~ram_w.awvalid) begin
-        ram_w.awvalid <= 1;
-        ram_w.awaddr <= waddr;
-        wreq_flag_aw <= 0;
-      end else begin
-        wreq.ready <= 0;
-        waddr_reg <= waddr;
-        wreq_flag_aw <= 1;
-      end
-      if (~ram_w.wvalid) begin
-        ram_w.wvalid <= 1;
-        ram_w.wdata <= wdata_aligned;
-        ram_w.wstrb <= wmask_aligned;
-        wreq_flag_w <= 0;
-      end else begin
-        wreq.ready <= 0;
-        wstrb_reg <= wmask_aligned;
-        wdata_reg <= wdata_aligned;
-        wreq_flag_w <= 1;
-      end
-    end
+  // -------------------- 写请求 --------------------
+  reg [31:0] waddr_reg, wdata_reg;
+  reg [3:0] wstrb_reg;
+  reg wreq_flag_aw, wreq_flag_w;
 
-    // 向ram发送写请求
-    if (~wreq.ready) begin
-      if (wreq_flag_aw & ~ram_w.awvalid) begin
-        ram_w.awvalid <= 1;
-        ram_w.awaddr <= waddr_reg;
-        wreq_flag_aw <= 0;
-        if ((wreq_flag_w & ~ram_w.wvalid) | ~wreq_flag_w) begin
-          wreq.ready <= 1;
-        end
-      end
-      if (wreq_flag_w & ~ram_w.wvalid) begin
-        ram_w.wvalid <= 1;
-        ram_w.wdata <= wdata_reg;
-        ram_w.wstrb <= wstrb_reg;
-        wreq_flag_w <= 0;
-        if ((wreq_flag_aw & ~ram_w.awvalid) | ~wreq_flag_aw) begin
-          wreq.ready <= 1;
-        end
-      end
-    end
+  reg [31:0] wdata_aligned;
+  always_comb begin
+    case (waddr[1:0])
+      2'b00: wdata_aligned = wdata;
+      2'b01: wdata_aligned = {wdata[23:0], 8'b0};
+      2'b10: wdata_aligned = {wdata[15:0], 16'b0};
+      2'b11: wdata_aligned = {wdata[7:0], 24'b0};
+      default: wdata_aligned = wdata;
+    endcase
+  end
+  reg [3:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
+  always_comb begin
+    case (wfunc)
+      ST_B: wmask = 4'b0001;
+      ST_H: wmask = 4'b0011;
+      // ST_W: wmask = 4'b1111;
+      default: wmask = 4'b1111; // 合并ST_W
+    endcase
+  end
+  reg [3:0] wmask_aligned;
+  always_comb begin
+    case (waddr[1:0])
+      2'b00: wmask_aligned = wmask;
+      2'b01: wmask_aligned = {wmask[2:0], 1'b0};
+      2'b10: wmask_aligned = {wmask[1:0], 2'b0};
+      2'b11: wmask_aligned = {wmask[0:0], 3'b0};
+      default: wmask_aligned = wmask;
+    endcase
+  end
 
-    // 确认ram收到写请求
-    if (ram_w.awvalid & ram_w.awready) begin
-      ram_w.awvalid <= 0;
-    end
-    if (ram_w.wvalid & ram_w.wready) begin
-      ram_w.wvalid <= 0;
-    end
+  assign ram_w.awaddr = waddr;
+  assign ram_w.awvalid = wreq.valid;
+  assign ram_w.wdata = wdata_aligned;
+  assign ram_w.wstrb = wmask_aligned;
+  assign ram_w.wvalid = wreq.valid;
+  assign wreq.ready = ram_w.awready & ram_w.wready;
+  // TEMP: 忽略回复错误处理
+  assign wres.valid = ram_w.bvalid;
+  assign ram_w.bready = wres.ready;
 
-    // 接收ram回复 TEMP: 忽略回复错误处理
-    if (ram_w.bready & ram_w.bvalid) begin
-      ram_w.bready <= 1;
-      wres.valid <= 1;
-    end
-
-    // 确认返回被收到
-    if (wres.valid & wres.ready) begin
-      wres.valid <= 0;
-    end
-  end end
 endmodule
