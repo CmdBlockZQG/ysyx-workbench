@@ -26,7 +26,7 @@ module ysyx_23060203_MemArb (
   always @(posedge clk) begin if (rstn) begin
     // 从master读取地址
     if (ifu_r.arready & ifu_r.arvalid) begin
-      if (lsu_r.arready & ~lsu_r.arvalid) begin // 没有暂存的读地址，可以直接向slave传递地址
+      if (lsu_r.arready & ~ram_r.arvalid & ~lsu_r.arvalid) begin // 没有暂存的读地址，可以直接向slave传递地址
         dev[0] <= 0;
         ram_r.arvalid <= 1;
         ram_r.araddr <= ifu_r.araddr;
@@ -37,7 +37,7 @@ module ysyx_23060203_MemArb (
       end
     end
     if (lsu_r.arready & lsu_r.arvalid) begin
-      if (ifu_r.arready) begin
+      if (ifu_r.arready & ~ram_r.arvalid) begin
         dev[0] <= 1;
         ram_r.arvalid <= 1;
         ram_r.araddr <= lsu_r.araddr;
