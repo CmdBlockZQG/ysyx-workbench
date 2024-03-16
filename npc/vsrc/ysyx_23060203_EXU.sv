@@ -147,7 +147,6 @@ module ysyx_23060203_EXU (
   // 辅助组合
   wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
-  wire mem_res_hs = mem_r_res_hs | mem_w_res_hs;
   wire id_ls = (opcode == OP_LOAD) | (opcode == OP_STORE);
   always @(posedge clk) begin if (rstn) begin
     // 从idu接收指令
@@ -230,17 +229,21 @@ module ysyx_23060203_EXU (
         gpr_wen <= 1;
         gpr_waddr <= rd_reg;
         gpr_wdata <= mem_rdata;
+        mem_res_flag <= 0;
       end
-      if (mem_res_hs) begin
+      if (~mem_res_flag & ~id_in.ready) begin
+        id_in.ready <= 1;
+      end
+      if (mem_w_res_hs) begin
         mem_res_flag <= 0;
         id_in.ready <= 1;
       end
     end
     // 确认GPR写入
     // 因为不可能连续两个周期写，所以这个是对的
-    // if (gpr_wen) begin
-    //   gpr_wen <= 0;
-    // end
+    if (gpr_wen) begin
+      gpr_wen <= 0;
+    end
     // CSR同理
     if (csr_wen1) begin
       csr_wen1 <= 0;
