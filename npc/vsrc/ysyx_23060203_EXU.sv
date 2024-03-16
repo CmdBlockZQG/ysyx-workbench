@@ -134,11 +134,9 @@ module ysyx_23060203_EXU (
   wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
 
-  reg mem_res_flag;
-  assign id_in.ready = ~id_ls | ~mem_res_flag;
+  assign id_in.ready = 1;
   always @(posedge clk) begin
     if (id_in.ready & id_in.valid) begin
-      mem_res_flag <= id_ls;
       gpr_wen <= id_gpr_wen & ~id_load;
 
       csr_wen1 <= id_csr_wen1;
@@ -171,9 +169,6 @@ module ysyx_23060203_EXU (
   assign gpr_wdata = id_store ? mem_rdata : id_gpr_wdata;
 
   always @(posedge clk) begin
-    if (mem_r_res_hs | mem_w_res_hs) begin
-      mem_res_flag <= 0;
-    end
     if (mem_r_res_hs) begin
       gpr_wen <= 1;
     end
