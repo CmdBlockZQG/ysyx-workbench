@@ -90,11 +90,6 @@ module ysyx_23060203_LSU (
 
   always @(posedge clk) begin
     if (~rstn) begin
-      rreq.ready <= 1;
-      rres.valid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 1;
-
       wreq.ready <= 1;
       wres.valid <= 0;
       ram_w.awvalid <= 0;
@@ -106,63 +101,16 @@ module ysyx_23060203_LSU (
     end
   end
 
+  // -------------------- 读请求 --------------------
+  assign ram_r.arvalid = rreq.valid;
+  assign ram_r.araddr = raddr;
+  assign rreq.ready = ram_r.arready;
+  // TEMP: 忽略回复错误处理
+  assign rdata = ram_r.rdata;
+  assign rres.valid = ram_r.rvalid;
+  assign ram_r.rready = rres.ready;
+
   always @(posedge clk) begin if (rstn) begin
-    // -------------------- 读请求 --------------------
-
-    // 接收访存请求
-    if (rreq.valid & rreq.ready) begin
-      if (~ram_r.arvalid) begin
-        ram_r.arvalid <= 1;
-        ram_r.araddr <= raddr;
-        rreq.ready <= 1;
-        raddr_align_reg[0] <= raddr[1:0];
-        rfunc_reg[0] <= rfunc;
-      end else begin
-        rreq.ready <= 0;
-        raddr_reg <= raddr;
-        raddr_align_reg[0] <= raddr[1:0];
-        rfunc_reg[0] <= rfunc;
-      end
-    end
-
-    // 向ram传递读取地址
-    if (~ram_r.arvalid & ~rreq.ready) begin
-      ram_r.arvalid <= 1;
-      ram_r.araddr <= raddr_reg;
-      rreq.ready <= 1;
-    end
-
-    // 确认ram收到地址
-    if (ram_r.arvalid & ram_r.arready) begin
-      ram_r.arvalid <= 0;
-      raddr_align_reg[1] <= raddr_align_reg[0];
-      rfunc_reg[1] <= rfunc_reg[0];
-    end
-
-    // 从ram接收数据 TEMP: 忽略回复错误处理
-    if (ram_r.rready & ram_r.rvalid) begin
-      if (~rres.valid) begin
-        rres.valid <= 1;
-        rdata <= ram_r_rdata_word;
-        ram_r.rready <= 1;
-      end else begin
-        ram_r.rready <= 0;
-        rdata_reg <= ram_r_rdata_word;
-      end
-    end
-
-    // 返回数据
-    if (~ram_r.rready & ~rres.valid) begin
-      rres.valid <= 1;
-      rdata <= rdata_reg;
-      ram_r.rready <= 1;
-    end
-
-    // 确认返回被收到
-    if (rres.valid & rres.ready) begin
-      rres.valid <= 0;
-    end
-
     // -------------------- 写请求 --------------------
     // 接收写请求
     if (wreq.valid & wreq.ready) begin
