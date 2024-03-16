@@ -15,8 +15,7 @@ static inline int check_reg_idx(int idx) {
 }
 
 #define gpr(idx) (idx ? top->top->GPR->rf[check_reg_idx(idx) - 1] : 0)
-#define cpu_pc (top->top->pc)
-
+extern addr_t cpu_pc;
 
 static inline const char *reg_name(int idx) {
   extern const char* regs[];

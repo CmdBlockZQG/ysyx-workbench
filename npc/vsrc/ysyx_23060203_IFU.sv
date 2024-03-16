@@ -6,7 +6,6 @@ module ysyx_23060203_IFU (
 
   // 接收EXU跳转控制信号
   input [31:0] npc,
-  decouple_if.in npc_in,
 
   // 向IDU传递pc和inst
   output reg [31:0] pc,
@@ -24,7 +23,6 @@ module ysyx_23060203_IFU (
   always @(posedge clk) begin
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
-      npc_in.ready <= 1;
       inst_out.valid <= 0;
       ram_r.arvalid <= 0;
       ram_r.rready <= 1;
@@ -63,13 +61,14 @@ module ysyx_23060203_IFU (
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
       inst_out.valid <= 0;
-      if (inst == 32'h100073) begin
-        halt();
-      end
       // 接收npc
       ram_r.arvalid <= 1;
       ram_r.araddr <= npc;
       pc <= npc;
+      if (inst == 32'h100073) begin
+        halt();
+      end
+      inst_complete(pc);
     end
   end end
 endmodule

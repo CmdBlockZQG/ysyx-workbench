@@ -43,12 +43,12 @@ module top (
   );
 
   axi_r_if ifu_mem_r;
-  wire [31:0] pc/*verilator public*/;
+  wire [31:0] pc;
   wire [31:0] inst;
   decouple_if inst_if;
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),
-    .npc(npc), .npc_in(npc_if),
+    .npc(npc),
     .pc(pc), .inst(inst), .inst_out(inst_if),
     .ram_r(ifu_mem_r)
   );
@@ -87,7 +87,6 @@ module top (
 
   // NPC
   wire [31:0] npc;
-  decouple_if npc_if;
   // GPR CSR
   wire gpr_wen, csr_wen1, csr_wen2;
   wire [4:0] gpr_waddr;
@@ -110,7 +109,7 @@ module top (
     .alu_funct(alu_funct), .alu_funcs(alu_funcs),
     .id_in(id_if),
 
-    .npc(npc), .npc_out(npc_if),
+    .npc(npc),
 
     .gpr_wen(gpr_wen),
     .gpr_waddr(gpr_waddr), .gpr_wdata(gpr_wdata),

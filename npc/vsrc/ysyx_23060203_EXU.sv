@@ -20,7 +20,6 @@ module ysyx_23060203_EXU (
 
   // 连接PC模块，控制跳转
   output [31:0] npc,
-  decouple_if.out npc_out,
 
   // 寄存器写
   output reg gpr_wen,
@@ -126,7 +125,6 @@ module ysyx_23060203_EXU (
   wire [31:0] npc_base = pc_ovrd ? pc_ovrd_addr : pc;
   wire [31:0] npc_orig = npc_base + pc_inc;
   assign npc = {npc_orig[31:1], 1'b0};
-  assign npc_out.valid = id_in.valid;
 
   // -------------------- 时序逻辑 --------------------
   always @(posedge clk) begin
