@@ -113,11 +113,11 @@ int main(int argc, char *argv[]) {
   /* initialize memory */
   init_mem();
 
-  /* reset cpu */
-  init_cpu();
-
   /* load image */
   long img_size = load_img();
+
+  /* reset cpu */
+  init_cpu();
 
   /* load elf file */
   IFDEF(ELF, init_elf(elf_file));
