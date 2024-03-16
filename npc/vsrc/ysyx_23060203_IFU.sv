@@ -18,7 +18,7 @@ module ysyx_23060203_IFU (
   `include "DPIC.sv"
 
   reg rstn_prev;
-  reg [31:0] inst_reg;
+  // reg [31:0] inst_reg;
 
   always @(posedge clk) begin
     rstn_prev <= rstn;
