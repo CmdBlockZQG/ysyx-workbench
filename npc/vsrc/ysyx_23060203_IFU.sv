@@ -31,6 +31,7 @@ module ysyx_23060203_IFU (
     end
   end
 
+  // TEMP: 暂时不考虑错误处理
   assign inst_out.valid = ram_r.rvalid;
   assign ram_r.rready = inst_out.ready;
   assign inst = ram_r.rdata;
@@ -40,25 +41,6 @@ module ysyx_23060203_IFU (
     if (ram_r.arvalid & ram_r.arready) begin
       ram_r.arvalid <= 0;
     end
-
-    // // 从ram接收指令 TEMP: 暂时不考虑错误处理，不管resp
-    // if (ram_r.rready & ram_r.rvalid) begin
-    //   if (~inst_out.valid) begin
-    //     ram_r.rready <= 1;
-    //     inst_out.valid <= 1;
-    //     inst <= ram_r.rdata;
-    //   end else begin
-    //     ram_r.rready <= 0;
-    //     inst_reg <= ram_r.rdata;
-    //   end
-    // end
-
-    // // 向下面的模块传递指令 TEMP: 暂时不考虑错误处理，不管resp
-    // if (~ram_r.rready & ~inst_out.valid) begin
-    //   ram_r.rready <= 1;
-    //   inst_out.valid <= 1;
-    //   inst <= inst_reg;
-    // end
 
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
