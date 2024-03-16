@@ -143,10 +143,10 @@ module ysyx_23060203_EXU (
       csr_wen2 <= id_csr_wen2;
     end
 
-    if (mem_rreq.valid & mem_rreq.ready) begin
+    if (~id_in.ready & mem_rreq.valid & mem_rreq.ready) begin
       id_in.ready <= 1;
     end
-    if (mem_wreq.valid & mem_wreq.ready) begin
+    if (~id_in.ready & mem_wreq.valid & mem_wreq.ready) begin
       id_in.ready <= 1;
     end
 
