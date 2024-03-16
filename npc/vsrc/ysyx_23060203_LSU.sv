@@ -24,19 +24,15 @@ module ysyx_23060203_LSU (
 );
   `include "params/mem.sv"
 
+  // -------------------- 读请求 --------------------
   // 暂存寄存器
-  reg [31:0] raddr_reg, rdata_reg;
-  reg [1:0] raddr_align_reg [3];
-  reg [2:0] rfunc_reg [2];
-
-  reg [31:0] waddr_reg, wdata_reg;
-  reg [3:0] wstrb_reg;
-  reg wreq_flag_aw, wreq_flag_w;
+  reg [1:0] raddr_align_reg;
+  reg [2:0] rfunc_reg;
 
   // 组合逻辑
   reg [31:0] ram_r_rdata_shifted;
   always_comb begin
-    case (raddr_align_reg[1])
+    case (raddr_align_reg)
       2'b00: ram_r_rdata_shifted = ram_r.rdata;
       2'b01: ram_r_rdata_shifted = {8'b0, ram_r.rdata[31:8]};
       2'b10: ram_r_rdata_shifted = {16'b0, ram_r.rdata[31:16]};
@@ -46,7 +42,7 @@ module ysyx_23060203_LSU (
   end
   reg [31:0] ram_r_rdata_word;
   always_comb begin
-    case (rfunc_reg[1])
+    case (rfunc_reg)
       LD_BS: ram_r_rdata_word = {{24{ram_r_rdata_shifted[7]}}, ram_r_rdata_shifted[7:0]};
       LD_BU: ram_r_rdata_word = {24'b0, ram_r_rdata_shifted[7:0]};
       LD_HS: ram_r_rdata_word = {{16{ram_r_rdata_shifted[15]}}, ram_r_rdata_shifted[15:0]};
@@ -56,6 +52,22 @@ module ysyx_23060203_LSU (
     endcase
   end
 
+  // 信号转发
+  assign ram_r.arvalid = rreq.valid;
+  assign ram_r.araddr = raddr;
+  assign rreq.ready = ram_r.arready;
+  always @(posedge clk) begin
+    if (rreq.valid & rreq.ready) begin
+      raddr_align_reg <= raddr[1:0];
+      rfunc_reg <= rfunc;
+    end
+  end
+  // TEMP: 忽略回复错误处理
+  assign rdata = ram_r_rdata_word;
+  assign rres.valid = ram_r.rvalid;
+  assign ram_r.rready = rres.ready;
+
+  // -------------------- 写请求 --------------------
   reg [31:0] wdata_aligned;
   always_comb begin
     case (waddr[1:0])
@@ -66,7 +78,6 @@ module ysyx_23060203_LSU (
       default: wdata_aligned = wdata;
     endcase
   end
-
   reg [3:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
   always_comb begin
     case (wfunc)
@@ -76,7 +87,6 @@ module ysyx_23060203_LSU (
       default: wmask = 4'b1111; // 合并ST_W
     endcase
   end
-
   reg [3:0] wmask_aligned;
   always_comb begin
     case (waddr[1:0])
@@ -88,144 +98,14 @@ module ysyx_23060203_LSU (
     endcase
   end
 
-  always @(posedge clk) begin
-    if (~rstn) begin
-      rreq.ready <= 1;
-      rres.valid <= 0;
-      ram_r.arvalid <= 0;
-      ram_r.rready <= 1;
+  assign ram_w.awaddr = waddr;
+  assign ram_w.awvalid = wreq.valid;
+  assign ram_w.wdata = wdata_aligned;
+  assign ram_w.wstrb = wmask_aligned;
+  assign ram_w.wvalid = wreq.valid;
+  assign wreq.ready = ram_w.awready & ram_w.wready;
+  // TEMP: 忽略回复错误处理
+  assign wres.valid = ram_w.bvalid;
+  assign ram_w.bready = wres.ready;
 
-      wreq.ready <= 1;
-      wres.valid <= 0;
-      ram_w.awvalid <= 0;
-      ram_w.wvalid <= 0;
-      ram_w.bready <= 1;
-
-      wreq_flag_aw <= 0;
-      wreq_flag_w <= 0;
-    end
-  end
-
-  always @(posedge clk) begin if (rstn) begin
-    // -------------------- 读请求 --------------------
-
-    // 接收访存请求
-    if (rreq.valid & rreq.ready) begin
-      if (~ram_r.arvalid) begin
-        ram_r.arvalid <= 1;
-        ram_r.araddr <= raddr;
-        rreq.ready <= 1;
-        raddr_align_reg[0] <= raddr[1:0];
-        rfunc_reg[0] <= rfunc;
-      end else begin
-        rreq.ready <= 0;
-        raddr_reg <= raddr;
-        raddr_align_reg[0] <= raddr[1:0];
-        rfunc_reg[0] <= rfunc;
-      end
-    end
-
-    // 向ram传递读取地址
-    if (~ram_r.arvalid & ~rreq.ready) begin
-      ram_r.arvalid <= 1;
-      ram_r.araddr <= raddr_reg;
-      rreq.ready <= 1;
-    end
-
-    // 确认ram收到地址
-    if (ram_r.arvalid & ram_r.arready) begin
-      ram_r.arvalid <= 0;
-      raddr_align_reg[1] <= raddr_align_reg[0];
-      rfunc_reg[1] <= rfunc_reg[0];
-    end
-
-    // 从ram接收数据 TEMP: 忽略回复错误处理
-    if (ram_r.rready & ram_r.rvalid) begin
-      if (~rres.valid) begin
-        rres.valid <= 1;
-        rdata <= ram_r_rdata_word;
-        ram_r.rready <= 1;
-      end else begin
-        ram_r.rready <= 0;
-        rdata_reg <= ram_r_rdata_word;
-      end
-    end
-
-    // 返回数据
-    if (~ram_r.rready & ~rres.valid) begin
-      rres.valid <= 1;
-      rdata <= rdata_reg;
-      ram_r.rready <= 1;
-    end
-
-    // 确认返回被收到
-    if (rres.valid & rres.ready) begin
-      rres.valid <= 0;
-    end
-
-    // -------------------- 写请求 --------------------
-    // 接收写请求
-    if (wreq.valid & wreq.ready) begin
-      if (~ram_w.awvalid) begin
-        ram_w.awvalid <= 1;
-        ram_w.awaddr <= waddr;
-        wreq_flag_aw <= 0;
-      end else begin
-        wreq.ready <= 0;
-        waddr_reg <= waddr;
-        wreq_flag_aw <= 1;
-      end
-      if (~ram_w.wvalid) begin
-        ram_w.wvalid <= 1;
-        ram_w.wdata <= wdata_aligned;
-        ram_w.wstrb <= wmask_aligned;
-        wreq_flag_w <= 0;
-      end else begin
-        wreq.ready <= 0;
-        wstrb_reg <= wmask_aligned;
-        wdata_reg <= wdata_aligned;
-        wreq_flag_w <= 1;
-      end
-    end
-
-    // 向ram发送写请求
-    if (~wreq.ready) begin
-      if (wreq_flag_aw & ~ram_w.awvalid) begin
-        ram_w.awvalid <= 1;
-        ram_w.awaddr <= waddr_reg;
-        wreq_flag_aw <= 0;
-        if ((wreq_flag_w & ~ram_w.wvalid) | ~wreq_flag_w) begin
-          wreq.ready <= 1;
-        end
-      end
-      if (wreq_flag_w & ~ram_w.wvalid) begin
-        ram_w.wvalid <= 1;
-        ram_w.wdata <= wdata_reg;
-        ram_w.wstrb <= wstrb_reg;
-        wreq_flag_w <= 0;
-        if ((wreq_flag_aw & ~ram_w.awvalid) | ~wreq_flag_aw) begin
-          wreq.ready <= 1;
-        end
-      end
-    end
-
-    // 确认ram收到写请求
-    if (ram_w.awvalid & ram_w.awready) begin
-      ram_w.awvalid <= 0;
-    end
-    if (ram_w.wvalid & ram_w.wready) begin
-      ram_w.wvalid <= 0;
-    end
-
-    // 接收ram回复 TEMP: 忽略回复错误处理
-    if (ram_w.bready & ram_w.bvalid) begin
-      ram_w.bready <= 1;
-      wres.valid <= 1;
-    end
-
-    // 确认返回被收到
-    if (wres.valid & wres.ready) begin
-      wres.valid <= 0;
-    end
-  end end
 endmodule
