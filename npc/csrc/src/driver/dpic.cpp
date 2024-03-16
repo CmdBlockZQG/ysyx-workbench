@@ -21,6 +21,12 @@ void halt() {
   set_npc_state(NPC_END, cpu_pc, gpr(10));
 }
 
+bool exec_once_flag;
+void inst_complete(int new_pc) {
+  cpu_pc = new_pc;
+  exec_once_flag = true;
+}
+
 static uint64_t get_time() {
   return std::chrono::time_point_cast<std::chrono::microseconds> \
          (std::chrono::high_resolution_clock::now()).time_since_epoch().count();

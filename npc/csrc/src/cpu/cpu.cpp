@@ -3,6 +3,8 @@
 #include "mem.h"
 #include "trace.h"
 
+addr_t cpu_pc = 0x80000000;
+
 static uint64_t nr_inst = 0;
 bool trace_enabled = true;
 
@@ -17,8 +19,13 @@ void assert_fail_msg() {
 }
 
 static void exec_once() {
-  top->clk = 0; driver_step();
-  top->clk = 1; driver_step();
+  extern bool exec_once_flag;
+  exec_once_flag = false;
+  while (true) {
+    top->clk = 0; driver_step();
+    top->clk = 1; driver_step();
+    if (exec_once_flag) break;
+  }
 }
 
 static void wp_and_difftest() {
@@ -38,7 +45,7 @@ static void execute(uint64_t n) {
     itrace(cpu_pc, top->top->inst, n <= 24);
 #endif
 #ifdef FTRACE
-    ftrace(cpu_pc, top->top->next_pc);
+    ftrace(cpu_pc, top->top->pc);
 #endif
 
     exec_once();
@@ -73,4 +80,9 @@ void cpu_exec(uint64_t n) {
       // fall through
     case NPC_QUIT: statistic();
   }
+}
+
+void init_cpu() {
+  reset_top();
+  exec_once();
 }

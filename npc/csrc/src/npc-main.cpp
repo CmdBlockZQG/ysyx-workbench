@@ -10,6 +10,7 @@
 void init_log(const char *log_file);
 void init_elf(const char *elf_file);
 void init_mem();
+void init_cpu();
 void init_difftest(char *ref_so_file, long img_size);
 void init_sdb();
 void sdb_set_batch_mode();
@@ -109,11 +110,11 @@ int main(int argc, char *argv[]) {
   /* initialize wave output */
   init_wave(wave_file);
 
-  /* reset circuit */
-  reset_top();
-
   /* initialize memory */
   init_mem();
+
+  /* reset cpu */
+  init_cpu();
 
   /* load image */
   long img_size = load_img();
