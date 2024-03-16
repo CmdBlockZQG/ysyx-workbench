@@ -241,9 +241,9 @@ module ysyx_23060203_EXU (
     end
     // 确认GPR写入
     // 因为不可能连续两个周期写，所以这个是对的
-    // if (gpr_wen) begin
-    //   gpr_wen <= 0;
-    // end
+    if (gpr_wen) begin
+      gpr_wen <= 0;
+    end
     // CSR同理
     if (csr_wen1) begin
       csr_wen1 <= 0;
