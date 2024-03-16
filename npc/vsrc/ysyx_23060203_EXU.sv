@@ -88,11 +88,11 @@ module ysyx_23060203_EXU (
   wire [11:0] csr_addr = imm[11:0];
   wire ecall = (opcode == OP_SYS) & (csr_addr == 12'b0);
   // csr操作指令funct不是全0，ecall的csr地址是全0
-  assign csr_wen1 = (opcode == OP_SYS) & ((|funct) | (csr_addr == 12'b0));
+  wire id_csr_wen1 = (opcode == OP_SYS) & ((|funct) | (csr_addr == 12'b0));
   assign csr_waddr1 = (|funct) ? csr_addr : CSR_MEPC; // ecall向mepc写入pc
   assign csr_wdata1 = alu_val;
 
-  assign csr_wen2 = ecall; // ecall
+  wire id_csr_wen2 = ecall; // ecall
   assign csr_waddr2 = CSR_MCAUSE;
   assign csr_wdata2 = 32'd11; // 11表示sys call
 
@@ -139,6 +139,20 @@ module ysyx_23060203_EXU (
   always @(posedge clk) begin
     if (id_in.ready & id_in.valid) begin
       mem_res_flag <= id_ls;
+      gpr_wen <= id_gpr_wen & ~id_load;
+
+      csr_wen1 <= id_csr_wen1;
+      csr_wen2 <= id_csr_wen2;
+    end
+
+    if (gpr_wen) begin
+      gpr_wen <= 0;
+    end
+    if (csr_wen1) begin
+      csr_wen1 <= 0;
+    end
+    if (csr_wen2) begin
+      csr_wen2 <= 0;
     end
   end
 
@@ -151,13 +165,15 @@ module ysyx_23060203_EXU (
   assign mem_wdata = src2;
   assign mem_wreq.valid = rstn & id_store;
 
-  assign gpr_wen = id_gpr_wen;
   assign gpr_waddr = rd;
   assign gpr_wdata = id_store ? mem_rdata : id_gpr_wdata;
 
   always @(posedge clk) begin
     if (mem_r_res_hs | mem_w_res_hs) begin
       mem_res_flag <= 0;
+    end
+    if (mem_r_res_hs) begin
+      gpr_wen <= 1;
     end
   end
 endmodule
