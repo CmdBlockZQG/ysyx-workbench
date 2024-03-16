@@ -47,11 +47,12 @@ module ysyx_23060203_MemArb (
     if (ram_r.arvalid & ram_r.arready) begin
       lst_dev <= req_dev;
       // res_dev <= req_dev;
-      req_ready <= 0;
     end
 
     if (ram_r.rvalid & ram_r.rready) begin
       req_ready <= 1;
+    end else if (ram_r.arvalid & ram_r.arready) begin
+      req_ready <= 0;
     end
   end end
 endmodule
