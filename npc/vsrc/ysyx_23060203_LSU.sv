@@ -68,10 +68,6 @@ module ysyx_23060203_LSU (
   assign ram_r.rready = rres.ready;
 
   // -------------------- 写请求 --------------------
-  reg [31:0] waddr_reg, wdata_reg;
-  reg [3:0] wstrb_reg;
-  reg wreq_flag_aw, wreq_flag_w;
-
   reg [31:0] wdata_aligned;
   always_comb begin
     case (waddr[1:0])
