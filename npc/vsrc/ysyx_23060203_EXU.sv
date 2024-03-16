@@ -159,11 +159,13 @@ module ysyx_23060203_EXU (
   assign mem_raddr = alu_val;
   assign mem_rfunc = funct;
   assign mem_rreq.valid = rstn & id_load;
+  assign mem_rres.ready = 1;
 
   assign mem_waddr = alu_val;
   assign mem_wfunc = funct;
   assign mem_wdata = src2;
   assign mem_wreq.valid = rstn & id_store;
+  assign mem_wres.ready = 1;
 
   assign gpr_waddr = rd;
   assign gpr_wdata = id_store ? mem_rdata : id_gpr_wdata;
