@@ -26,8 +26,8 @@ module ysyx_23060203_LSU (
 
   // 暂存寄存器
   reg [31:0] raddr_reg, rdata_reg;
-  reg [1:0] raddr_align_reg [3];
-  reg [2:0] rfunc_reg [2];
+  reg [1:0] raddr_align_reg;
+  reg [2:0] rfunc_reg;
 
   reg [31:0] waddr_reg, wdata_reg;
   reg [3:0] wstrb_reg;
@@ -36,7 +36,7 @@ module ysyx_23060203_LSU (
   // 组合逻辑
   reg [31:0] ram_r_rdata_shifted;
   always_comb begin
-    case (raddr_align_reg[1])
+    case (raddr_align_reg)
       2'b00: ram_r_rdata_shifted = ram_r.rdata;
       2'b01: ram_r_rdata_shifted = {8'b0, ram_r.rdata[31:8]};
       2'b10: ram_r_rdata_shifted = {16'b0, ram_r.rdata[31:16]};
@@ -46,7 +46,7 @@ module ysyx_23060203_LSU (
   end
   reg [31:0] ram_r_rdata_word;
   always_comb begin
-    case (rfunc_reg[1])
+    case (rfunc_reg)
       LD_BS: ram_r_rdata_word = {{24{ram_r_rdata_shifted[7]}}, ram_r_rdata_shifted[7:0]};
       LD_BU: ram_r_rdata_word = {24'b0, ram_r_rdata_shifted[7:0]};
       LD_HS: ram_r_rdata_word = {{16{ram_r_rdata_shifted[15]}}, ram_r_rdata_shifted[15:0]};
@@ -105,6 +105,12 @@ module ysyx_23060203_LSU (
   assign ram_r.arvalid = rreq.valid;
   assign ram_r.araddr = raddr;
   assign rreq.ready = ram_r.arready;
+  always @(posedge clk) begin
+    if (rreq.valid & rreq.ready) begin
+      raddr_align_reg <= raddr[1:0];
+      rfunc_reg <= rfunc;
+    end
+  end
   // TEMP: 忽略回复错误处理
   assign rdata = ram_r_rdata_word;
   assign rres.valid = ram_r.rvalid;
