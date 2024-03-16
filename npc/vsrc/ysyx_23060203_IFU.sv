@@ -40,6 +40,7 @@ module ysyx_23060203_IFU (
     // 确认ram收到地址
     if (ram_r.arvalid & ram_r.arready) begin
       ram_r.arvalid <= 0;
+      pc <= ram_r.araddr;
     end
 
     // 确认下游收到数据
@@ -47,7 +48,6 @@ module ysyx_23060203_IFU (
       // 接收npc
       ram_r.arvalid <= 1;
       ram_r.araddr <= npc;
-      pc <= npc;
       if (inst == 32'h100073) begin
         halt();
       end
