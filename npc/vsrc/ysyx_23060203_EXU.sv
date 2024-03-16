@@ -125,13 +125,13 @@ module ysyx_23060203_EXU (
   end
   wire [31:0] npc_base = pc_ovrd ? pc_ovrd_addr : pc;
   wire [31:0] npc_orig = npc_base + pc_inc;
-  wire [31:0] id_npc = {npc_orig[31:1], 1'b0};
+  assign npc = {npc_orig[31:1], 1'b0};
+  assign npc_out.valid = id_in.valid;
 
   // -------------------- 时序逻辑 --------------------
   always @(posedge clk) begin
     if (~rstn) begin
       id_in.ready <= 1;
-      npc_out.valid <= 0;
 
       mem_rreq.valid <= 0;
       mem_rres.ready <= 1;
@@ -141,15 +141,16 @@ module ysyx_23060203_EXU (
   end
 
   // 暂存寄存器
-  reg [31:0] npc_reg, alu_val_reg, src2_reg;
+  reg [31:0] alu_val_reg, src2_reg;
   reg [2:0] funct_reg;
   reg [4:0] opcode_reg, rd_reg;
   // 每个步骤的处理状态寄存器
-  reg npc_flag, load_flag, store_flag, mem_res_flag;
+  reg load_flag, store_flag, mem_res_flag;
   // 辅助组合
   wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
   wire mem_res_hs = mem_r_res_hs | mem_w_res_hs;
+  wire id_ls = (opcode == OP_LOAD) | (opcode == OP_STORE);
   always @(posedge clk) begin if (rstn) begin
     // 从idu接收指令
     if (id_in.ready & id_in.valid) begin
@@ -158,15 +159,6 @@ module ysyx_23060203_EXU (
       funct_reg <= funct;
       opcode_reg <= opcode;
       rd_reg <= rd;
-
-      if (~npc_out.valid) begin
-        npc_out.valid <= 1;
-        npc <= id_npc;
-        npc_flag <= 0;
-      end else begin
-        npc_reg <= id_npc;
-        npc_flag <= 1;
-      end
 
       if (opcode == OP_LOAD) begin
         if (~mem_rreq.valid) begin
@@ -195,7 +187,7 @@ module ysyx_23060203_EXU (
         store_flag <= 0;
       end
 
-      mem_res_flag <= (opcode == OP_LOAD) | (opcode == OP_STORE);
+      mem_res_flag <= id_ls;
 
       if (id_gpr_wen & opcode != OP_LOAD) begin
         gpr_wen <= 1;
@@ -206,19 +198,10 @@ module ysyx_23060203_EXU (
       csr_wen1 <= id_csr_wen1;
       csr_wen2 <= id_csr_wen2;
 
-      id_in.ready <= ~npc_out.valid & (opcode != OP_LOAD) & (opcode != OP_STORE);
+      id_in.ready <= ~id_ls;
     end
 
     if (~id_in.ready) begin
-      // 将npc传递给ifu
-      if (~npc_out.valid & npc_flag) begin
-        npc_out.valid <= 1;
-        npc <= npc_reg;
-        npc_flag <= 0;
-        if (~mem_res_flag | mem_res_hs) begin
-          id_in.ready <= 1;
-        end
-      end
       // 读内存请求
       if (~mem_rreq.valid & load_flag) begin
         mem_rreq.valid <= 1;
@@ -252,15 +235,8 @@ module ysyx_23060203_EXU (
       end
       if (mem_res_hs) begin
         mem_res_flag <= 0;
-        if (~npc_flag | ~npc_out.valid) begin
-          id_in.ready <= 1;
-        end
+        id_in.ready <= 1;
       end
-    end
-
-    // 确认ifu收到npc
-    if (npc_out.valid & npc_out.ready) begin
-      npc_out.valid <= 0;
     end
     // 确认GPR写入
     // 因为不可能连续两个周期写，所以这个是对的
@@ -274,6 +250,5 @@ module ysyx_23060203_EXU (
     if (csr_wen2) begin
       csr_wen2 <= 0;
     end
-
   end end
 endmodule
