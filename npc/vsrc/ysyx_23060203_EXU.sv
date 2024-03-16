@@ -146,6 +146,9 @@ module ysyx_23060203_EXU (
     if (mem_rreq.valid & mem_rreq.ready) begin
       id_in.ready <= 1;
     end
+    if (mem_wreq.valid & mem_wreq.ready) begin
+      id_in.ready <= 1;
+    end
 
     if (gpr_wen) begin
       gpr_wen <= 0;
