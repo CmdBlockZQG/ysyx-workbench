@@ -128,8 +128,8 @@ module ysyx_23060203_EXU (
 
   // -------------------- 访存控制 --------------------
   // 组合逻辑
-  wire id_load = (opcode == OP_LOAD);
-  wire id_store = (opcode == OP_STORE);
+  wire id_load = id_in.valid & (opcode == OP_LOAD);
+  wire id_store = id_in.valid & (opcode == OP_STORE);
   wire id_ls = id_load | id_store;
   wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
