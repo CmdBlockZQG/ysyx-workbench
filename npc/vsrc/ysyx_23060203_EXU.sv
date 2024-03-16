@@ -134,13 +134,17 @@ module ysyx_23060203_EXU (
   wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
 
-  assign id_in.ready = 1;
   always @(posedge clk) begin
     if (id_in.ready & id_in.valid) begin
+      id_in.ready <= ~id_ls;
       gpr_wen <= id_gpr_wen & ~id_load;
 
       csr_wen1 <= id_csr_wen1;
       csr_wen2 <= id_csr_wen2;
+    end
+
+    if (mem_rreq.valid & mem_rreq.ready) begin
+      id_in.ready <= 1;
     end
 
     if (gpr_wen) begin
