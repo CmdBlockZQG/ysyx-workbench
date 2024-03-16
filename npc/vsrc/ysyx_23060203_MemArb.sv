@@ -14,7 +14,7 @@ module ysyx_23060203_MemArb (
   reg lst_dev;
   wire res_dev = lst_dev;
   // FIXME: 如果发生死锁，这里的轮替策略可能要改成LSU优先
-  wire req_dev = (ifu_r.arvalid & lsu_r.arvalid) ? ~lst_dev : lsu_r.arvalid;
+  wire req_dev = (ifu_r.arvalid & lsu_r.arvalid) ? 1 : lsu_r.arvalid;
 
   assign ram_r.araddr = req_dev ? lsu_r.araddr : ifu_r.araddr;
   always_comb begin
