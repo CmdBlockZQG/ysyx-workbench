@@ -23,10 +23,8 @@ module ysyx_23060203_IFU (
   always @(posedge clk) begin
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
-      ram_r.arvalid <= 0;
       pc <= 32'h80000000;
     end else if (rstn & ~rstn_prev) begin // 复位释放
-      ram_r.arvalid <= 1;
       ram_r.araddr <= pc;
     end
   end
@@ -35,18 +33,17 @@ module ysyx_23060203_IFU (
   assign inst_out.valid = ram_r.rvalid;
   assign ram_r.rready = inst_out.ready;
   assign inst = ram_r.rdata;
+  assign ram_r.arvalid = inst_out.valid & inst_out.ready;
 
   always @(posedge clk) begin if (rstn) begin
     // 确认ram收到地址
     if (ram_r.arvalid & ram_r.arready) begin
-      ram_r.arvalid <= 0;
       pc <= ram_r.araddr;
     end
 
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
       // 接收npc
-      ram_r.arvalid <= 1;
       ram_r.araddr <= npc;
       if (inst == 32'h100073) begin
         halt();
