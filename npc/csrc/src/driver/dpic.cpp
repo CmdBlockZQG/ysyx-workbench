@@ -23,13 +23,8 @@ void halt() {
 
 bool exec_once_flag;
 void inst_complete(int new_pc) {
-  static bool reset = true;
-  if (reset) {
-    reset = false;
-  } else {
-    cpu_pc = new_pc;
-    exec_once_flag = true;
-  }
+  cpu_pc = new_pc;
+  exec_once_flag = true;
 }
 
 static uint64_t get_time() {

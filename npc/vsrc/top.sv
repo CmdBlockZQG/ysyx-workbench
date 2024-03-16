@@ -43,8 +43,8 @@ module top (
   );
 
   axi_r_if ifu_mem_r;
-  wire [31:0] pc;
-  wire [31:0] inst;
+  wire [31:0] pc/*verilator public*/;
+  wire [31:0] inst/*verilator public*/;
   decouple_if inst_if;
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),

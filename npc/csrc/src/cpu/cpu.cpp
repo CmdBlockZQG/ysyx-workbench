@@ -45,7 +45,7 @@ static void execute(uint64_t n) {
     itrace(cpu_pc, top->top->inst, n <= 24);
 #endif
 #ifdef FTRACE
-    ftrace(cpu_pc, top->top->next_pc);
+    ftrace(cpu_pc, top->top->pc);
 #endif
 
     exec_once();
@@ -80,4 +80,9 @@ void cpu_exec(uint64_t n) {
       // fall through
     case NPC_QUIT: statistic();
   }
+}
+
+void init_cpu() {
+  reset_top();
+  exec_once();
 }

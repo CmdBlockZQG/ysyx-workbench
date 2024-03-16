@@ -7,6 +7,7 @@
 #include "Vtop_top.h"
 #include "Vtop_ysyx_23060203_GPR.h"
 
+void cpu_init();
 void cpu_exec(uint64_t n);
 
 static inline int check_reg_idx(int idx) {
