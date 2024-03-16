@@ -13,7 +13,7 @@ module ysyx_23060203_MemArb (
   // 约定：dev0表示ifu，dev1表示lsu
   reg lst_dev;
   wire res_dev = lst_dev;
-  wire req_dev = (ifu_r.arvalid & lsu_r.arvalid) ? ~lst_dev : lsu_r.arvalid;
+  wire req_dev = (ifu_r.arvalid & lsu_r.arvalid) ? 1 : lsu_r.arvalid;
 
   assign ram_r.araddr = req_dev ? lsu_r.araddr : ifu_r.araddr;
   always_comb begin
