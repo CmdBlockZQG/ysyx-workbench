@@ -12,6 +12,6 @@
 // #define ITRACE 1
 // #define FTRACE 1
 #define MTRACE 1
-#define DIFFTEST 1
+// #define DIFFTEST 1
 
 #endif
