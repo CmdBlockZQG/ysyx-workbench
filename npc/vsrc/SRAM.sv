@@ -8,7 +8,7 @@ module SRAM (
 );
   `include "DPIC.sv"
 
-  reg [3:0] reading, writing;
+  reg [4:0] reading, writing;
   always @(posedge clk) begin
     if (~rstn) begin // 复位
       read.arready <= 1;
@@ -35,7 +35,7 @@ module SRAM (
       reading <= reading + 1;
     end
 
-    if (~read.arready & reading == 6 & ~read.rvalid) begin
+    if (~read.arready & reading == 17 & ~read.rvalid) begin
       reading <= 0;
       read.rvalid <= 1;
       read.rdata <= mem_read(raddr);
@@ -65,7 +65,7 @@ module SRAM (
       writing <= writing + 1;
     end
 
-    if (writing == 6 & ~write.bvalid) begin
+    if (writing == 23 & ~write.bvalid) begin
       mem_write(waddr, wdata, {4'b0, wmask_reg});
       writing <= 0;
       write.bresp <= 2'b00;
