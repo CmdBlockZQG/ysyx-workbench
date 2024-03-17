@@ -36,11 +36,12 @@ module ysyx_23060203_IFU (
   always @(posedge clk) begin if (rstn) begin
     // 确认ram收到地址
     if (ram_r.arvalid & ram_r.arready) begin
-      pc <= ram_r.araddr;
+      // pc <= ram_r.araddr;
     end
 
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
+      pc <= npc;
       if (inst == 32'h100073) begin
         halt();
       end
