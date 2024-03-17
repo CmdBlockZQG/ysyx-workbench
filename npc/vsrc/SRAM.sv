@@ -30,7 +30,7 @@ module SRAM (
       read.arready <= 0;
       raddr <= read.araddr;
       reading <= 1;
-      reading_max <= 20;// {1'b0, lfsr_out};
+      reading_max <= {1'b0, lfsr_out};
     end
 
     if (reading != 0) begin
