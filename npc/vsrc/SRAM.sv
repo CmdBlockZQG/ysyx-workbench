@@ -30,7 +30,7 @@ module SRAM (
       read.arready <= 0;
       raddr <= read.araddr;
       reading <= 1;
-      reading_max <= lfsr_out + 2; // 最少是2
+      reading_max <= lfsr_out + 2; // 最少是2，或者说2其实就是“0”
     end
 
     if (reading != 0) begin
@@ -56,7 +56,7 @@ module SRAM (
       write.awready <= 0;
       if (~write.wready | wdata_handshake) begin
         writing <= 1;
-        writing_max <= 20; // {1'b0, lfsr_out};
+        writing_max <= lfsr_out + 2;
       end
     end
     if (wdata_handshake) begin
@@ -65,7 +65,7 @@ module SRAM (
       write.wready <= 0;
       if (~write.awready | waddr_handshake) begin
         writing <= 1;
-        writing_max <= 20; // {1'b0, lfsr_out};
+        writing_max <= lfsr_out + 2;
       end
     end
 
@@ -88,7 +88,7 @@ module SRAM (
   wire [7:0] lfsr_out;
   LFSR8 lfsr (
     .clk(clk),
-    .rstn(rstn), .s(~rstn),
+    .rstn(1), .s(~rstn),
     .in(8'b10101010),
     .out(lfsr_out)
   );
