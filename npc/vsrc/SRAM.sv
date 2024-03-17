@@ -56,7 +56,7 @@ module SRAM (
       write.awready <= 0;
       if (~write.wready | wdata_handshake) begin
         writing <= 1;
-        writing_max <= lfsr_out + 2;
+        writing_max <= 2; // lfsr_out + 2;
       end
     end
     if (wdata_handshake) begin
@@ -65,7 +65,7 @@ module SRAM (
       write.wready <= 0;
       if (~write.awready | waddr_handshake) begin
         writing <= 1;
-        writing_max <= lfsr_out + 2;
+        writing_max <= 2; // lfsr_out + 2;
       end
     end
 
