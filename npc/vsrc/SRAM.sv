@@ -30,7 +30,7 @@ module SRAM (
       read.arready <= 0;
       raddr <= read.araddr;
       reading <= 1;
-      reading_max <= {1'b0, lfsr_out};
+      reading_max <= lfsr_out + 2; // 最少是2
     end
 
     if (reading != 0) begin
