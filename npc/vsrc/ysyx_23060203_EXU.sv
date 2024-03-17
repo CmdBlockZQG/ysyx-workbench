@@ -126,58 +126,130 @@ module ysyx_23060203_EXU (
   wire [31:0] npc_orig = npc_base + pc_inc;
   assign npc = {npc_orig[31:1], 1'b0};
 
-  // -------------------- 访存控制 --------------------
-  // 组合逻辑
-  wire id_load = id_in.valid & (opcode == OP_LOAD);
-  wire id_store = id_in.valid & (opcode == OP_STORE);
-  wire id_ls = id_load | id_store;
+  // -------------------- 时序逻辑 --------------------
+  always @(posedge clk) begin
+    if (~rstn) begin
+      id_in.ready <= 1;
+
+      mem_rreq.valid <= 0;
+      mem_rres.ready <= 1;
+      mem_wreq.valid <= 0;
+      mem_wres.ready <= 1;
+    end
+  end
+
+  // 暂存寄存器
+  reg [31:0] alu_val_reg, src2_reg;
+  reg [2:0] funct_reg;
+  reg [4:0] opcode_reg, rd_reg;
+  // 每个步骤的处理状态寄存器
+  reg load_flag, store_flag, mem_res_flag;
+  // 辅助组合
   wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
-
-  always @(posedge clk) begin
+  wire id_ls = (opcode == OP_LOAD) | (opcode == OP_STORE);
+  always @(posedge clk) begin if (rstn) begin
+    // 从idu接收指令
     if (id_in.ready & id_in.valid) begin
-      id_in.ready <= ~id_ls;
-      gpr_wen <= id_gpr_wen & ~id_load;
+      alu_val_reg <= alu_val;
+      src2_reg <= src2;
+      funct_reg <= funct;
+      opcode_reg <= opcode;
+      rd_reg <= rd;
+
+      if (opcode == OP_LOAD) begin
+        if (~mem_rreq.valid) begin
+          mem_rreq.valid <= 1;
+          mem_raddr <= alu_val;
+          mem_rfunc <= funct;
+          load_flag <= 0;
+        end else begin
+          load_flag <= 1;
+        end
+      end else begin
+        load_flag <= 0;
+      end
+
+      if (opcode == OP_STORE) begin
+        if (~mem_wreq.valid) begin
+          mem_wreq.valid <= 1;
+          mem_wfunc <= funct;
+          mem_waddr <= alu_val;
+          mem_wdata <= src2;
+          store_flag <= 0;
+        end else begin
+          store_flag <= 1;
+        end
+      end else begin
+        store_flag <= 0;
+      end
+
+      mem_res_flag <= id_ls;
+
+      if (id_gpr_wen & opcode != OP_LOAD) begin
+        gpr_wen <= 1;
+        gpr_waddr <= rd;
+        gpr_wdata <= id_gpr_wdata;
+      end
 
       csr_wen1 <= id_csr_wen1;
       csr_wen2 <= id_csr_wen2;
+
+      id_in.ready <= ~id_ls;
     end
 
-    if (~id_in.ready & mem_rreq.valid & mem_rreq.ready) begin
-      id_in.ready <= 1;
-    end
-    if (~id_in.ready & mem_wreq.valid & mem_wreq.ready) begin
-      id_in.ready <= 1;
-    end
+    if (~id_in.ready) begin
+      // 读内存请求
+      if (~mem_rreq.valid & load_flag) begin
+        mem_rreq.valid <= 1;
+        mem_raddr <= alu_val_reg;
+        mem_rfunc <= funct_reg;
+        load_flag <= 0;
+      end
+      // 写内存请求
+      if (~mem_wreq.valid & store_flag) begin
+        mem_wreq.valid <= 1;
+        mem_wfunc <= funct_reg;
+        mem_waddr <= alu_val_reg;
+        mem_wdata <= src2_reg;
+        store_flag <= 0;
+      end
 
+      // 确认lsu收到读内存请求
+      if (mem_rreq.valid & mem_rreq.ready) begin
+        mem_rreq.valid <= 0;
+      end
+      // 确认lsu收到写内存请求
+      if (mem_wreq.valid & mem_wreq.ready) begin
+        mem_wreq.valid <= 0;
+      end
+
+      // 接收访存请求回复
+      if (mem_r_res_hs) begin
+        gpr_wen <= 1;
+        gpr_waddr <= rd_reg;
+        gpr_wdata <= mem_rdata;
+        mem_res_flag <= 0;
+      end
+      if (~mem_res_flag & ~id_in.ready) begin
+        id_in.ready <= 1;
+      end
+      if (mem_w_res_hs) begin
+        mem_res_flag <= 0;
+        id_in.ready <= 1;
+      end
+    end
+    // 确认GPR写入
+    // 因为不可能连续两个周期写，所以这个是对的
     if (gpr_wen) begin
       gpr_wen <= 0;
     end
+    // CSR同理
     if (csr_wen1) begin
       csr_wen1 <= 0;
     end
     if (csr_wen2) begin
       csr_wen2 <= 0;
     end
-  end
-
-  assign mem_raddr = alu_val;
-  assign mem_rfunc = funct;
-  assign mem_rreq.valid = rstn & id_load;
-  assign mem_rres.ready = 1;
-
-  assign mem_waddr = alu_val;
-  assign mem_wfunc = funct;
-  assign mem_wdata = src2;
-  assign mem_wreq.valid = rstn & id_store;
-  assign mem_wres.ready = 1;
-
-  assign gpr_waddr = rd;
-  assign gpr_wdata = id_store ? mem_rdata : id_gpr_wdata;
-
-  always @(posedge clk) begin
-    if (mem_r_res_hs) begin
-      gpr_wen <= 1;
-    end
-  end
+  end end
 endmodule
