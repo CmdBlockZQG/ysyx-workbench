@@ -30,7 +30,7 @@ module SRAM (
       read.arready <= 0;
       raddr <= read.araddr;
       reading <= 1;
-      reading_max <= {1'b0, lfsr_out};
+      reading_max <= 20;// {1'b0, lfsr_out};
     end
 
     if (reading != 0) begin
@@ -56,7 +56,7 @@ module SRAM (
       write.awready <= 0;
       if (~write.wready | wdata_handshake) begin
         writing <= 1;
-        writing_max <= {1'b0, lfsr_out};
+        writing_max <= 20; // {1'b0, lfsr_out};
       end
     end
     if (wdata_handshake) begin
@@ -65,7 +65,7 @@ module SRAM (
       write.wready <= 0;
       if (~write.awready | waddr_handshake) begin
         writing <= 1;
-        writing_max <= {1'b0, lfsr_out};
+        writing_max <= 20; // {1'b0, lfsr_out};
       end
     end
 
