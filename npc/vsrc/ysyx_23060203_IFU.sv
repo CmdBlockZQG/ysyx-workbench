@@ -22,6 +22,8 @@ module ysyx_23060203_IFU (
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
       pc <= 32'h80000000 - 4;
+    end else if (rstn & ~rstn_prev) begin
+      pc <= 32'h80000000;
     end
   end
 
