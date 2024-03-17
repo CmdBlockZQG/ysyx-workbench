@@ -17,7 +17,9 @@ module ysyx_23060203_IFU (
 );
   `include "DPIC.sv"
 
+  reg rstn_prev;
   always @(posedge clk) begin
+    rstn_prev <= rstn;
     if (~rstn) begin // 复位
       pc <= 32'h80000000 - 4;
     end
@@ -34,7 +36,7 @@ module ysyx_23060203_IFU (
       pc <= ram_r.araddr;
     end
 
-    assign ram_r.arvalid = inst_out.valid;
+    assign ram_r.arvalid = rstn_prev ? inst_out.valid : 1;
     assign ram_r.araddr = npc;
 
     // 确认下游收到数据
