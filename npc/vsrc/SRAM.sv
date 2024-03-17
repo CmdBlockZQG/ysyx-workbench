@@ -8,7 +8,8 @@ module SRAM (
 );
   `include "DPIC.sv"
 
-  reg [4:0] reading, writing;
+  reg [7:0] reading, writing;
+  reg [7:0] reading_max, writing_max;
   always @(posedge clk) begin
     if (~rstn) begin // 复位
       read.arready <= 1;
@@ -29,13 +30,14 @@ module SRAM (
       read.arready <= 0;
       raddr <= read.araddr;
       reading <= 1;
+      reading_max <= lfsr_out;
     end
 
     if (reading != 0) begin
       reading <= reading + 1;
     end
 
-    if (~read.arready & reading == 17 & ~read.rvalid) begin
+    if (~read.arready & reading == reading_max & ~read.rvalid) begin
       reading <= 0;
       read.rvalid <= 1;
       read.rdata <= mem_read(raddr);
@@ -52,20 +54,26 @@ module SRAM (
     if (waddr_handshake) begin
       waddr <= write.awaddr;
       write.awready <= 0;
-      if (~write.wready | wdata_handshake) writing <= 1;
+      if (~write.wready | wdata_handshake) begin
+        writing <= 1;
+        writing_max <= lfsr_out;
+      end
     end
     if (wdata_handshake) begin
       wmask_reg <= write.wstrb;
       wdata <= write.wdata;
       write.wready <= 0;
-      if (~write.awready | waddr_handshake) writing <= 1;
+      if (~write.awready | waddr_handshake) begin
+        writing <= 1;
+        writing_max <= lfsr_out;
+      end
     end
 
     if (writing != 0) begin
       writing <= writing + 1;
     end
 
-    if (writing == 23 & ~write.bvalid) begin
+    if (writing == writing_max & ~write.bvalid) begin
       mem_write(waddr, wdata, {4'b0, wmask_reg});
       writing <= 0;
       write.bresp <= 2'b00;
@@ -76,4 +84,13 @@ module SRAM (
 
     if (write.bvalid & write.bready) write.bvalid <= 0;
   end end
+
+  wire [7:0] lfsr_out;
+  LFSR8 lfsr (
+    .clk(clk),
+    .rstn(rstn), .s(~rstn),
+    .in(8'b10101010),
+    .out(lfsr_out)
+  );
+
 endmodule
