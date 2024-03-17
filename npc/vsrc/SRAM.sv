@@ -20,6 +20,9 @@ module SRAM (
       write.wready <= 1;
       write.bvalid <= 0;
       writing <= 0;
+
+      reading_max <= 1;
+      writing_max <= 1;
     end
   end
 
