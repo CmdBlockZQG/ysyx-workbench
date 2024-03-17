@@ -92,7 +92,7 @@ module SRAM (
   LFSR8 lfsr (
     .clk(clk),
     .rstn(1), .s(~rstn),
-    .in(8'b10101010),
+    .in(8'b010010101),
     .out(lfsr_out)
   );
 
