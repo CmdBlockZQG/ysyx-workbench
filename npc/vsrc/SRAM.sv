@@ -37,7 +37,7 @@ module SRAM (
       reading <= reading + 1;
     end
 
-    if (~read.arready & reading == reading_max & ~read.rvalid) begin
+    if (~read.arready & reading >= reading_max & ~read.rvalid) begin
       reading <= 0;
       read.rvalid <= 1;
       read.rdata <= mem_read(raddr);
@@ -73,7 +73,7 @@ module SRAM (
       writing <= writing + 1;
     end
 
-    if (writing == writing_max & ~write.bvalid) begin
+    if (writing >= writing_max & ~write.bvalid) begin
       mem_write(waddr, wdata, {4'b0, wmask_reg});
       writing <= 0;
       write.bresp <= 2'b00;
