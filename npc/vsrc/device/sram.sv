@@ -8,7 +8,8 @@ module sram (
 );
   `include "DPIC.sv"
 
-  reg reading, writing;
+  reg [8:0] reading, writing;
+  reg [8:0] reading_max, writing_max;
   always @(posedge clk) begin
     if (~rstn) begin // 复位
       read.arready <= 1;
@@ -19,6 +20,9 @@ module sram (
       write.wready <= 1;
       write.bvalid <= 0;
       writing <= 0;
+
+      reading_max <= 1;
+      writing_max <= 1;
     end
   end
 
@@ -29,9 +33,14 @@ module sram (
       read.arready <= 0;
       raddr <= read.araddr;
       reading <= 1;
+      reading_max <= lfsr_out + 2; // 最少是2，或者说2其实就是“0”
     end
 
-    if (~read.arready & reading & ~read.rvalid) begin
+    if (reading != 0) begin
+      reading <= reading + 1;
+    end
+
+    if (~read.arready & (reading >= reading_max) & ~read.rvalid) begin
       reading <= 0;
       read.rvalid <= 1;
       read.rdata <= mem_read(raddr);
@@ -48,16 +57,26 @@ module sram (
     if (waddr_handshake) begin
       waddr <= write.awaddr;
       write.awready <= 0;
-      if (~write.wready | wdata_handshake) writing <= 1;
+      if (~write.wready | wdata_handshake) begin
+        writing <= 1;
+        writing_max <= lfsr_out + 2;
+      end
     end
     if (wdata_handshake) begin
       wmask_reg <= write.wstrb;
       wdata <= write.wdata;
       write.wready <= 0;
-      if (~write.awready | waddr_handshake) writing <= 1;
+      if (~write.awready | waddr_handshake) begin
+        writing <= 1;
+        writing_max <= lfsr_out + 2;
+      end
     end
 
-    if (writing & ~write.bvalid) begin
+    if (writing != 0) begin
+      writing <= writing + 1;
+    end
+
+    if ((writing >= writing_max) & ~write.bvalid) begin
       mem_write(waddr, wdata, {4'b0, wmask_reg});
       writing <= 0;
       write.bresp <= 2'b00;
@@ -68,4 +87,13 @@ module sram (
 
     if (write.bvalid & write.bready) write.bvalid <= 0;
   end end
+
+  wire [7:0] lfsr_out;
+  LFSR8 lfsr (
+    .clk(clk),
+    .rstn(1), .s(~rstn),
+    .in(8'b010010101),
+    .out(lfsr_out)
+  );
+
 endmodule
