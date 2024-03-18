@@ -42,7 +42,7 @@ int mem_read(int raddr) {
   if (!boot_time) boot_time = get_time();
   if (raddr == rtc_mmio || raddr == rtc_mmio + 4) {
 #ifdef DIFFTEST
-    difftest_skip_ref_next();
+    difftest_skip_ref();
 #endif
     union {
       uint64_t t;
