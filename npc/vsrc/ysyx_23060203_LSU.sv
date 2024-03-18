@@ -120,7 +120,7 @@ module ysyx_23060203_LSU (
   assign ram_w.wdata = wdata_aligned;
   assign ram_w.wstrb = wmask_aligned;
   assign ram_w.wvalid = wreq.valid & wdata_flag;
-  assign wreq.ready = ram_w.awready & ram_w.wready;
+  assign wreq.ready = (ram_w.awready | ~waddr_flag) & (ram_w.wready | ~wdata_flag);
   // TEMP: 忽略回复错误处理
   assign wres.valid = ram_w.bvalid;
   assign ram_w.bready = wres.ready;
