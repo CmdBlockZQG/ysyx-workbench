@@ -101,7 +101,7 @@ module ysyx_23060203_Xbar (
   always @(posedge clk) begin if (rstn) begin
     if (write.awvalid & write.awready) begin
       wres_sram <= wreq_sram;
-      wres_uart <= wres_uart;
+      wres_uart <= wreq_uart;
       wreq_ready <= 0;
     end
   end end
@@ -144,6 +144,8 @@ module ysyx_23060203_Xbar (
   always @(posedge clk) begin
     if (write.bvalid & write.bready) begin
       wreq_ready <= 1;
+      wres_sram <= 0;
+      wres_uart <= 0;
     end
   end
 endmodule
