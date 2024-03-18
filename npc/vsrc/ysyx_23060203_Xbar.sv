@@ -11,6 +11,8 @@ module ysyx_23060203_Xbar (
   axi_w_if.master sram_w,
   axi_w_if.master uart_w
 );
+  `include "DPIC.sv"
+
   // 复位
   always @(posedge clk) begin if (~rstn) begin
     rreq_ready <= 1;
@@ -49,6 +51,9 @@ module ysyx_23060203_Xbar (
       rres_sram <= rreq_sram;
       rres_clint <= rreq_clint;
       rreq_ready <= 0;
+      // if (~rreq_sram) begin
+      //   skip_difftest();
+      // end
     end
   end end
   // res
@@ -103,6 +108,10 @@ module ysyx_23060203_Xbar (
       wres_sram <= wreq_sram;
       wres_uart <= wreq_uart;
       wreq_ready <= 0;
+
+      if (~wreq_sram) begin
+        skip_difftest();
+      end
     end
   end end
   // res
