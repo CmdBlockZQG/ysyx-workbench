@@ -7,7 +7,7 @@ module top (
 
   SRAM sram (
     .rstn(rstn), .clk(clk),
-    .read(sram_r), .write(sram_w)
+    .read(sram_r), .write(ram_w)
   );
 
   UART uart (
@@ -21,13 +21,13 @@ module top (
   );
 
   axi_r_if sram_r, clint_r;
-  axi_w_if sram_w, uart_w;
+  axi_w_if sram_w, uart_w, temp1, temp2, temp3;
   ysyx_23060203_Xbar Xbar (
     .rstn(rstn), .clk(clk),
     .read(ram_r),
     .sram_r(sram_r), .clint_r(clint_r),
-    .write(ram_w),
-    .sram_w(sram_w), .uart_w(sram_w)
+    .write(temp3),
+    .sram_w(temp1), .uart_w(temp2)
   );
 
   axi_r_if ram_r;
