@@ -1,6 +1,6 @@
 `include "interface/axi.sv"
 
-module clint (
+module CLINT (
   input rstn, clk,
 
   axi_r_if.slave read

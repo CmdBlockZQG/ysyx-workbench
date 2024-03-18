@@ -1,6 +1,6 @@
 `include "interface/axi.sv"
 
-module uart (
+module UART (
   input rstn, clk,
 
   axi_w_if.slave write

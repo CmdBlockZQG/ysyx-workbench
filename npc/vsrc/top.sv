@@ -5,9 +5,29 @@ module top (
   input rstn, clk
 );
 
-  sram ram (
+  SRAM sram (
     .rstn(rstn), .clk(clk),
-    .read(ram_r), .write(ram_w)
+    .read(sram_r), .write(sram_w)
+  );
+
+  UART uart (
+    .rstn(rstn), .clk(clk),
+    .write(uart_w)
+  );
+
+  CLINT clint (
+    .rstn(rstn), .clk(clk),
+    .read(clint_r)
+  );
+
+  axi_r_if sram_r, clint_r;
+  axi_w_if sram_w, uart_w;
+  ysyx_23060203_Xbar Xbar (
+    .rstn(rstn), .clk(clk),
+    .read(ram_r),
+    .sram_r(sram_r), .clint_r(clint_r),
+    .write(ram_w),
+    .sram_w(sram_w), .uart_w(uart_w)
   );
 
   axi_r_if ram_r;
