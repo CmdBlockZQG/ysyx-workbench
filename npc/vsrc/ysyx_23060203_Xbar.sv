@@ -52,7 +52,7 @@ module ysyx_23060203_Xbar (
   reg rres_clint;
   assign sram_r.rready = rres_sram & read.rready;
   assign clint_r.rready = rres_clint & read.rready;
-  always_comb begin
+  always @(*) begin
     if (rres_sram) begin
       read.rdata = sram_r.rdata;
       read.rresp = sram_r.rresp;
@@ -73,7 +73,7 @@ module ysyx_23060203_Xbar (
     end
   end end
 
-  // -------------------- Read --------------------
+  // -------------------- Write --------------------
   assign sram_w.awaddr = write.awaddr;
   assign sram_w.awvalid = write.awvalid;
   assign sram_w.wdata = write.wdata;
