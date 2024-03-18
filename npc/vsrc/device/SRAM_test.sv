@@ -1,6 +1,6 @@
 `include "interface/axi.sv"
 
-module SRAM (
+module SRAM_test (
   input rstn, clk,
 
   axi_r_if.slave read,
