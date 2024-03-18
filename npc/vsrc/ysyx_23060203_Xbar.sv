@@ -52,12 +52,12 @@ module ysyx_23060203_Xbar (
   reg rres_clint;
   assign sram_r.rready = rres_sram & read.rready;
   assign clint_r.rready = rres_clint & read.rready;
-  always @(*) begin
+  always_comb begin
     if (rres_sram) begin
       read.rdata = sram_r.rdata;
       read.rresp = sram_r.rresp;
       read.rvalid = sram_r.rvalid;
-    end if (rres_clint) begin
+    end else if (rres_clint) begin
       read.rdata = clint_r.rdata;
       read.rresp = clint_r.rresp;
       read.rvalid = clint_r.rvalid;
