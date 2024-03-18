@@ -27,6 +27,12 @@ void inst_complete(int new_pc) {
   exec_once_flag = true;
 }
 
+void skip_difftest() {
+#ifdef DIFFTEST
+  difftest_skip_ref();
+#endif
+}
+
 void uart_putch(char c) {
   putchar(c);
 }
