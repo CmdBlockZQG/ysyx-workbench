@@ -7,7 +7,7 @@ module top (
 
   SRAM sram (
     .rstn(rstn), .clk(clk),
-    .read(sram_r), .write(ram_w)
+    .read(sram_r), .write(sram_w)
   );
 
   UART uart (
@@ -26,8 +26,8 @@ module top (
     .rstn(rstn), .clk(clk),
     .read(ram_r),
     .sram_r(sram_r), .clint_r(clint_r),
-    .write(temp3),
-    .sram_w(temp1), .uart_w(temp2)
+    .write(ram_w),
+    .sram_w(sram_w), .uart_w(uart_w)
   );
 
   axi_r_if ram_r;
