@@ -16,6 +16,10 @@ module ysyx_23060203_Xbar (
     rreq_ready <= 1;
     rres_sram <= 0;
     rres_clint <= 0;
+
+    wreq_ready <= 1;
+    wres_sram <= 0;
+    wres_uart <= 0;
   end end
 
   // -------------------- Read --------------------
@@ -48,8 +52,7 @@ module ysyx_23060203_Xbar (
     end
   end end
   // res
-  reg rres_sram;
-  reg rres_clint;
+  reg rres_sram, rres_clint;
   assign sram_r.rready = rres_sram & read.rready;
   assign clint_r.rready = rres_clint & read.rready;
   always_comb begin
@@ -74,16 +77,73 @@ module ysyx_23060203_Xbar (
   end end
 
   // -------------------- Write --------------------
+  // req
+  reg wreq_ready;
+  wire wreq_sram = (write.awaddr[31:27] == 5'b10000);
   assign sram_w.awaddr = write.awaddr;
-  assign sram_w.awvalid = write.awvalid;
-  assign sram_w.wdata = write.wdata;
-  assign sram_w.wstrb = write.wstrb;
-  assign sram_w.wvalid = write.wvalid;
-  assign sram_w.bready = write.bready;
+  wire wreq_uart = (write.awaddr == 32'ha00003f8);
+  assign uart_w.awaddr = write.awaddr;
+  always_comb begin
+    if (wreq_sram) begin
+      write.awready = wreq_ready & sram_w.awready;
+      sram_w.awvalid = wreq_ready & write.awvalid;
+      uart_w.awvalid = 0;
+    end else if (wreq_uart) begin
+      write.awready = wreq_ready & uart_w.awready;
+      uart_w.awvalid = wreq_ready & write.awvalid;
+      sram_w.awvalid = 0;
+    end else begin
+      write.awready = 0;
+      sram_w.awvalid = 0;
+      uart_w.awvalid = 0;
+    end
+  end
+  always @(posedge clk) begin if (rstn) begin
+    if (write.awvalid & write.awready) begin
+      wres_sram <= wreq_sram;
+      wres_uart <= wres_uart;
+      wreq_ready <= 0;
+    end
+  end end
+  // res
+  reg wres_sram, wres_uart;
+  assign sram_w.wvalid = wres_sram & write.wvalid;
+  assign sram_w.bready = wres_sram & write.bready;
+  assign uart_w.wvalid = wres_uart & write.wvalid;
+  assign uart_w.bready = wres_uart & write.bready;
+  always_comb begin
+    if (wres_sram) begin
+      sram_w.wdata = write.wdata;
+      sram_w.wstrb = write.wstrb;
+      uart_w.wdata = 0;
+      uart_w.wstrb = 0;
 
-  assign write.awready = sram_w.awready;
-  assign write.wready = sram_w.wready;
-  assign write.bresp = sram_w.bresp;
-  assign write.bvalid = sram_w.bvalid;
+      write.wready = sram_w.wready;
+      write.bresp = sram_w.bresp;
+      write.bvalid = sram_w.bvalid;
+    end else if (wres_uart) begin
+      uart_w.wdata = write.wdata;
+      uart_w.wstrb = write.wstrb;
+      sram_w.wdata = 0;
+      sram_w.wstrb = 0;
 
+      write.wready = uart_w.wready;
+      write.bresp = uart_w.bresp;
+      write.bvalid = uart_w.bvalid;
+    end else begin
+      uart_w.wdata = 0;
+      uart_w.wstrb = 0;
+      sram_w.wdata = 0;
+      sram_w.wstrb = 0;
+
+      write.wready = 0;
+      write.bresp = 0;
+      write.bvalid = 0;
+    end
+  end
+  always @(posedge clk) begin
+    if (write.bvalid & write.bready) begin
+      wreq_ready <= 1;
+    end
+  end
 endmodule
