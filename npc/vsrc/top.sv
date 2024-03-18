@@ -27,7 +27,7 @@ module top (
     .read(ram_r),
     .sram_r(sram_r), .clint_r(clint_r),
     .write(ram_w),
-    .sram_w(sram_w), .uart_w(uart_w)
+    .sram_w(sram_w), .uart_w(sram_w)
   );
 
   axi_r_if ram_r;
