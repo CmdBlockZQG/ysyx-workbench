@@ -1,5 +1,6 @@
 import "DPI-C" function void halt();
 import "DPI-C" function void inst_complete(input int pc);
+import "DPI-C" function void skip_difftest();
 
 import "DPI-C" function void uart_putch(input byte ch);
 

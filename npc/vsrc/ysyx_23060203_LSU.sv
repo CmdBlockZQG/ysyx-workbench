@@ -98,12 +98,29 @@ module ysyx_23060203_LSU (
     endcase
   end
 
+  reg waddr_flag, wdata_flag;
+  always @(posedge clk) begin
+    if (~rstn) begin
+      waddr_flag <= 1;
+      wdata_flag <= 1;
+    end
+    if (ram_w.awvalid & ram_w.awready) begin
+      waddr_flag <= 0;
+    end
+    if (ram_w.wvalid & ram_w.wready) begin
+      wdata_flag <= 0;
+    end
+    if (ram_w.bvalid & ram_w.bready) begin
+      waddr_flag <= 1;
+      wdata_flag <= 1;
+    end
+  end
   assign ram_w.awaddr = waddr;
-  assign ram_w.awvalid = wreq.valid;
+  assign ram_w.awvalid = wreq.valid & waddr_flag;
   assign ram_w.wdata = wdata_aligned;
   assign ram_w.wstrb = wmask_aligned;
-  assign ram_w.wvalid = wreq.valid;
-  assign wreq.ready = ram_w.awready & ram_w.wready;
+  assign ram_w.wvalid = wreq.valid & wdata_flag;
+  assign wreq.ready = (ram_w.awready | ~waddr_flag) & (ram_w.wready | ~wdata_flag);
   // TEMP: 忽略回复错误处理
   assign wres.valid = ram_w.bvalid;
   assign ram_w.bready = wres.ready;

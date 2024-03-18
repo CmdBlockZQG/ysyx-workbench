@@ -27,8 +27,15 @@ void inst_complete(int new_pc) {
   exec_once_flag = true;
 }
 
+void skip_difftest() {
+#ifdef DIFFTEST
+  difftest_skip_ref();
+#endif
+}
+
 void uart_putch(char c) {
   putchar(c);
+  fflush(stdout);
 }
 
 int mem_read(int raddr) {
@@ -45,15 +52,6 @@ void mem_write(int waddr, int wdata, char wmask) {
 #ifdef MTRACE
   mtrace_write(waddr, wdata, wmask);
 #endif
-
-  if (waddr == serial_mmio) {
-    putchar(wdata);
-    fflush(stdout);
-#ifdef DIFFTEST
-    difftest_skip_ref();
-#endif
-    return;
-  }
 
   if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
   if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);

@@ -10,7 +10,7 @@ module CLINT (
   reg [15:0] acc;
   always @(posedge clk) begin
     if (rstn) begin
-      if (acc == 8) begin
+      if (acc == 6) begin
         acc <= 0;
         uptime <= uptime + 1;
       end else begin
