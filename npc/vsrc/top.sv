@@ -21,7 +21,7 @@ module top (
   );
 
   axi_r_if sram_r, clint_r;
-  axi_w_if sram_w, uart_w, temp1, temp2, temp3;
+  axi_w_if sram_w, uart_w;
   ysyx_23060203_Xbar Xbar (
     .rstn(rstn), .clk(clk),
     .read(ram_r),

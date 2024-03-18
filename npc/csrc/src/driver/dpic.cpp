@@ -35,6 +35,7 @@ void skip_difftest() {
 
 void uart_putch(char c) {
   putchar(c);
+  fflush(stdout);
 }
 
 int mem_read(int raddr) {
@@ -53,8 +54,8 @@ void mem_write(int waddr, int wdata, char wmask) {
 #endif
 
   if (waddr == serial_mmio) {
-  putchar(wdata);
-  fflush(stdout);
+    putchar(wdata);
+    fflush(stdout);
 #ifdef DIFFTEST
     difftest_skip_ref();
 #endif
