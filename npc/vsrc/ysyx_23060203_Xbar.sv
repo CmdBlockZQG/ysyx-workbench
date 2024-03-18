@@ -136,7 +136,7 @@ module ysyx_23060203_Xbar (
       sram_w.wdata = 0;
       sram_w.wstrb = 0;
 
-      write.wready = 1;
+      write.wready = 0;
       write.bresp = 0;
       write.bvalid = 0;
     end
