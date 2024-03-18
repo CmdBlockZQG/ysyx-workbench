@@ -1,6 +1,8 @@
 import "DPI-C" function void halt();
 import "DPI-C" function void inst_complete(input int pc);
 
+import "DPI-C" function void uart_putch(input byte ch);
+
 import "DPI-C" function int mem_read(input int raddr);
 import "DPI-C" function void mem_write(
   input int waddr,

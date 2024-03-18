@@ -17,6 +17,7 @@ module uart (
 
   always @(posedge clk) begin if (rstn) begin
     if (write.wvalid & write.wready) begin
+      uart_putch(write.wdata[7:0]);
     end
   end end
 

@@ -27,6 +27,10 @@ void inst_complete(int new_pc) {
   exec_once_flag = true;
 }
 
+void uart_putch(char c) {
+  putchar(c);
+}
+
 static uint64_t get_time() {
   return std::chrono::time_point_cast<std::chrono::microseconds> \
          (std::chrono::high_resolution_clock::now()).time_since_epoch().count();
