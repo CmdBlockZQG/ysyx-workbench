@@ -51,9 +51,9 @@ module ysyx_23060203_Xbar (
       rres_sram <= rreq_sram;
       rres_clint <= rreq_clint;
       rreq_ready <= 0;
-      // if (~rreq_sram) begin
-      //   skip_difftest();
-      // end
+      if (~rreq_sram) begin
+        skip_difftest();
+      end
     end
   end end
   // res
