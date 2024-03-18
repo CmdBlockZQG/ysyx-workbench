@@ -5,7 +5,7 @@ module top (
   input rstn, clk
 );
 
-  SRAM sram (
+  sram ram (
     .rstn(rstn), .clk(clk),
     .read(ram_r), .write(ram_w)
   );
