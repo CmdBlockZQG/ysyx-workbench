@@ -62,7 +62,7 @@ module ysyx_23060203_Xbar (
       read.rresp = clint_r.rresp;
       read.rvalid = clint_r.rvalid;
     end else begin
-      read.rdata = 0;
+      read.rdata = 123;
       read.rresp = 0;
       read.rvalid = 0;
     end
