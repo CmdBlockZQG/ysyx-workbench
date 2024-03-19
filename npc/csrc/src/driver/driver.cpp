@@ -14,7 +14,7 @@ static bool nvboard = false;
 void init_top(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  top_module = new VysyxSoCFull(contextp, "TOP");
+  top_module = new VysyxSoCFull(contextp, "top");
 }
 
 void init_wave(const char *filename) {
@@ -22,7 +22,7 @@ void init_wave(const char *filename) {
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
   // top_module->trace(trace_file, 1);
-  trace_file->dumpvars(1, "TOP.ysyxSoCFull");
+  trace_file->dumpvars(1, "top.ysyxSoCFull");
   trace_file->open(filename);
 
   Log("Wave is dumped to %s", filename);
