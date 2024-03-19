@@ -45,7 +45,7 @@ static void execute(uint64_t n) {
     itrace(cpu_pc, cpu_module->inst, n <= 24);
 #endif
 #ifdef FTRACE
-    ftrace(cpu_pc, cpu_module->pc);
+    ftrace(cpu_pc, cpu_module->npc);
 #endif
 
     exec_once();

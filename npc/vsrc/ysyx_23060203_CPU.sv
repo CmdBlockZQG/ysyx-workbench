@@ -105,7 +105,7 @@ module ysyx_23060203_CPU (
   );
 
   // NPC
-  wire [31:0] npc;
+  wire [31:0] npc/*verilator public*/;
   // GPR CSR
   wire gpr_wen, csr_wen1, csr_wen2;
   wire [4:0] gpr_waddr;
