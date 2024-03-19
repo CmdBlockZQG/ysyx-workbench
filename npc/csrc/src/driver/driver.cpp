@@ -22,7 +22,7 @@ void init_wave(const char *filename) {
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
   // top_module->trace(trace_file, 1);
-  // printf(">>>>>>>%s<<<<<<<<<<<<<\n", top_module->ysyxSoCFull->name());
+  printf(">>>>>>>%s<<<<<<<<<<<<<\n", top_module->ysyxSoCFull->name());
   trace_file->dumpvars(1, "top.clock");
   trace_file->open(filename);
 
