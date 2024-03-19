@@ -47,7 +47,7 @@ void driver_step() {
   top_module->eval();
   if (nvboard) nvboard_update();
   contextp->timeInc(1);
-  if (trace_file) trace_file->dump(contextp->time());
+  // if (trace_file) trace_file->dump(contextp->time());
 }
 
 void reset_top() {
