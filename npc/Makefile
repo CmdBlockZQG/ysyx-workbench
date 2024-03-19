@@ -60,7 +60,7 @@ clean:
 
 
 ARGS ?= --log=$(BUILD_DIR)/log.txt
-override ARGS += --wave=$(BUILD_DIR)/wave-tmp.vcd
+override ARGS += --wave=$(BUILD_DIR)/wave.vcd
 IMG ?=
 ifdef ELF
 override ARGS += --elf=$(ELF)
@@ -77,8 +77,9 @@ run: $(BIN)
 
 run_nt: $(BIN)
 	$(BIN) $(ARGS) $(IMG)
-	@sed '4,8d' sed '4,8d' $(BUILD_DIR)/wave-tmp.vcd | sed -E '/^ {1,5}\$upscope \$end/d' > $(BUILD_DIR)/wave.vcd
-	@rm $(BUILD_DIR)/wave-tmp.vcd
+	@sed '4,8d' $(BUILD_DIR)/wave.vcd | sed -E '/^ {1,5}\$upscope \$end/d' > $(BUILD_DIR)/wave-tmp.vcd
+	@rm $(BUILD_DIR)/wave.vcd
+	@mv $(BUILD_DIR)/wave-tmp.vcd $(BUILD_DIR)/wave.vcd
 
 .PHONY: default all clean sim run run_nt
 
