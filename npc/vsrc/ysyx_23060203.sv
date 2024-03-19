@@ -64,7 +64,7 @@ module ysyx_23060203 (
 );
   axi_if io_master, io_slave;
 
-  ysyx_23060203_CPU CPU (
+  ysyx_23060203_CPU NPC_CPU (
     .clk(clock), .rstn(~reset),
     // .io_interrupt(io_interrupt),
     .io_master(io_master),

@@ -21,7 +21,7 @@ void init_wave(const char *filename) {
   if (!filename) return;
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
-  trace_file->dumpvars(99, "ysyx_23060203_CPU");
+  trace_file->dumpvars(99, "NPC_CPU");
   trace_file->open(filename);
 
   Log("Wave is dumped to %s", filename);

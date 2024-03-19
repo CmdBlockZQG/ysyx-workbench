@@ -10,7 +10,7 @@
 
 extern VysyxSoCFull *top_module;
 
-#define cpu_module top_module->ysyxSoCFull->asic->cpu->cpu->CPU
+#define cpu_module top_module->ysyxSoCFull->asic->cpu->cpu->NPC_CPU
 
 void init_top(int argc, char **argv);
 void init_wave(const char *filename);
