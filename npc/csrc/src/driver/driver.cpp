@@ -22,7 +22,7 @@ void init_wave(const char *filename) {
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
   // top_module->trace(trace_file, 99);
-  trace_file->dumpvars(99, "TOP.ysyxSoCFull");
+  trace_file->dumpvars(99, "asic");
   trace_file->open(filename);
 
   Log("Wave is dumped to %s", filename);
