@@ -21,9 +21,9 @@ void init_wave(const char *filename) {
   if (!filename) return;
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
-  // top_module->trace(trace_file, 1);
+  top_module->trace(trace_file, 1);
   // printf(">>>>>>>%s<<<<<<<<<<<<<\n", top_module->ysyxSoCFull->name());
-  trace_file->dumpvars(2, "ysyxSoCFull");
+  // trace_file->dumpvars(2, "ysyxSoCFull");
   trace_file->open(filename);
 
   Log("Wave is dumped to %s", filename);
