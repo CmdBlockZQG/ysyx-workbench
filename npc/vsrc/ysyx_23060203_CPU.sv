@@ -1,10 +1,9 @@
-`include "interface/axi.sv"
-`include "interface/decouple.sv"
+module ysyx_23060203_CPU (
+  input clk, rstn,
 
-module top (
-  input rstn, clk
+  axi_if.master io_master,
+  axi_if.slave io_slave
 );
-
   SRAM sram (
     .rstn(rstn), .clk(clk),
     .read(sram_r), .write(sram_w)
@@ -20,8 +19,8 @@ module top (
     .read(clint_r)
   );
 
-  axi_r_if sram_r, clint_r;
-  axi_w_if sram_w, uart_w;
+  axi_lite_r_if sram_r, clint_r;
+  axi_lite_w_if sram_w, uart_w;
   ysyx_23060203_Xbar Xbar (
     .rstn(rstn), .clk(clk),
     .read(ram_r),
@@ -30,7 +29,7 @@ module top (
     .sram_w(sram_w), .uart_w(uart_w)
   );
 
-  axi_r_if ram_r;
+  axi_lite_r_if ram_r;
   ysyx_23060203_MemArb MemArb (
     .rstn(rstn), .clk(clk),
     .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
@@ -62,7 +61,7 @@ module top (
     .waddr2(csr_waddr2), .wdata2(csr_wdata2)
   );
 
-  axi_r_if ifu_mem_r;
+  axi_lite_r_if ifu_mem_r;
   wire [31:0] pc/*verilator public*/;
   wire [31:0] inst/*verilator public*/;
   decouple_if inst_if;
@@ -106,7 +105,7 @@ module top (
   );
 
   // NPC
-  wire [31:0] npc;
+  wire [31:0] npc/*verilator public*/;
   // GPR CSR
   wire gpr_wen, csr_wen1, csr_wen2;
   wire [4:0] gpr_waddr;
@@ -149,8 +148,8 @@ module top (
 
   decouple_if mem_rres, mem_wres;
   wire [31:0] mem_rdata;
-  axi_r_if lsu_mem_r;
-  axi_w_if ram_w;
+  axi_lite_r_if lsu_mem_r;
+  axi_lite_w_if ram_w;
   ysyx_23060203_LSU LSU (
     .rstn(rstn), .clk(clk),
 

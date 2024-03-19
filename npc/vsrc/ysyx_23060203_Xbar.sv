@@ -1,18 +1,14 @@
-`include "interface/axi.sv"
-
 module ysyx_23060203_Xbar (
   input rstn, clk,
 
-  axi_r_if.slave read,
-  axi_r_if.master sram_r,
-  axi_r_if.master clint_r,
+  axi_lite_r_if.slave read,
+  axi_lite_r_if.master sram_r,
+  axi_lite_r_if.master clint_r,
 
-  axi_w_if.slave write,
-  axi_w_if.master sram_w,
-  axi_w_if.master uart_w
+  axi_lite_w_if.slave write,
+  axi_lite_w_if.master sram_w,
+  axi_lite_w_if.master uart_w
 );
-  `include "DPIC.sv"
-
   // 复位
   always @(posedge clk) begin if (~rstn) begin
     rreq_ready <= 1;

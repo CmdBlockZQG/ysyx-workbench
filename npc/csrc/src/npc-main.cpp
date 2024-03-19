@@ -54,9 +54,6 @@ static long load_img() {
     fclose(fp);
     ret = size;
   }
-  // load first instruction after image ready
-  top->clk = 0; top->eval();
-  top->clk = 1; top->eval();
   return ret;
 }
 

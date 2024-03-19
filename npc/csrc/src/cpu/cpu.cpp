@@ -22,8 +22,8 @@ static void exec_once() {
   extern bool exec_once_flag;
   exec_once_flag = false;
   while (true) {
-    top->clk = 0; driver_step();
-    top->clk = 1; driver_step();
+    top_module->clock = 0; driver_step();
+    top_module->clock = 1; driver_step();
     if (exec_once_flag) break;
   }
 }
@@ -42,10 +42,10 @@ static void execute(uint64_t n) {
   while (n--) {
 
 #ifdef ITRACE
-    itrace(cpu_pc, top->top->inst, n <= 24);
+    itrace(cpu_pc, cpu_module->inst, n <= 24);
 #endif
 #ifdef FTRACE
-    ftrace(cpu_pc, top->top->pc);
+    ftrace(cpu_pc, cpu_module->npc);
 #endif
 
     exec_once();

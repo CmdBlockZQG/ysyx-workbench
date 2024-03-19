@@ -1,5 +1,3 @@
-`include "interface/decouple.sv"
-
 module ysyx_23060203_EXU (
   input rstn, clk,
 
@@ -49,10 +47,6 @@ module ysyx_23060203_EXU (
   decouple_if.out mem_wreq,
   decouple_if.in mem_wres
 );
-  `include "params/opcode.sv"
-  `include "params/branch.sv"
-  `include "params/csr.sv"
-
   // -------------------- ALU --------------------
   wire [31:0] alu_val;
   ysyx_23060203_ALU ALU (

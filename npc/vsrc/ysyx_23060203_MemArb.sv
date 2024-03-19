@@ -1,12 +1,10 @@
-`include "interface/axi.sv"
-
 module ysyx_23060203_MemArb (
   input rstn, clk,
 
-  axi_r_if.slave ifu_r,
-  axi_r_if.slave lsu_r,
+  axi_lite_r_if.slave ifu_r,
+  axi_lite_r_if.slave lsu_r,
 
-  axi_r_if.master ram_r
+  axi_lite_r_if.master ram_r
 );
 
   reg req_ready;

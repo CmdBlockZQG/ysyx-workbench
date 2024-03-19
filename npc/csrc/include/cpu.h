@@ -4,8 +4,7 @@
 #include "common.h"
 
 #include "driver.h"
-#include "Vtop_top.h"
-#include "Vtop_ysyx_23060203_GPR.h"
+#include "VysyxSoCFull_ysyx_23060203_GPR.h"
 
 void cpu_init();
 void cpu_exec(uint64_t n);
@@ -15,7 +14,7 @@ static inline int check_reg_idx(int idx) {
   return idx;
 }
 
-#define gpr(idx) (idx ? top->top->GPR->rf[check_reg_idx(idx) - 1] : 0)
+#define gpr(idx) (idx ?  cpu_module->GPR->rf[check_reg_idx(idx) - 1] : 0)
 extern addr_t cpu_pc;
 
 static inline const char *reg_name(int idx) {

@@ -1,12 +1,11 @@
-#include "common.h"
+#include "debug.h"
 #include "driver.h"
 
 #include "verilated_vcd_c.h"
 #include "nvboard.h"
-#include "Vtop.h"
-#include "Vtop__Dpi.h"
+#include "VysyxSoCFull.h"
 
-Vtop *top;
+VysyxSoCFull *top_module;
 
 static VerilatedContext *contextp;
 static VerilatedVcdC *trace_file;
@@ -15,14 +14,15 @@ static bool nvboard = false;
 void init_top(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  top = new Vtop{contextp};
+  top_module = new VysyxSoCFull(contextp, "top");
 }
 
 void init_wave(const char *filename) {
   if (!filename) return;
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
-  top->trace(trace_file, 99);
+  top_module->trace(trace_file, 99);
+  trace_file->dumpvars(99, "top.ysyxSoCFull.asic.cpu.cpu.NPC_CPU");
   trace_file->open(filename);
 
   Log("Wave is dumped to %s", filename);
@@ -31,20 +31,20 @@ void init_wave(const char *filename) {
 void init_nvboard() {
   nvboard = true;
 
-  void nvboard_bind_all_pins(Vtop*);
-  nvboard_bind_all_pins(top);
+  void nvboard_bind_all_pins(VysyxSoCFull*);
+  nvboard_bind_all_pins(top_module);
 
   nvboard_init();
 }
 
 void finalize_driver() {
   if (trace_file) trace_file->close();
-  delete top;
+  delete top_module;
   delete contextp;
 }
 
 void driver_step() {
-  top->eval();
+  top_module->eval();
   if (nvboard) nvboard_update();
   contextp->timeInc(1);
   if (trace_file) trace_file->dump(contextp->time());
@@ -52,11 +52,11 @@ void driver_step() {
 
 void reset_top() {
   // reset for 20 clock cycle
-  top->rstn = 0;
+  top_module->reset = 1;
   int n = 20;
   while (n--) {
-    top->clk = 0; top->eval(); // driver_step();
-    top->clk = 1; top->eval(); // driver_step();
+    top_module->clock = 0; top_module->eval(); // driver_step();
+    top_module->clock = 1; top_module->eval(); // driver_step();
   }
-  top->rstn = 1;
+  top_module->reset = 0;
 }

@@ -1,6 +1,3 @@
-`include "interface/decouple.sv"
-`include "interface/axi.sv"
-
 module ysyx_23060203_LSU (
   input rstn, clk,
 
@@ -19,11 +16,9 @@ module ysyx_23060203_LSU (
   decouple_if.out wres,
 
   // 连接存储器
-  axi_r_if.master ram_r,
-  axi_w_if.master ram_w
+  axi_lite_r_if.master ram_r,
+  axi_lite_w_if.master ram_w
 );
-  `include "params/mem.sv"
-
   // -------------------- 读请求 --------------------
   // 暂存寄存器
   reg [1:0] raddr_align_reg;

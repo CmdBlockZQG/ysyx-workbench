@@ -1,12 +1,9 @@
-#include "Vtop__Dpi.h"
+#include "VysyxSoCFull__Dpi.h"
 
 #include "common.h"
 #include "cpu.h"
 #include "mem.h"
 #include "trace.h"
-
-static const addr_t serial_mmio = 0xa00003f8;
-static const addr_t rtc_mmio = 0xa0000048;
 
 #ifdef DIFFTEST
 void difftest_skip_ref();
@@ -58,3 +55,7 @@ void mem_write(int waddr, int wdata, char wmask) {
   if (wmask & 0b0100) addr_write(waddr + 2, 1, wdata >> 16);
   if (wmask & 0b1000) addr_write(waddr + 3, 1, wdata >> 24);
 }
+
+void flash_read(int addr, int *data) { assert(0); }
+
+void mrom_read(int addr, int *data) { assert(0); }

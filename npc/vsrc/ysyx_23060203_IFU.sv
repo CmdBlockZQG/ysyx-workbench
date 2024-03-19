@@ -1,6 +1,3 @@
-`include "interface/axi.sv"
-`include "interface/decouple.sv"
-
 module ysyx_23060203_IFU (
   input rstn, clk,
 
@@ -13,10 +10,8 @@ module ysyx_23060203_IFU (
   decouple_if.out inst_out,
 
   // 连接指令内存
-  axi_r_if.master ram_r
+  axi_lite_r_if.master ram_r
 );
-  `include "DPIC.sv"
-
   reg rstn_prev;
   // reg [31:0] inst_reg;
 
