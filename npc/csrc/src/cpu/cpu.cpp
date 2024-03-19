@@ -83,6 +83,6 @@ void cpu_exec(uint64_t n) {
 }
 
 void init_cpu() {
-  reset_top();
+  // reset_top();
   exec_once();
 }
