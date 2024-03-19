@@ -53,10 +53,10 @@ void driver_step() {
 void reset_top() {
   // reset for 20 clock cycle
   top_module->reset = 1;
-  int n = 20;
+  int n = 10;
   while (n--) {
-    top_module->clock = 0; driver_step();
-    top_module->clock = 1; driver_step();
+    top_module->clock = 0; top_module->eval(); // driver_step();
+    top_module->clock = 1; top_module->eval(); // driver_step();
   }
   top_module->reset = 0;
 }
