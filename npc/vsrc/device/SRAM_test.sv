@@ -1,13 +1,9 @@
-`include "interface/axi.sv"
-
 module SRAM_test (
   input rstn, clk,
 
-  axi_r_if.slave read,
-  axi_w_if.slave write
+  axi_lite_r_if.slave read,
+  axi_lite_w_if.slave write
 );
-  `include "DPIC.sv"
-
   reg [8:0] reading, writing;
   reg [8:0] reading_max, writing_max;
   always @(posedge clk) begin

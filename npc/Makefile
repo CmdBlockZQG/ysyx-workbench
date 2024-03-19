@@ -1,11 +1,11 @@
-TOPNAME = top
+TOPNAME = ysyxSoCFull
 NXDC_FILES = constr/top.nxdc
 INC_PATH = $(abspath ./csrc/include)
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
 					-O3 --x-assign fast --x-initial fast --noassert
-VERILATOR_FLAGS = -Wno-MODDUP
+VERILATOR_FLAGS = --timescale "1ns/1ns" --no-timing
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -20,8 +20,13 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.sv")
+VSRCS += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
+VSRCS += $(abspath ../ysyxSoC/generated/ysyxSoCFull.v)
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
+INCDIR = "$(abspath ./vsrc)"
+INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
+INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
 
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
@@ -40,7 +45,7 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
-		-y "$(abspath ./vsrc)" \
+		$(addprefix -y , $(INCDIR)) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN)) \

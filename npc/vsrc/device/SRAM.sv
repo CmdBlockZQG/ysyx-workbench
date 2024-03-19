@@ -1,13 +1,9 @@
-`include "interface/axi.sv"
-
 module SRAM (
   input rstn, clk,
 
-  axi_r_if.slave read,
-  axi_w_if.slave write
+  axi_lite_r_if.slave read,
+  axi_lite_w_if.slave write
 );
-  `include "DPIC.sv"
-
   reg reading, writing;
   always @(posedge clk) begin
     if (~rstn) begin // 复位

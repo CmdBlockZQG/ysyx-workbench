@@ -1,9 +1,7 @@
-`include "interface/axi.sv"
-
 module CLINT (
   input rstn, clk,
 
-  axi_r_if.slave read
+  axi_lite_r_if.slave read
 );
   // 计时
   reg [63:0] uptime;
