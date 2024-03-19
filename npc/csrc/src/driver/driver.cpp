@@ -22,7 +22,7 @@ void init_wave(const char *filename) {
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
   top_module->trace(trace_file, 99);
-  // trace_file->dumpvars(99, "top.ysyxSoCFull.asic.cpu.cpu.NPC_CPU");
+  trace_file->dumpvars(99, "top.ysyxSoCFull.asic.cpu.cpu.NPC_CPU");
   trace_file->open(filename);
 
   Log("Wave is dumped to %s", filename);
@@ -55,8 +55,8 @@ void reset_top() {
   top_module->reset = 1;
   int n = 20;
   while (n--) {
-    top_module->clock = 0; top_module->eval(); // driver_step();
-    top_module->clock = 1; top_module->eval(); // driver_step();
+    top_module->clock = 0; driver_step();
+    top_module->clock = 1; driver_step();
   }
   top_module->reset = 0;
 }
