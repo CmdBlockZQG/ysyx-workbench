@@ -21,7 +21,7 @@ void init_wave(const char *filename) {
   if (!filename) return;
   Verilated::traceEverOn(true);
   trace_file = new VerilatedVcdC;
-  // top_module->trace(trace_file, 99);
+  top_module->trace(trace_file, 0);
   trace_file->dumpvars(99, "TOP.ysyxSoCFull");
   trace_file->open(filename);
 
