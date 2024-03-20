@@ -1,4 +1,5 @@
 interface axi_if;
+  // write
   logic        awvalid;
   logic        awready;
   logic [31:0] awaddr;
@@ -15,6 +16,7 @@ interface axi_if;
   logic        bvalid;
   logic [1:0]  bresp;
   logic [3:0]  bid;
+  // read
   logic        arready;
   logic        arvalid;
   logic [31:0] araddr;
@@ -30,6 +32,7 @@ interface axi_if;
   logic [3:0]  rid;
 
   modport master (
+    // write
     input  awready,
     output awvalid,
     output awaddr,
@@ -46,6 +49,7 @@ interface axi_if;
     input  bvalid,
     input  bresp,
     input  bid,
+    // read
     input  arready,
     output arvalid,
     output araddr,

@@ -15,6 +15,10 @@ module ysyx_23060203_MemArb (
   wire req_dev = (ifu_r.arvalid & lsu_r.arvalid) ? ~lst_dev : lsu_r.arvalid;
 
   assign ram_r.arsize = 3'b010;
+  assign ram_r.arlen = 0;
+  assign ram_r.arburst = 0;
+  assign ram_r.arid = 0;
+
   assign ram_r.araddr = req_dev ? lsu_r.araddr : ifu_r.araddr;
   always_comb begin
     if (req_ready) begin
