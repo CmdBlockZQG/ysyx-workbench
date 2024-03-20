@@ -3,7 +3,7 @@
 #include "mem.h"
 #include "trace.h"
 
-addr_t cpu_pc = 0x80000000;
+addr_t cpu_pc;
 
 static uint64_t nr_inst = 0;
 bool trace_enabled = true;

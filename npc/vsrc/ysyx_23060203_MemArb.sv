@@ -4,7 +4,7 @@ module ysyx_23060203_MemArb (
   axi_lite_r_if.slave ifu_r,
   axi_lite_r_if.slave lsu_r,
 
-  axi_lite_r_if.master ram_r
+  axi_if.master ram_r
 );
 
   reg req_ready;
@@ -27,8 +27,8 @@ module ysyx_23060203_MemArb (
     end
   end
 
-  assign ifu_r.rdata = ram_r.rdata;
-  assign lsu_r.rdata = ram_r.rdata;
+  assign ifu_r.rdata = ram_r.rdata[31:0];
+  assign lsu_r.rdata = ram_r.rdata[31:0];
   assign ifu_r.rresp = ram_r.rresp;
   assign lsu_r.rresp = ram_r.rresp;
   assign ifu_r.rvalid = ~res_dev ? ram_r.rvalid : 0;

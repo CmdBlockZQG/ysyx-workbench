@@ -58,4 +58,6 @@ void mem_write(int waddr, int wdata, char wmask) {
 
 void flash_read(int addr, int *data) { assert(0); }
 
-void mrom_read(int addr, int *data) { assert(0); }
+void mrom_read(int addr, int *data) {
+  *(uint32_t *)data = 0x00100073;
+}
