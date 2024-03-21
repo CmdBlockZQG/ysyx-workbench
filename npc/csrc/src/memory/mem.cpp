@@ -3,40 +3,39 @@
 
 #include <cstring>
 
-static uint8_t pmem[MSIZE] PG_ALIGN;
+static uint8_t mrom [MROM_SIZE] PG_ALIGN;
+static uint8_t sram [SRAM_SIZE] PG_ALIGN;
+const MemMap mem_map[] = {
+  { "mrom", MROM_BASE, MROM_SIZE, mrom, true },
+  { "sram", SRAM_BASE, SRAM_SIZE, sram, false }
+};
 
-uint8_t *guest_to_host(addr_t addr) { return pmem + addr - MBASE; }
-addr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + MBASE; }
-
-static word_t pmem_read(addr_t addr, int len) {
-  return host_read(guest_to_host(addr), len);
+const MemMap &get_mem_map(addr_t addr) {
+  for (const MemMap &i : mem_map) {
+    if (i.start <= addr && addr < i.start + i.size) {
+      return i;
+    }
+  }
+  panic("addr = " FMT_ADDR " out of bound", addr);
 }
 
-static void pmem_write(addr_t addr, int len, word_t data) {
-  host_write(guest_to_host(addr), len, data);
-}
-
-static void out_of_bound(addr_t addr) {
-  panic("address = " FMT_ADDR " is out of bound of pmem [" FMT_ADDR ", " FMT_ADDR "]",
-        addr, MEM_LEFT, MEM_RIGHT);
+uint8_t *guest_to_host(addr_t addr) {
+  const MemMap &m = get_mem_map(addr);
+  return addr - m.start + m.ptr;
 }
 
 void init_mem() {
-  memset(pmem, 0xCB, MSIZE);
-  Log("physical memory area [" FMT_ADDR ", " FMT_ADDR "]", MEM_LEFT, MEM_RIGHT);
+  memset(mrom, 0xCB, MROM_SIZE);
+  memset(sram, 0xCB, SRAM_SIZE);
 }
 
 word_t addr_read(addr_t addr, int len) {
-  if (in_mem(addr)) {
-    return pmem_read(addr, len);
-  }
-  out_of_bound(addr);
-  return 0;
+  const MemMap &m = get_mem_map(addr);
+  return host_read(addr - m.start + m.ptr, len);
 }
 
 void addr_write(addr_t addr, int len, word_t data) {
-  if (in_mem(addr)) {
-    return pmem_write(addr, len, data);
-  }
-  out_of_bound(addr);
+  const MemMap &m = get_mem_map(addr);
+  Assert(!m.readonly, "addr = " FMT_ADDR " readonly", addr);
+  return host_write(addr - m.start + m.ptr, len, data);
 }

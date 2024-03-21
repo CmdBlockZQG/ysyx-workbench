@@ -19,7 +19,7 @@ module ysyx_23060203_IFU (
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
       ram_r.arvalid <= 0;
-      pc <= 32'h80000000;
+      pc <= 32'h20000000;
     end else if (rstn & ~rstn_prev) begin // 复位释放
       ram_r.arvalid <= 1;
       ram_r.araddr <= pc;
@@ -46,7 +46,7 @@ module ysyx_23060203_IFU (
       if (inst == 32'h100073) begin
         halt();
       end
-      inst_complete(pc);
+      inst_complete(pc, inst);
     end
   end end
 endmodule

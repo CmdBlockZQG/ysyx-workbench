@@ -19,8 +19,10 @@ void halt() {
 }
 
 bool exec_once_flag;
-void inst_complete(int new_pc) {
+word_t itrace_inst;
+void inst_complete(int new_pc, int new_inst) {
   cpu_pc = new_pc;
+  itrace_inst = new_inst;
   exec_once_flag = true;
 }
 
@@ -56,6 +58,10 @@ void mem_write(int waddr, int wdata, char wmask) {
   if (wmask & 0b1000) addr_write(waddr + 3, 1, wdata >> 24);
 }
 
-void flash_read(int addr, int *data) { assert(0); }
+void flash_read(int addr, int *data) {
+  *(uint32_t *)data = addr_read(addr, 4);
+}
 
-void mrom_read(int addr, int *data) { assert(0); }
+void mrom_read(int addr, int *data) {
+  *(uint32_t *)data = addr_read(addr, 4);
+}

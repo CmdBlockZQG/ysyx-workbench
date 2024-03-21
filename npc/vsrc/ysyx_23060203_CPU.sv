@@ -4,36 +4,36 @@ module ysyx_23060203_CPU (
   axi_if.master io_master,
   axi_if.slave io_slave
 );
-  SRAM sram (
-    .rstn(rstn), .clk(clk),
-    .read(sram_r), .write(sram_w)
-  );
+  // SRAM sram (
+  //   .rstn(rstn), .clk(clk),
+  //   .read(sram_r), .write(sram_w)
+  // );
 
-  UART uart (
-    .rstn(rstn), .clk(clk),
-    .write(uart_w)
-  );
+  // UART uart (
+  //   .rstn(rstn), .clk(clk),
+  //   .write(uart_w)
+  // );
 
-  CLINT clint (
-    .rstn(rstn), .clk(clk),
-    .read(clint_r)
-  );
+  // CLINT clint (
+  //   .rstn(rstn), .clk(clk),
+  //   .read(clint_r)
+  // );
 
-  axi_lite_r_if sram_r, clint_r;
-  axi_lite_w_if sram_w, uart_w;
-  ysyx_23060203_Xbar Xbar (
-    .rstn(rstn), .clk(clk),
-    .read(ram_r),
-    .sram_r(sram_r), .clint_r(clint_r),
-    .write(ram_w),
-    .sram_w(sram_w), .uart_w(uart_w)
-  );
+  // axi_lite_r_if sram_r, clint_r;
+  // axi_lite_w_if sram_w, uart_w;
+  // ysyx_23060203_Xbar Xbar (
+  //   .rstn(rstn), .clk(clk),
+  //   .read(ram_r),
+  //   .sram_r(sram_r), .clint_r(clint_r),
+  //   .write(ram_w),
+  //   .sram_w(sram_w), .uart_w(uart_w)
+  // );
 
-  axi_lite_r_if ram_r;
+  // axi_lite_r_if ram_r;
   ysyx_23060203_MemArb MemArb (
     .rstn(rstn), .clk(clk),
     .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
-    .ram_r(ram_r)
+    .ram_r(io_master)
   );
 
   wire [31:0] gpr_rdata1, gpr_rdata2;
@@ -62,8 +62,8 @@ module ysyx_23060203_CPU (
   );
 
   axi_lite_r_if ifu_mem_r;
-  wire [31:0] pc/*verilator public*/;
-  wire [31:0] inst/*verilator public*/;
+  wire [31:0] pc;
+  wire [31:0] inst;
   decouple_if inst_if;
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),
@@ -161,6 +161,6 @@ module ysyx_23060203_CPU (
     .waddr(mem_waddr), .wdata(mem_wdata),
     .wres(mem_wres),
 
-    .ram_r(lsu_mem_r), .ram_w(ram_w)
+    .ram_r(lsu_mem_r), .ram_w(io_master)
   );
 endmodule

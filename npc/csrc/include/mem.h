@@ -3,19 +3,25 @@
 
 #include "common.h"
 
-#define MBASE 0x80000000
-#define MSIZE 0x8000000
+#define MROM_BASE 0x20000000
+#define MROM_SIZE 4096
+#define SRAM_BASE 0x0f000000
+#define SRAM_SIZE 8192
+
+struct MemMap {
+  const char* name;
+  addr_t start;
+  addr_t size;
+  uint8_t *ptr;
+  bool readonly;
+};
+
 #define PG_ALIGN __attribute((aligned(4096)))
 
 #define MEM_LEFT ((addr_t)MBASE)
 #define MEM_RIGHT ((addr_t)MBASE + MSIZE - 1)
 
 uint8_t *guest_to_host(addr_t addr);
-addr_t host_to_guest(uint8_t *haddr);
-
-static inline bool in_mem(addr_t addr) {
-  return addr - MBASE < MSIZE;
-}
 
 static inline word_t host_read(void *addr, int len) {
   switch (len) {

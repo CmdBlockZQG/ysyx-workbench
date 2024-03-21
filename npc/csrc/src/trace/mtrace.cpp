@@ -13,15 +13,10 @@ static void locate_object_sym(addr_t addr) {
   }
 }
 
-static const addr_t mtrace_start = 0x80000000;
-static const addr_t mtrace_end = 0x87ffffff;
-
 void mtrace_read(addr_t addr) {
-  if (mtrace_start <= addr && addr <= mtrace_end) {
-    log_write(ANSI_FG_CYAN "[MTRACE] Read " FMT_ADDR, addr);
-    locate_object_sym(addr);
-    log_write(ANSI_NONE "\n");
-  }
+  log_write(ANSI_FG_CYAN "[MTRACE] Read " FMT_ADDR, addr);
+  locate_object_sym(addr);
+  log_write(ANSI_NONE "\n");
 }
 
 void mtrace_write(addr_t addr, word_t data, uint8_t mask) {
@@ -36,9 +31,7 @@ void mtrace_write(addr_t addr, word_t data, uint8_t mask) {
   for (int i = 0; i < 4; ++i) {
     len += (mask >> i) & 1;
   }
-  if (mtrace_start <= addr && addr <= mtrace_end) {
-    log_write(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_ADDR , len, addr);
-    locate_object_sym(addr);
-    log_write(": " FMT_WORD ANSI_NONE "\n", data);
-  }
+  log_write(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_ADDR , len, addr);
+  locate_object_sym(addr);
+  log_write(": " FMT_WORD ANSI_NONE "\n", data);
 }

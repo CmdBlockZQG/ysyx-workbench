@@ -84,24 +84,24 @@ module ysyx_23060203 (
   assign io_master.rlast   = io_master_rlast;
   assign io_master.rid     = io_master_rid;
   // master output
-  assign io_master_awvalid = 0; // io_master.awvalid;
-  assign io_master_awaddr  = 0; // io_master.awaddr;
-  assign io_master_awid    = 0; // io_master.awid;
-  assign io_master_awlen   = 0; // io_master.awlen;
-  assign io_master_awsize  = 0; // io_master.awsize;
-  assign io_master_awburst = 0; // io_master.awburst;
-  assign io_master_wvalid  = 0; // io_master.wvalid;
-  assign io_master_wdata   = 0; // io_master.wdata;
-  assign io_master_wstrb   = 0; // io_master.wstrb;
-  assign io_master_wlast   = 0; // io_master.wlast;
-  assign io_master_bready  = 0; // io_master.bready;
-  assign io_master_arvalid = 0; // io_master.arvalid;
-  assign io_master_araddr  = 0; // io_master.araddr;
-  assign io_master_arid    = 0; // io_master.arid;
-  assign io_master_arlen   = 0; // io_master.arlen;
-  assign io_master_arsize  = 0; // io_master.arsize;
-  assign io_master_arburst = 0; // io_master.arburst;
-  assign io_master_rready  = 0; // io_master.rready;
+  assign io_master_awvalid = io_master.awvalid;
+  assign io_master_awaddr  = io_master.awaddr;
+  assign io_master_awid    = io_master.awid;
+  assign io_master_awlen   = io_master.awlen;
+  assign io_master_awsize  = io_master.awsize;
+  assign io_master_awburst = io_master.awburst;
+  assign io_master_wvalid  = io_master.wvalid;
+  assign io_master_wdata   = io_master.wdata;
+  assign io_master_wstrb   = io_master.wstrb;
+  assign io_master_wlast   = io_master.wlast;
+  assign io_master_bready  = io_master.bready;
+  assign io_master_arvalid = io_master.arvalid;
+  assign io_master_araddr  = io_master.araddr;
+  assign io_master_arid    = io_master.arid;
+  assign io_master_arlen   = io_master.arlen;
+  assign io_master_arsize  = io_master.arsize;
+  assign io_master_arburst = io_master.arburst;
+  assign io_master_rready  = io_master.rready;
 
   // slave output
   assign io_slave_awready = 0; // io_slave.awready;

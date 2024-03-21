@@ -17,7 +17,8 @@ module ysyx_23060203_LSU (
 
   // 连接存储器
   axi_lite_r_if.master ram_r,
-  axi_lite_w_if.master ram_w
+  // axi_lite_w_if.master ram_w,
+  axi_if.master ram_w
 );
   // -------------------- 读请求 --------------------
   // 暂存寄存器
@@ -63,6 +64,19 @@ module ysyx_23060203_LSU (
   assign ram_r.rready = rres.ready;
 
   // -------------------- 写请求 --------------------
+  assign ram_w.awid = 0;
+  assign ram_w.awlen = 0;
+  assign ram_w.awburst = 0;
+  assign ram_w.wlast = 1;
+  always_comb begin
+    case (wfunc)
+      // ST_B: ram_w.awsize = 3'b000;
+      ST_H: ram_w.awsize = 3'b001;
+      ST_W: ram_w.awsize = 3'b010;
+      default: ram_w.awsize = 3'b000; // 合并ST_B
+    endcase
+  end
+
   reg [31:0] wdata_aligned;
   always_comb begin
     case (waddr[1:0])
@@ -112,8 +126,8 @@ module ysyx_23060203_LSU (
   end
   assign ram_w.awaddr = waddr;
   assign ram_w.awvalid = wreq.valid & waddr_flag;
-  assign ram_w.wdata = wdata_aligned;
-  assign ram_w.wstrb = wmask_aligned;
+  assign ram_w.wdata = {32'b0, wdata_aligned};
+  assign ram_w.wstrb = {4'b0, wmask_aligned};
   assign ram_w.wvalid = wreq.valid & wdata_flag;
   assign wreq.ready = (ram_w.awready | ~waddr_flag) & (ram_w.wready | ~wdata_flag);
   // TEMP: 忽略回复错误处理
