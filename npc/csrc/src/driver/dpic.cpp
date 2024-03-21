@@ -56,8 +56,10 @@ void mem_write(int waddr, int wdata, char wmask) {
   if (wmask & 0b1000) addr_write(waddr + 3, 1, wdata >> 24);
 }
 
-void flash_read(int addr, int *data) { assert(0); }
+void flash_read(int addr, int *data) {
+  *(uint32_t *)data = addr_read(addr, 4);
+}
 
 void mrom_read(int addr, int *data) {
-  *(uint32_t *)data = 0x00100073;
+  *(uint32_t *)data = addr_read(addr, 4);
 }

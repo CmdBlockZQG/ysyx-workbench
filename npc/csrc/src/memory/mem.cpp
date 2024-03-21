@@ -3,7 +3,6 @@
 
 #include <cstring>
 
-
 static uint8_t mrom [MROM_SIZE] PG_ALIGN;
 static uint8_t sram [SRAM_SIZE] PG_ALIGN;
 const MemMap mem_map[] = {
