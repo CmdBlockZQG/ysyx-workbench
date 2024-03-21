@@ -46,7 +46,7 @@ module ysyx_23060203_IFU (
       if (inst == 32'h100073) begin
         halt();
       end
-      inst_complete(pc);
+      inst_complete(pc, inst);
     end
   end end
 endmodule

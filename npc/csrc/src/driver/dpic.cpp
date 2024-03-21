@@ -19,8 +19,10 @@ void halt() {
 }
 
 bool exec_once_flag;
-void inst_complete(int new_pc) {
+word_t itrace_inst;
+void inst_complete(int new_pc, int new_inst) {
   cpu_pc = new_pc;
+  itrace_inst = new_inst;
   exec_once_flag = true;
 }
 
