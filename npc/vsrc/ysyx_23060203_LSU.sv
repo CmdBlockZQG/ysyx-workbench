@@ -17,6 +17,7 @@ module ysyx_23060203_LSU (
 
   // 连接存储器
   axi_lite_r_if.master ram_r,
+  // axi_lite_w_if.master ram_w,
   axi_if.master ram_w
 );
   // -------------------- 读请求 --------------------
