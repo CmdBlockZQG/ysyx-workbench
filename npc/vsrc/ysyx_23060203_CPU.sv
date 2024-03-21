@@ -161,6 +161,6 @@ module ysyx_23060203_CPU (
     .waddr(mem_waddr), .wdata(mem_wdata),
     .wres(mem_wres),
 
-    .ram_r(lsu_mem_r), .ram_w(ram_w)
+    .ram_r(lsu_mem_r), .ram_w(io_master)
   );
 endmodule
