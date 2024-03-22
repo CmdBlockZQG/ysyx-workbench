@@ -40,6 +40,7 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
       cpu.gpr[i] = ctx->gpr[i];
     }
     cpu.pc = ctx->pc;
+    Log("nemu_dt_init_pc = " FMT_PADDR, cpu.pc);
   } else {
     for (int i = 0; i < NR_GPR; ++i) {
       ctx->gpr[i] = cpu.gpr[i];

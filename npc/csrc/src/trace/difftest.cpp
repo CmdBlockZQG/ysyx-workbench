@@ -68,7 +68,6 @@ void init_difftest(char *ref_so_file, long img_size) {
 
   ref_difftest_init(1234);
   ref_difftest_memcpy(MROM_BASE, guest_to_host(MROM_BASE), img_size, DIFFTEST_TO_REF);
-  Log("init_pc = " FMT_ADDR, cpu_pc);
   difftest_regcpy();
 }
 
