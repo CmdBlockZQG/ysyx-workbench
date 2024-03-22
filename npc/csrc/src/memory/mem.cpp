@@ -10,7 +10,7 @@ const MemMap mem_map[] = {
   { "sram", SRAM_BASE, SRAM_SIZE, sram, false }
 };
 
-const MemMap &get_mem_map(addr_t addr) {
+static const MemMap &get_mem_map(addr_t addr) {
   for (const MemMap &i : mem_map) {
     if (i.start <= addr && addr < i.start + i.size) {
       return i;

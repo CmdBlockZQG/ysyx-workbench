@@ -24,7 +24,33 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
+#ifdef CONFIG_DIFFTEST_YSYXSOC
+static uint8_t mrom [MROM_SIZE] PG_ALIGN;
+static uint8_t sram [SRAM_SIZE] PG_ALIGN;
+const MemMap mem_map[] = {
+  { "mrom", MROM_BASE, MROM_SIZE, mrom, true },
+  { "sram", SRAM_BASE, SRAM_SIZE, sram, false }
+};
+
+static const MemMap *get_mem_map(paddr_t addr) {
+  for (int i = 0; i < 2; ++i) {
+    if (mem_map[i].start <= addr && addr < mem_map[i].start + mem_map[i].size) {
+      return &mem_map[i];
+    }
+  }
+  panic("addr = " FMT_PADDR " out of bound", addr);
+}
+#endif
+
+uint8_t* guest_to_host(paddr_t paddr) {
+#ifdef CONFIG_DIFFTEST_YSYXSOC
+  if (paddr - CONFIG_MBASE < CONFIG_MSIZE) return pmem + paddr - CONFIG_MBASE;
+  const MemMap *m = get_mem_map(paddr);
+  return paddr - m->start + m->ptr;
+#else
+  return pmem + paddr - CONFIG_MBASE;
+#endif
+}
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static word_t pmem_read(paddr_t addr, int len) {

@@ -67,7 +67,7 @@ void init_difftest(char *ref_so_file, long img_size) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
   ref_difftest_init(1234);
-  ref_difftest_memcpy(MBASE, guest_to_host(MBASE), img_size, DIFFTEST_TO_REF);
+  ref_difftest_memcpy(MROM_BASE, guest_to_host(MROM_BASE), img_size, DIFFTEST_TO_REF);
   difftest_regcpy();
 }
 
