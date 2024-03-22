@@ -86,5 +86,4 @@ void cpu_exec(uint64_t n) {
 void init_cpu() {
   reset_top();
   exec_once();
-  Log("init_pc = " FMT_ADDR, cpu_pc);
 }
