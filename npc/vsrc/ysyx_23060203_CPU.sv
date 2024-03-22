@@ -163,4 +163,15 @@ module ysyx_23060203_CPU (
 
     .ram_r(lsu_mem_r), .ram_w(io_master)
   );
+
+  // Access Fault 检查
+  always @(posedge clk) begin
+    if (io_master.rvalid & io_master.rresp[1]) begin
+      abort_err(101); // read error
+    end
+    if (io_master.bvalid & io_master.bresp[1]) begin
+      abort_err(102); // write error
+    end
+  end
+
 endmodule
