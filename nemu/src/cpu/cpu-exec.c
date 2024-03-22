@@ -167,7 +167,7 @@ static void statistic() {
 
 void assert_fail_msg() {
   IFDEF(CONFIG_ITRACE, print_iringbuf());
-  printf("pc = " FMT_PADDR, cpu.pc);
+  printf("pc = " FMT_PADDR "\n", cpu.pc);
   isa_reg_display();
   statistic();
 }
