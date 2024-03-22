@@ -32,6 +32,14 @@ void skip_difftest() {
 #endif
 }
 
+void abort_err(int err) {
+  switch (err) {
+    case 101: printf(ANSI_FMT("AXI Access Fault while reading\n", ANSI_FG_RED)); break;
+    case 102: printf(ANSI_FMT("AXI Access Fault while writing\n", ANSI_FG_RED)); break;
+  }
+  set_npc_state(NPC_ABORT, cpu_pc, err);
+}
+
 void uart_putch(char c) {
   putchar(c);
   fflush(stdout);
