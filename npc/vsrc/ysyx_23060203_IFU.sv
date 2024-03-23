@@ -10,11 +10,9 @@ module ysyx_23060203_IFU (
   decouple_if.out inst_out,
 
   // 连接指令内存
-  axi_if.master ram_r
+  axi_lite_r_if.master ram_r
 );
   reg rstn_prev;
-
-  assign ram_r.arsize = 3'b010;
 
   always @(posedge clk) begin
     rstn_prev <= rstn;
@@ -30,7 +28,7 @@ module ysyx_23060203_IFU (
   // TEMP: 暂时不考虑错误处理
   assign inst_out.valid = ram_r.rvalid;
   assign ram_r.rready = inst_out.ready;
-  assign inst = ram_r.rdata[31:0];
+  assign inst = ram_r.rdata;
 
   always @(posedge clk) begin if (rstn) begin
     // 确认ram收到地址
