@@ -13,7 +13,7 @@ MEMORY {
 SECTIONS {
   /* SRAM */
   . = ORIGIN(sram);
-  .data : AT(_data_src) {
+  .data : {
     _data_start = .;
     *(.data)
     _data_end = .;
