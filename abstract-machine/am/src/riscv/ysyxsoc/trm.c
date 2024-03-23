@@ -4,15 +4,10 @@
 
 int main(const char *args);
 
-extern char _mrom_start;
-extern char _sram_start;
-#define MROM_SIZE 4096
-#define SRAM_SIZE 8192
-#define SRAM_END  ((uintptr_t)&_sram_start + SRAM_SIZE)
-
 extern char _heap_start;
+extern char _stack_top;
 
-Area heap = RANGE(&_heap_start, SRAM_END);
+Area heap = RANGE(&_heap_start, &_stack_top);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
