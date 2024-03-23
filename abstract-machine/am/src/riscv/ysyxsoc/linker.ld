@@ -21,17 +21,17 @@ SECTIONS {
     *(.sdata*)
     _data_end = .;
   } >sram AT>mrom : data
-  .bss : {
+  .bss (NOLOAD) : {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } >sram AT>mrom
+  } >sram
 
   _data_src = LOADADDR(.data);
 
-  . = ADDR(.bss) + SIZEOF(.bss);
+  . = _bss_end;
   _stack_top = ALIGN(0x100);
   . = _stack_top + 0x800;
   _stack_pointer = .;
