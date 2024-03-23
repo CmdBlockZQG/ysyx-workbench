@@ -16,7 +16,7 @@ module ysyx_23060203_MemArb (
     end
   end
 
-  assign ram_r.arsize = 3'b010;
+  assign ram_r.arsize = 3'b011;
   assign ram_r.arlen = 0;
   assign ram_r.arburst = 0;
   assign ram_r.arid = 0;
@@ -34,9 +34,10 @@ module ysyx_23060203_MemArb (
   assign ram_r.arvalid = tmp_flag ? 1 : (
     req_ready & (req_dev ? lsu_r.arvalid : ifu_r.arvalid)
   );
-  assign ram_r.araddr = tmp_flag ? tmp_raddr : (
+  wire [31:0] ram_r_araddr = tmp_flag ? tmp_raddr : (
     req_dev ? lsu_r.araddr : ifu_r.araddr
   );
+  assign ram_r.araddr = {ram_r_araddr[31:3], 3'b0};
 
   assign ifu_r.arready = req_ready & ram_r.arready;
   assign lsu_r.arready = req_ready & ram_r.arready;
@@ -47,6 +48,7 @@ module ysyx_23060203_MemArb (
   always @(posedge clk) begin if (rstn) begin
     if (ram_r.arvalid & ram_r.arready) begin
       lst_dev <= req_dev;
+      res_lh <= ram_r.araddr[2];
       req_ready <= 0;
       if (ifu_r_hs & lsu_r_hs) begin // 同时读
         tmp_flag <= 1;
@@ -59,9 +61,11 @@ module ysyx_23060203_MemArb (
   end end
   // res
   wire res_dev = lst_dev;
+  reg res_lh;
 
-  assign ifu_r.rdata = ram_r.rdata[31:0];
-  assign lsu_r.rdata = ram_r.rdata[31:0];
+  wire [31:0] ram_r_rdata_lh = res_lh ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
+  assign ifu_r.rdata = ram_r_rdata_lh;
+  assign lsu_r.rdata = ram_r_rdata_lh;
   assign ifu_r.rresp = ram_r.rresp;
   assign lsu_r.rresp = ram_r.rresp;
   assign ifu_r.rvalid = ~res_dev ? ram_r.rvalid : 0;
