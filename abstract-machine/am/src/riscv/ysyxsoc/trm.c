@@ -2,12 +2,10 @@
 #include <klib-macros.h>
 #include <ysyxsoc.h>
 
-int main(const char *args);
-
+#define SRAM_END 0x0f002000
 extern char _heap_start;
-extern char _stack_top;
+Area heap = RANGE(&_heap_start, SRAM_END);
 
-Area heap = RANGE(&_heap_start, &_stack_top);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
@@ -22,7 +20,13 @@ void halt(int code) {
   while (1);
 }
 
+extern char _data_src, _data_start, _data_end, _bss_start, _bss_end;
+int main(const char *args);
 void _trm_init() {
+  char *src = &_data_src, *dst = &_data_start;
+  while (dst < &_data_end) *dst++ = *src++;
+  for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
+
   int ret = main(mainargs);
   halt(ret);
 }
