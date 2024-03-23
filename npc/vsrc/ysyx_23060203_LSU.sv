@@ -132,7 +132,7 @@ module ysyx_23060203_LSU (
       wdata_flag <= 1;
     end
   end
-  assign ram_w.awaddr = waddr;
+  assign ram_w.awaddr = {waddr[31:3], 3'b0};
   assign ram_w.awvalid = wreq.valid & waddr_flag;
   assign ram_w.wdata = wdata_aligned;
   assign ram_w.wstrb = wmask_aligned;
