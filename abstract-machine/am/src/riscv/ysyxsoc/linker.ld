@@ -19,8 +19,7 @@ SECTIONS {
   . = 0x0f000000; /* SRAM */
   .data : AT(_data_src) {
     _data_start = .;
-    *(.data*) /* 原来的脚本只有一条*(data*)，完全就是空的，AT不生效！ */
-    *(.sdata)
+    *(.data) /* 原来的脚本只有一条*(data*)，完全就是空的，AT不生效！ */
     _data_end = .;
   } : data
   .bss : AT(LOADADDR(.data) + SIZEOF(.data)) {
