@@ -16,24 +16,31 @@ module ysyx_23060203_LSU (
   decouple_if.out wres,
 
   // 连接存储器
-  axi_lite_r_if.master ram_r,
+  axi_if.master ram_r,
   // axi_lite_w_if.master ram_w,
   axi_if.master ram_w
 );
   // -------------------- 读请求 --------------------
+
+  assign ram_r.arsize = 3'b011;
+
   // 暂存寄存器
-  reg [1:0] raddr_align_reg;
+  reg [2:0] raddr_align_reg;
   reg [2:0] rfunc_reg;
 
   // 组合逻辑
   reg [31:0] ram_r_rdata_shifted;
   always_comb begin
     case (raddr_align_reg)
-      2'b00: ram_r_rdata_shifted = ram_r.rdata;
-      2'b01: ram_r_rdata_shifted = {8'b0, ram_r.rdata[31:8]};
-      2'b10: ram_r_rdata_shifted = {16'b0, ram_r.rdata[31:16]};
-      2'b11: ram_r_rdata_shifted = {24'b0, ram_r.rdata[31:24]};
-      default: ram_r_rdata_shifted = ram_r.rdata;
+      3'b000: ram_r_rdata_shifted = ram_r.rdata[31:0];
+      3'b001: ram_r_rdata_shifted = ram_r.rdata[39:8];
+      3'b010: ram_r_rdata_shifted = ram_r.rdata[47:16];
+      3'b011: ram_r_rdata_shifted = ram_r.rdata[55:24];
+      3'b100: ram_r_rdata_shifted = ram_r.rdata[63:32];
+      3'b101: ram_r_rdata_shifted = {8'b0, ram_r.rdata[63:40]};
+      3'b110: ram_r_rdata_shifted = {16'b0, ram_r.rdata[63:48]};
+      3'b111: ram_r_rdata_shifted = {24'b0, ram_r.rdata[63:56]};
+      default: ram_r_rdata_shifted = ram_r.rdata[31:0];
     endcase
   end
   reg [31:0] ram_r_rdata_word;
@@ -54,7 +61,7 @@ module ysyx_23060203_LSU (
   assign rreq.ready = ram_r.arready;
   always @(posedge clk) begin
     if (rreq.valid & rreq.ready) begin
-      raddr_align_reg <= raddr[1:0];
+      raddr_align_reg <= raddr[2:0];
       rfunc_reg <= rfunc;
     end
   end

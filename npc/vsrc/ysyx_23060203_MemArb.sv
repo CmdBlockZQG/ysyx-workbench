@@ -1,8 +1,8 @@
 module ysyx_23060203_MemArb (
   input rstn, clk,
 
-  axi_lite_r_if.slave ifu_r,
-  axi_lite_r_if.slave lsu_r,
+  axi_if.slave ifu_r,
+  axi_if.slave lsu_r,
 
   // axi_lite_r_if.master ram_r
   axi_if.master ram_r
@@ -16,7 +16,7 @@ module ysyx_23060203_MemArb (
     end
   end
 
-  assign ram_r.arsize = 3'b010;
+  // FIXME: 这里假设IFU和LSU都是这样设置的了
   assign ram_r.arlen = 0;
   assign ram_r.arburst = 0;
   assign ram_r.arid = 0;
@@ -37,6 +37,9 @@ module ysyx_23060203_MemArb (
   assign ram_r.araddr = tmp_flag ? tmp_raddr : (
     req_dev ? lsu_r.araddr : ifu_r.araddr
   );
+  assign ram_r.arsize = tmp_flag ? tmp_rsize : (
+    req_dev ? lsu_r.arsize : ifu_r.arsize
+  );
 
   assign ifu_r.arready = req_ready & ram_r.arready;
   assign lsu_r.arready = req_ready & ram_r.arready;
@@ -44,6 +47,7 @@ module ysyx_23060203_MemArb (
   reg lst_dev;
   reg tmp_flag;
   reg [31:0] tmp_raddr;
+  reg [2:0] tmp_rsize;
   always @(posedge clk) begin if (rstn) begin
     if (ram_r.arvalid & ram_r.arready) begin
       lst_dev <= req_dev;
@@ -51,6 +55,7 @@ module ysyx_23060203_MemArb (
       if (ifu_r_hs & lsu_r_hs) begin // 同时读
         tmp_flag <= 1;
         tmp_raddr <= ifu_r.araddr;
+        tmp_rsize <= ifu_r.arsize;
         req_ready <= 0;
       end else if (tmp_flag) begin // 暂存读
         tmp_flag <= 0;
@@ -60,8 +65,8 @@ module ysyx_23060203_MemArb (
   // res
   wire res_dev = lst_dev;
 
-  assign ifu_r.rdata = ram_r.rdata[31:0];
-  assign lsu_r.rdata = ram_r.rdata[31:0];
+  assign ifu_r.rdata = ram_r.rdata;
+  assign lsu_r.rdata = ram_r.rdata;
   assign ifu_r.rresp = ram_r.rresp;
   assign lsu_r.rresp = ram_r.rresp;
   assign ifu_r.rvalid = ~res_dev ? ram_r.rvalid : 0;
