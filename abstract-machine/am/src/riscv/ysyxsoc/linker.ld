@@ -27,7 +27,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } >sram AT>mrom
+  } >sram AT>sram
 
   _data_src = LOADADDR(.data);
 
