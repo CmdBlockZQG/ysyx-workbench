@@ -21,7 +21,7 @@ SECTIONS {
     *(.sdata*)
     _data_end = .;
   } >sram AT>mrom
-  .bss : {
+  .bss (NOLOAD) : {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
