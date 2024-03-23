@@ -1,5 +1,9 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; }
+
+PHDRS {
+  text PT_LOAD;
+  data PT_LOAD AT(_data_src);
+}
 
 MEMORY {
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
