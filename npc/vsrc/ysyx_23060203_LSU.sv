@@ -16,26 +16,34 @@ module ysyx_23060203_LSU (
   decouple_if.out wres,
 
   // 连接存储器
-  axi_lite_r_if.master ram_r,
+  axi_if.master ram_r,
   // axi_lite_w_if.master ram_w,
   axi_if.master ram_w
 );
   // -------------------- 读请求 --------------------
+
+  assign ram_r.arsize = 3'b011;
+
   // 暂存寄存器
-  reg [1:0] raddr_align_reg;
+  reg [2:0] raddr_align_reg;
   reg [2:0] rfunc_reg;
 
   // 组合逻辑
-  reg [31:0] ram_r_rdata_shifted;
-  always_comb begin
-    case (raddr_align_reg)
-      2'b00: ram_r_rdata_shifted = ram_r.rdata;
-      2'b01: ram_r_rdata_shifted = {8'b0, ram_r.rdata[31:8]};
-      2'b10: ram_r_rdata_shifted = {16'b0, ram_r.rdata[31:16]};
-      2'b11: ram_r_rdata_shifted = {24'b0, ram_r.rdata[31:24]};
-      default: ram_r_rdata_shifted = ram_r.rdata;
-    endcase
-  end
+  wire [63:0] ram_r_rdata_shifted = ram_r.rdata >> {raddr_align_reg, 3'b0};
+  // reg [31:0] ram_r_rdata_shifted;
+  // always_comb begin
+  //   case (raddr_align_reg)
+  //     3'b000: ram_r_rdata_shifted = ram_r.rdata[31:0];
+  //     3'b001: ram_r_rdata_shifted = ram_r.rdata[39:8];
+  //     3'b010: ram_r_rdata_shifted = ram_r.rdata[47:16];
+  //     3'b011: ram_r_rdata_shifted = ram_r.rdata[55:24];
+  //     3'b100: ram_r_rdata_shifted = ram_r.rdata[63:32];
+  //     3'b101: ram_r_rdata_shifted = {8'b0, ram_r.rdata[63:40]};
+  //     3'b110: ram_r_rdata_shifted = {16'b0, ram_r.rdata[63:48]};
+  //     3'b111: ram_r_rdata_shifted = {24'b0, ram_r.rdata[63:56]};
+  //     default: ram_r_rdata_shifted = ram_r.rdata[31:0];
+  //   endcase
+  // end
   reg [31:0] ram_r_rdata_word;
   always_comb begin
     case (rfunc_reg)
@@ -43,8 +51,8 @@ module ysyx_23060203_LSU (
       LD_BU: ram_r_rdata_word = {24'b0, ram_r_rdata_shifted[7:0]};
       LD_HS: ram_r_rdata_word = {{16{ram_r_rdata_shifted[15]}}, ram_r_rdata_shifted[15:0]};
       LD_HU: ram_r_rdata_word = {16'b0, ram_r_rdata_shifted[15:0]};
-      // LD_W : ram_r_rdata_word = ram_r_rdata_shifted;
-      default: ram_r_rdata_word = ram_r_rdata_shifted; // 与LD_W合并
+      // LD_W : ram_r_rdata_word = ram_r_rdata_shifted[31:0];
+      default: ram_r_rdata_word = ram_r_rdata_shifted[31:0]; // 与LD_W合并
     endcase
   end
 
@@ -54,7 +62,7 @@ module ysyx_23060203_LSU (
   assign rreq.ready = ram_r.arready;
   always @(posedge clk) begin
     if (rreq.valid & rreq.ready) begin
-      raddr_align_reg <= raddr[1:0];
+      raddr_align_reg <= raddr[2:0];
       rfunc_reg <= rfunc;
     end
   end
@@ -77,35 +85,45 @@ module ysyx_23060203_LSU (
     endcase
   end
 
-  reg [31:0] wdata_aligned;
-  always_comb begin
-    case (waddr[1:0])
-      2'b00: wdata_aligned = wdata;
-      2'b01: wdata_aligned = {wdata[23:0], 8'b0};
-      2'b10: wdata_aligned = {wdata[15:0], 16'b0};
-      2'b11: wdata_aligned = {wdata[7:0], 24'b0};
-      default: wdata_aligned = wdata;
-    endcase
-  end
-  reg [3:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
+  wire [63:0] wdata_aligned = {32'b0, wdata} << {waddr[2:0], 3'b0};
+  // reg [63:0] wdata_aligned;
+  // always_comb begin
+  //   case (waddr[2:0])
+  //     3'b000: wdata_aligned = {32'b0, wdata[31:0]};
+  //     3'b001: wdata_aligned = {24'b0, wdata[31:0], 8'b0};
+  //     3'b010: wdata_aligned = {16'b0, wdata[31:0], 16'b0};
+  //     3'b011: wdata_aligned = {8'b0, wdata[31:0], 24'b0};
+  //     3'b100: wdata_aligned = {wdata[31:0], 32'b0};
+  //     3'b101: wdata_aligned = {wdata[23:0], 40'b0};
+  //     3'b110: wdata_aligned = {wdata[15:0], 48'b0};
+  //     3'b111: wdata_aligned = {wdata[7:0], 56'b0};
+  //     default: wdata_aligned = {32'b0, wdata[31:0]};
+  //   endcase
+  // end
+  reg [7:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
   always_comb begin
     case (wfunc)
-      ST_B: wmask = 4'b0001;
-      ST_H: wmask = 4'b0011;
-      // ST_W: wmask = 4'b1111;
-      default: wmask = 4'b1111; // 合并ST_W
+      ST_B: wmask = 8'b00000001;
+      ST_H: wmask = 8'b00000011;
+      // ST_W: wmask = 8'b00001111;
+      default: wmask = 8'b00001111; // 合并ST_W
     endcase
   end
-  reg [3:0] wmask_aligned;
-  always_comb begin
-    case (waddr[1:0])
-      2'b00: wmask_aligned = wmask;
-      2'b01: wmask_aligned = {wmask[2:0], 1'b0};
-      2'b10: wmask_aligned = {wmask[1:0], 2'b0};
-      2'b11: wmask_aligned = {wmask[0:0], 3'b0};
-      default: wmask_aligned = wmask;
-    endcase
-  end
+  wire [7:0] wmask_aligned = wmask << waddr[2:0];
+  // reg [7:0] wmask_aligned;
+  // always_comb begin
+  //   case (waddr[2:0])
+  //     3'b000: wmask_aligned = wmask[7:0];
+  //     3'b001: wmask_aligned = {wmask[6:0], 1'b0};
+  //     3'b010: wmask_aligned = {wmask[5:0], 2'b0};
+  //     3'b011: wmask_aligned = {wmask[4:0], 3'b0};
+  //     3'b100: wmask_aligned = {wmask[3:0], 4'b0};
+  //     3'b101: wmask_aligned = {wmask[2:0], 5'b0};
+  //     3'b110: wmask_aligned = {wmask[1:0], 6'b0};
+  //     3'b111: wmask_aligned = {wmask[0:0], 7'b0};
+  //     default: wmask_aligned = wmask;
+  //   endcase
+  // end
 
   reg waddr_flag, wdata_flag;
   always @(posedge clk) begin
@@ -124,10 +142,10 @@ module ysyx_23060203_LSU (
       wdata_flag <= 1;
     end
   end
-  assign ram_w.awaddr = waddr;
+  assign ram_w.awaddr = {waddr[31:3], 3'b0};
   assign ram_w.awvalid = wreq.valid & waddr_flag;
-  assign ram_w.wdata = {32'b0, wdata_aligned};
-  assign ram_w.wstrb = {4'b0, wmask_aligned};
+  assign ram_w.wdata = wdata_aligned;
+  assign ram_w.wstrb = wmask_aligned;
   assign ram_w.wvalid = wreq.valid & wdata_flag;
   assign wreq.ready = (ram_w.awready | ~waddr_flag) & (ram_w.wready | ~wdata_flag);
   // TEMP: 忽略回复错误处理

@@ -5,15 +5,18 @@ PHDRS { text PT_LOAD; data PT_LOAD; }
 
 SECTIONS {
 
-  /* SRAM */
-  . = _sram_start;
-  _stack_top = ALIGN(0x1000);
+  /* SRAM 0x0f000000 0x2000(8K) */
+  . = 0x0f000000;
+  _heap_start = ALIGN(0x10000);
+  
+  . += 0x1800;
+  _stack_top = ALIGN(0x100);
   . = _stack_top + 0x800;
   _stack_pointer = .;
-  _heap_start = ALIGN(0x10000);
+  
 
-  /* MROM */
-  . = _mrom_start;
+  /* MROM 0x20000000 0x1000(4K) */
+  . = 0x20000000;
   .text : {
     *(entry)
     *(.text*)
