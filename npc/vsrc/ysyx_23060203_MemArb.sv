@@ -34,9 +34,10 @@ module ysyx_23060203_MemArb (
   assign ram_r.arvalid = tmp_flag ? 1 : (
     req_ready & (req_dev ? lsu_r.arvalid : ifu_r.arvalid)
   );
-  assign ram_r.araddr = tmp_flag ? tmp_raddr : (
+  wire [31:0] ram_r_araddr = tmp_flag ? tmp_raddr : (
     req_dev ? lsu_r.araddr : ifu_r.araddr
   );
+  assign ram_r.araddr = {ram_r_araddr[31:2], 2'b0};
 
   assign ifu_r.arready = req_ready & ram_r.arready;
   assign lsu_r.arready = req_ready & ram_r.arready;
