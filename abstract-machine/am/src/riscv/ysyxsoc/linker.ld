@@ -23,7 +23,7 @@ SECTIONS {
     *(.sdata)
     _data_end = .;
   } : data
-  .bss : {
+  .bss : AT(LOADADDR(.data) + SIZEOF(.data)) {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
