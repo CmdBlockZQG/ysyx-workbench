@@ -2,34 +2,37 @@ ENTRY(_start)
 
 PHDRS { text PT_LOAD; data PT_LOAD; }
 
+MEMORY {
+  sram : ORIGIN = 0x0f000000, LENGTH = 8K
+  mrom : ORIGIN = 0x20000000, LENGTH = 4K
+}
+
 SECTIONS {
-  . = 0x20000000; /* ROM */
   .text : {
     *(entry)
     *(.text*)
-  } : text
+  } >mrom AT>mrom : text
   .rodata : {
     *(.srodata*)
     *(.rodata*)
-  }
-  _data_src = .;
-
-
-  /* 为什么不把RAM这段放前面呢？因为LMA会自动增长，.text的LMA会接在.bss后面，除非单独指定 */
-  . = 0x0f000000; /* RAM */
-  .data : AT(_data_src) {
+  } >mrom AT>mrom
+  .data : {
     _data_start = .;
-    *(.data*) /* 原来的脚本只有一条*(data*)，完全就是空的，AT不生效！ */
-    *(.sdata)
+    *(.data*)
+    *(.sdata*)
     _data_end = .;
-  } : data
+  } >sram AT>mrom : data
   .bss : {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  }
+  } >sram AT>mrom
+
+  _data_src = LOADADDR(.data);
+
+  . = ADDR(.bss) + SIZEOF(.bss);
   _stack_top = ALIGN(0x100);
   . = _stack_top + 0x800;
   _stack_pointer = .;
