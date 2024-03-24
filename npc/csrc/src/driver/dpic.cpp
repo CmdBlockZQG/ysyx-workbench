@@ -71,5 +71,6 @@ void flash_read(int addr, int *data) {
 }
 
 void mrom_read(int addr, int *data) {
+  addr = addr & ~0x3u;
   *(uint32_t *)data = addr_read(addr, 4);
 }
