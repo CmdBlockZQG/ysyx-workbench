@@ -1,15 +1,15 @@
 #include <am.h>
 #include <ysyxsoc.h>
 
-#define LCR_ADDR UART_ADDR + 3 * 8
+#define LCR_ADDR UART_ADDR + 3 * 4
 #define DIV_ADDR UART_ADDR
-#define FCR_ADDR UART_ADDR + 2 * 8
-#define IER_ADDR UART_ADDR + 1 * 8
+#define FCR_ADDR UART_ADDR + 2 * 4
+#define IER_ADDR UART_ADDR + 1 * 4
 
 void __am_uart_init() {
   outb(LCR_ADDR, 0b10000011);
-  outb(DIV_ADDR + 8, 0);
-  outb(DIV_ADDR, 1);
+  outb(DIV_ADDR + 4, 0);
+  outb(DIV_ADDR, 114);
   outb(LCR_ADDR, 0b00000011);
   outb(FCR_ADDR, 0b11000110);
   outb(IER_ADDR, 0b00000000);
