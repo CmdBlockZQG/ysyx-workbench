@@ -8,8 +8,8 @@ void __am_uart_init() {
   const uint8_t lcr_val = inb(LCR_ADDR);
   outb(LCR_ADDR, lcr_val | (1 << 7));
 
-  outb(DIV_ADDR, 10);
   outb(DIV_ADDR + 1, 0);
+  outb(DIV_ADDR, 10);
 
   outb(LCR_ADDR, lcr_val);
 }
