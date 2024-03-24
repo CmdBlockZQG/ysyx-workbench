@@ -126,8 +126,8 @@ module ysyx_23060203_LSU (
   end
   assign ram_w.awaddr = {waddr[31:2], 2'b0};
   assign ram_w.awvalid = wreq.valid & waddr_flag;
-  assign ram_w.wdata = waddr[2] ? {wdata_aligned, 32'b0} : {32'b0, wdata_aligned};
-  assign ram_w.wstrb = waddr[2] ? {wmask_aligned, 4'b0} : {4'b0, wmask_aligned};
+  assign ram_w.wdata = {32'b0, wdata_aligned};// waddr[2] ? {wdata_aligned, 32'b0} : {32'b0, wdata_aligned};
+  assign ram_w.wstrb = {4'b0, wmask_aligned};// waddr[2] ? {wmask_aligned, 4'b0} : {4'b0, wmask_aligned};
   assign ram_w.wvalid = wreq.valid & wdata_flag;
   assign wreq.ready = (ram_w.awready | ~waddr_flag) & (ram_w.wready | ~wdata_flag);
   // TEMP: 忽略回复错误处理
