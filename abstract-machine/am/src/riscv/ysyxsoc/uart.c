@@ -7,9 +7,9 @@
 #define IER_ADDR UART_ADDR + 1
 
 void __am_uart_init() {
-  outb(LCR_ADDR, 0b10000011);
-  outb(LCR_ADDR, 0b10000011);
-  outb(LCR_ADDR, 0b10000011);
+  outb(LCR_ADDR, 0b11111111);
+  outb(LCR_ADDR, 0b11111111);
+  outb(LCR_ADDR, 0b11111111);
   outb(DIV_ADDR + 1, 'G');
   outb(DIV_ADDR, 'H');
   outb(LCR_ADDR, 0b00000011);
