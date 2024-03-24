@@ -22,10 +22,14 @@ void halt(int code) {
 
 extern char _data_src, _data_start, _data_end, _bss_start, _bss_end;
 int main(const char *args);
+
+void __am_uart_init();
 void _trm_init() {
   char *src = &_data_src, *dst = &_data_start;
   while (dst < &_data_end) *dst++ = *src++;
   for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
+  
+  __am_uart_init();
 
   int ret = main(mainargs);
   halt(ret);
