@@ -10,5 +10,5 @@ void __am_uart_init() {
 
   outl(DIV_ADDR, 1);
 
-  outb(LCR_ADDR, lcr_val);
+  // outb(LCR_ADDR, lcr_val);
 }
