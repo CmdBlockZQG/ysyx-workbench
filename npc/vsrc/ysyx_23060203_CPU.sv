@@ -61,7 +61,7 @@ module ysyx_23060203_CPU (
     .waddr2(csr_waddr2), .wdata2(csr_wdata2)
   );
 
-  axi_lite_r_if ifu_mem_r;
+  axi_if ifu_mem_r;
   wire [31:0] pc;
   wire [31:0] inst;
   decouple_if inst_if;
@@ -148,8 +148,7 @@ module ysyx_23060203_CPU (
 
   decouple_if mem_rres, mem_wres;
   wire [31:0] mem_rdata;
-  axi_lite_r_if lsu_mem_r;
-  // axi_lite_w_if ram_w;
+  axi_if lsu_mem_r;
   ysyx_23060203_LSU LSU (
     .rstn(rstn), .clk(clk),
 
