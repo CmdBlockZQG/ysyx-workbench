@@ -76,7 +76,7 @@ module ysyx_23060203_LSU (
     endcase
   end
 
-  wire [63:0] wdata_aligned = {32'b0, wdata} << {waddr[2:0], 3'b0};
+  wire [63:0] wdata_aligned = {32'b0, wdata} << {waddr[3:0], 3'b0};
   reg [7:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
   always_comb begin
     case (wfunc)
@@ -86,7 +86,7 @@ module ysyx_23060203_LSU (
       default: wmask = 8'b00001111; // 合并ST_W
     endcase
   end
-  wire [7:0] wmask_aligned = wmask << waddr[2:0];
+  wire [7:0] wmask_aligned = wmask << waddr[3:0];
 
   reg waddr_flag, wdata_flag;
   always @(posedge clk) begin
