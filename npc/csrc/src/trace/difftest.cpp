@@ -62,9 +62,7 @@ void init_difftest(char *ref_so_file, long img_size) {
   assert(ref_difftest_init);
 
   Log("Differential testing: %s", ANSI_FMT("ON", ANSI_FG_GREEN));
-  Log("The result of every instruction will be compared with %s. "
-      "This will help you a lot for debugging, but also significantly reduce the performance. "
-      "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
+  Log("Difftest Ref: %s", ref_so_file);
 
   ref_difftest_init(1234);
   ref_difftest_memcpy(MROM_BASE, guest_to_host(MROM_BASE), img_size, DIFFTEST_TO_REF);
