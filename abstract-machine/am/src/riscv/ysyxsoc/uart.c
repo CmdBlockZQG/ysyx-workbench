@@ -8,7 +8,7 @@ void __am_uart_init() {
   uint8_t lcr_val = inb(LCR_ADDR);
   outb(LCR_ADDR, lcr_val | (1 << 7));
 
-  outw(DIV_ADDR, 10);
+  outw(DIV_ADDR, 100);
 
   outb(LCR_ADDR, lcr_val);
 }
