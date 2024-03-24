@@ -55,6 +55,7 @@ module ysyx_23060203_LSU (
     if (rreq.valid & rreq.ready) begin
       raddr_align_reg <= raddr[2:0];
       rfunc_reg <= rfunc;
+      mem_read(raddr, {29'b0, ram_r.arsize});
     end
   end
   // TEMP: 忽略回复错误处理
@@ -94,8 +95,10 @@ module ysyx_23060203_LSU (
       waddr_flag <= 1;
       wdata_flag <= 1;
     end
+
     if (ram_w.awvalid & ram_w.awready) begin
       waddr_flag <= 0;
+      mem_write(waddr, {29'b0, ram_w.awsize}, wdata);
     end
     if (ram_w.wvalid & ram_w.wready) begin
       wdata_flag <= 0;
