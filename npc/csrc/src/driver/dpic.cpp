@@ -41,6 +41,7 @@ void mem_read(int raddr, int rsize) {
 #ifdef DIFFTEST
   if (!get_mem_map(raddr, false)) {
     difftest_skip_ref();
+    Log("skip dev");
   }
 #endif
 }
@@ -52,6 +53,7 @@ void mem_write(int waddr, int wsize, int wdata) {
 #ifdef DIFFTEST
   if (!get_mem_map(waddr, false)) {
     difftest_skip_ref();
+    Log("skip dev");
   }
 #endif
 }
