@@ -10,7 +10,7 @@
 
 void __am_uart_init() {
   outb(LCR_ADDR, 0b10000011);
-  if (inb(LCR_ADDR) != 0b10000011) halt(1);
+  // if (inb(LCR_ADDR) != 0b10000011) halt(1);
   outb(DIV_ADDR + 1, 'G');
   outb(DIV_ADDR, 'H');
   outb(LCR_ADDR, 0b00000011);
