@@ -9,7 +9,7 @@
 void __am_uart_init() {
   uint8_t x = 0b10000011;
   outb(LCR_ADDR, x);
-  // while (inb(LCR_ADDR) != x);
+  while (inb(LCR_ADDR) != x);
   outb(DIV_ADDR + 1, 'G');
   outb(DIV_ADDR, 'H');
   outb(LCR_ADDR, 0b00000011);
