@@ -5,11 +5,11 @@
 #define DIV_ADDR UART_ADDR
 
 void __am_uart_init() {
-  uint8_t lcr_val = inb(LCR_ADDR);
-  lcr_val |= 1 << 7;
-  outb(LCR_ADDR, lcr_val | (1 << 7));
+  // uint8_t lcr_val = inb(LCR_ADDR);
+  // lcr_val |= 1 << 7;
+  // outb(LCR_ADDR, lcr_val | (1 << 7));
 
-  outl(DIV_ADDR, 114);
+  // outl(DIV_ADDR, 114);
 
-  outb(LCR_ADDR, lcr_val);
+  // outb(LCR_ADDR, lcr_val);
 }
