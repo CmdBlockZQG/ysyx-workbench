@@ -26,12 +26,6 @@ void inst_complete(int new_pc, int new_inst) {
   exec_once_flag = true;
 }
 
-void skip_difftest() {
-#ifdef DIFFTEST
-  difftest_skip_ref();
-#endif
-}
-
 void abort_err(int err) {
   switch (err) {
     case 101: printf(ANSI_FMT("AXI Access Fault while reading\n", ANSI_FG_RED)); break;
@@ -44,11 +38,21 @@ void mem_read(int raddr, int rsize) {
 #ifdef MTRACE
   mtrace_read(raddr, 1 << rsize);
 #endif
+#ifdef DIFFTEST
+  if (!get_mem_map(raddr, false)) {
+    difftest_skip_ref();
+  }
+#endif
 }
 
 void mem_write(int waddr, int wsize, int wdata) {
 #ifdef MTRACE
   mtrace_write(waddr, 1 << wsize, wdata);
+#endif
+#ifdef DIFFTEST
+  if (!get_mem_map(waddr, false)) {
+    difftest_skip_ref();
+  }
 #endif
 }
 

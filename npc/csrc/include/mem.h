@@ -16,6 +16,8 @@ struct MemMap {
   bool readonly;
 };
 
+const MemMap *get_mem_map(addr_t addr, bool panic_if_out);
+
 #define PG_ALIGN __attribute((aligned(4096)))
 
 #define MEM_LEFT ((addr_t)MBASE)
