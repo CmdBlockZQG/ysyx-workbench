@@ -26,12 +26,6 @@ void inst_complete(int new_pc, int new_inst) {
   exec_once_flag = true;
 }
 
-void skip_difftest() {
-#ifdef DIFFTEST
-  difftest_skip_ref();
-#endif
-}
-
 void abort_err(int err) {
   switch (err) {
     case 101: printf(ANSI_FMT("AXI Access Fault while reading\n", ANSI_FG_RED)); break;
@@ -40,30 +34,26 @@ void abort_err(int err) {
   set_npc_state(NPC_ABORT, cpu_pc, err);
 }
 
-void uart_putch(char c) {
-  putchar(c);
-  fflush(stdout);
+void mem_read(int raddr, int rsize) {
+#ifdef MTRACE
+  mtrace_read(raddr, 1 << rsize);
+#endif
+#ifdef DIFFTEST
+  if (!get_mem_map(raddr, false)) {
+    difftest_skip_ref();
+  }
+#endif
 }
 
-int mem_read(int raddr) {
-  raddr = raddr & ~0x3u;
+void mem_write(int waddr, int wsize, int wdata) {
 #ifdef MTRACE
-  mtrace_read(raddr);
+  mtrace_write(waddr, 1 << wsize, wdata);
 #endif
-  word_t rdata = addr_read((addr_t)raddr, 4);
-  return *(int *)&rdata;
-}
-
-void mem_write(int waddr, int wdata, char wmask) {
-  waddr = waddr & ~0x3u;
-#ifdef MTRACE
-  mtrace_write(waddr, wdata, wmask);
+#ifdef DIFFTEST
+  if (!get_mem_map(waddr, false)) {
+    difftest_skip_ref();
+  }
 #endif
-
-  if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
-  if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);
-  if (wmask & 0b0100) addr_write(waddr + 2, 1, wdata >> 16);
-  if (wmask & 0b1000) addr_write(waddr + 3, 1, wdata >> 24);
 }
 
 void flash_read(int addr, int *data) {

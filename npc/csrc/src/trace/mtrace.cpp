@@ -13,25 +13,14 @@ static void locate_object_sym(addr_t addr) {
   }
 }
 
-void mtrace_read(addr_t addr) {
-  log_write(ANSI_FG_CYAN "[MTRACE] Read " FMT_ADDR, addr);
+void mtrace_read(addr_t addr, int size) {
+  log_write(ANSI_FG_CYAN "[MTRACE] Read %d bytes at " FMT_ADDR, size, addr);
   locate_object_sym(addr);
   log_write(ANSI_NONE "\n");
 }
 
-void mtrace_write(addr_t addr, word_t data, uint8_t mask) {
-  for (int i = 0; i < 4; ++i) {
-    if ((mask >> i) & 1) {
-      addr += i;
-      data >>= i * 8;
-      break;
-    }
-  }
-  int len = 0;
-  for (int i = 0; i < 4; ++i) {
-    len += (mask >> i) & 1;
-  }
-  log_write(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_ADDR , len, addr);
+void mtrace_write(addr_t addr, int size, word_t data) {
+  log_write(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_ADDR , size, addr);
   locate_object_sym(addr);
   log_write(": " FMT_WORD ANSI_NONE "\n", data);
 }
