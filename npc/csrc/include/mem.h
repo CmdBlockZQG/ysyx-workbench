@@ -7,6 +7,8 @@
 #define MROM_SIZE 4096
 #define SRAM_BASE 0x0f000000
 #define SRAM_SIZE 8192
+#define FLASH_BASE 0x30000000
+#define FLASH_SIZE 0x1000000
 
 struct MemMap {
   const char* name;
