@@ -57,6 +57,7 @@ void mem_write(int waddr, int wsize, int wdata) {
 }
 
 void flash_read(int addr, int *data) {
+  Log("read flash" FMT_ADDR, addr);
   *(uint32_t *)data = addr_read(addr, 4);
 }
 
