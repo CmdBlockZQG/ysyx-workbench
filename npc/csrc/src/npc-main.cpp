@@ -30,7 +30,6 @@ static long load_img() {
     const uint32_t img[] = {
       0x100007b7,
       0xf8300713,
-      0x00378703,
       0x00e781a3,
 
       0x00500093, // addi x1, x0, 5
