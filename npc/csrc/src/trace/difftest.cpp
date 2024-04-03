@@ -65,7 +65,7 @@ void init_difftest(char *ref_so_file, long img_size) {
   Log("Difftest Ref: %s", ref_so_file);
 
   ref_difftest_init(1234);
-  ref_difftest_memcpy(MROM_BASE, guest_to_host(MROM_BASE), img_size, DIFFTEST_TO_REF);
+  ref_difftest_memcpy(FLASH_BASE, guest_to_host(FLASH_BASE), img_size, DIFFTEST_TO_REF);
   difftest_regcpy();
 }
 
