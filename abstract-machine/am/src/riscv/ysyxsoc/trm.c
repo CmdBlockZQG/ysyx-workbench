@@ -30,8 +30,8 @@ void _trm_init() {
   while (dst < &_data_end) *dst++ = *src++;
   for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
 
-  __am_uart_init();
 
   int ret = main(mainargs);
+  __am_uart_init();
   halt(ret);
 }
