@@ -11,17 +11,17 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } >flash AT>flash : text
+  } >mrom AT>mrom : text
   .rodata : {
     *(.srodata*)
     *(.rodata*)
-  } >flash AT>flash
+  } >mrom AT>mrom
   .data : {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } >sram AT>flash : data
+  } >sram AT>mrom : data
   .bss (NOLOAD) : {
     _bss_start = .;
     *(.bss*)
