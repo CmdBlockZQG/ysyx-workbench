@@ -28,9 +28,9 @@ static long load_img() {
   long ret;
   if (!img_file) {
     const uint32_t img[] = {
-      0x100007b7,
-      0xf8300713,
-      0x00e781a3,
+      0x100007b7, // lui x15, 65536
+      0xf8300713, // addi x14, x0, -125
+      0x00e781a3, // sb x14, 3(x15)
 
       0x00500093, // addi x1, x0, 5
       0x008002ef, // jal x5, 8
