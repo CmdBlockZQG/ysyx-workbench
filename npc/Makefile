@@ -60,7 +60,7 @@ clean:
 
 
 ARGS ?= --log=$(BUILD_DIR)/log.txt
-override ARGS += --wave=$(BUILD_DIR)/wave.vcd
+# override ARGS += --wave=$(BUILD_DIR)/wave.vcd
 IMG ?=
 ifdef ELF
 override ARGS += --elf=$(ELF)
