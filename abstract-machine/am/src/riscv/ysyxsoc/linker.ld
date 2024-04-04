@@ -2,25 +2,26 @@ ENTRY(_start)
 PHDRS { text PT_LOAD; data PT_LOAD; }
 
 MEMORY {
-  sram : ORIGIN = 0x0f000000, LENGTH = 8K
-  mrom : ORIGIN = 0x20000000, LENGTH = 4K
+  sram  : ORIGIN = 0x0f000000, LENGTH = 8K
+  mrom  : ORIGIN = 0x20000000, LENGTH = 4K
+  flash : ORIGIN = 0x30000000, LENGTH = 16M
 }
 
 SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } >mrom AT>mrom : text
+  } >flash AT>flash : text
   .rodata : {
     *(.srodata*)
     *(.rodata*)
-  } >mrom AT>mrom
+  } >flash AT>flash
   .data : {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } >sram AT>mrom : data
+  } >sram AT>flash : data
   .bss (NOLOAD) : {
     _bss_start = .;
     *(.bss*)

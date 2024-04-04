@@ -32,6 +32,8 @@ paddr_t host_to_guest(uint8_t *haddr);
 #define MROM_SIZE 4096
 #define SRAM_BASE 0x0f000000
 #define SRAM_SIZE 8192
+#define FLASH_BASE 0x30000000
+#define FLASH_SIZE 0x1000000
 typedef struct {
   const char* name;
   paddr_t start;

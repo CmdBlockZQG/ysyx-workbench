@@ -4,36 +4,23 @@ module ysyx_23060203_CPU (
   axi_if.master io_master,
   axi_if.slave io_slave
 );
-  // SRAM sram (
-  //   .rstn(rstn), .clk(clk),
-  //   .read(sram_r), .write(sram_w)
-  // );
+  CLINT clint (
+    .rstn(rstn), .clk(clk),
+    .read(clint_r)
+  );
 
-  // UART uart (
-  //   .rstn(rstn), .clk(clk),
-  //   .write(uart_w)
-  // );
+  axi_if clint_r;
+  ysyx_23060203_Xbar Xbar (
+    .rstn(rstn), .clk(clk),
+    .read(mem_r),
+    .soc_r(io_master), .clint_r(clint_r)
+  );
 
-  // CLINT clint (
-  //   .rstn(rstn), .clk(clk),
-  //   .read(clint_r)
-  // );
-
-  // axi_lite_r_if sram_r, clint_r;
-  // axi_lite_w_if sram_w, uart_w;
-  // ysyx_23060203_Xbar Xbar (
-  //   .rstn(rstn), .clk(clk),
-  //   .read(ram_r),
-  //   .sram_r(sram_r), .clint_r(clint_r),
-  //   .write(ram_w),
-  //   .sram_w(sram_w), .uart_w(uart_w)
-  // );
-
-  // axi_lite_r_if ram_r;
+  axi_if mem_r;
   ysyx_23060203_MemArb MemArb (
     .rstn(rstn), .clk(clk),
     .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
-    .ram_r(io_master)
+    .ram_r(mem_r)
   );
 
   wire [31:0] gpr_rdata1, gpr_rdata2;
