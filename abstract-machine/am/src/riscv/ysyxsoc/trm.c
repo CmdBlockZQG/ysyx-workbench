@@ -36,11 +36,7 @@ void _trm_init() {
   uint32_t mvendorid, marchid;
   asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
   asm volatile("csrr %0, marchid" : "=r"(marchid));
-  for (int i = 0; i < 4; ++i) {
-    putch(mvendorid & 0xff);
-    mvendorid >>= 8;
-  }
-  printf("_%u\n", marchid);
+  printf("%c%c%c%c_%u\n", mvendorid >> 24, mvendorid >> 16, mvendorid >> 8, mvendorid, marchid);
 
   int ret = main(mainargs);
   halt(ret);
