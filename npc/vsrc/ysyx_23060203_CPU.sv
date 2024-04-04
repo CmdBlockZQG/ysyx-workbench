@@ -30,10 +30,24 @@ module ysyx_23060203_CPU (
   // );
 
   // axi_lite_r_if ram_r;
+
+  CLINT clint (
+    .rstn(rstn), .clk(clk),
+    .read(clint_r)
+  );
+
+  axi_if clint_r;
+  ysyx_23060203_Xbar Xbar (
+    .rstn(rstn), .clk(clk),
+    .read(mem_r),
+    .soc_r(io_master), .clint_r(clint_r)
+  );
+
+  axi_if mem_r;
   ysyx_23060203_MemArb MemArb (
     .rstn(rstn), .clk(clk),
     .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
-    .ram_r(io_master)
+    .ram_r(mem_r)
   );
 
   wire [31:0] gpr_rdata1, gpr_rdata2;
