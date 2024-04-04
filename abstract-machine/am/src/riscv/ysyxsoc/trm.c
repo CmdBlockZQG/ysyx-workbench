@@ -1,4 +1,5 @@
 #include <am.h>
+#include <klib.h>
 #include <klib-macros.h>
 #include <ysyxsoc.h>
 
@@ -29,6 +30,15 @@ void _trm_init() {
   char *src = &_data_src, *dst = &_data_start;
   while (dst < &_data_end) *dst++ = *src++;
   for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
+
+  uint32_t mvendorid, marchid;
+  asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
+  asm volatile("csrr %0, marchid" : "=r"(marchid));
+  for (int i = 0; i < 4; ++i) {
+    putch(mvendorid & 0xff);
+    mvendorid >>= 8;
+  }
+  printf("_%u\n", marchid);
 
   __am_uart_init();
 
