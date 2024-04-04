@@ -20,6 +20,10 @@ module ysyx_23060203_CSR (
       CSR_MTVEC   : rdata = mtvec;
       CSR_MEPC    : rdata = mepc;
       CSR_MCAUSE  : rdata = mcause;
+
+      CSR_MVENDORID : rdata = 32'h79737978;
+      CSR_MARCHID   : rdata = 32'h015fdeeb;
+
       default     : rdata = 32'b0;
     endcase
   end

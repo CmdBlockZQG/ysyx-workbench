@@ -59,11 +59,16 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 }
 
 word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause;
+word_t csr_mvendorid = 0x79737978, csr_marchid = 0x15fdeeb;
 static word_t *get_csr_ptr(int x) {
-  if (x == 0x300) return &csr_mstatus;
-  if (x == 0x305) return &csr_mtvec;
-  if (x == 0x341) return &csr_mepc;
-  if (x == 0x342) return &csr_mcause;
+  switch (x & 0xfff) {
+    case 0x300: return &csr_mstatus;
+    case 0x305: return &csr_mtvec;
+    case 0x341: return &csr_mepc;
+    case 0x342: return &csr_mcause;
+    case 0xf11: return &csr_mvendorid;
+    case 0xf12: return &csr_marchid;
+  }
   assert(0);
 }
 
