@@ -31,6 +31,8 @@ void _trm_init() {
   while (dst < &_data_end) *dst++ = *src++;
   for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
 
+  __am_uart_init();
+
   uint32_t mvendorid, marchid;
   asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
   asm volatile("csrr %0, marchid" : "=r"(marchid));
@@ -39,8 +41,6 @@ void _trm_init() {
     mvendorid >>= 8;
   }
   printf("_%u\n", marchid);
-
-  __am_uart_init();
 
   int ret = main(mainargs);
   halt(ret);
