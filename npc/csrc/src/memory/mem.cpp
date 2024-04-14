@@ -6,10 +6,12 @@
 static uint8_t mrom [MROM_SIZE] PG_ALIGN;
 static uint8_t sram [SRAM_SIZE] PG_ALIGN;
 static uint8_t flash [FLASH_SIZE] PG_ALIGN;
+static uint8_t psram [PSRAM_SIZE] PG_ALIGN;
 const MemMap mem_map[] = {
   { "mrom", MROM_BASE, MROM_SIZE, mrom, true },
   { "sram", SRAM_BASE, SRAM_SIZE, sram, false },
-  { "flash", FLASH_BASE, FLASH_SIZE, flash, true }
+  { "flash", FLASH_BASE, FLASH_SIZE, flash, true },
+  { "psram", PSRAM_BASE, PSRAM_SIZE, psram, false}
 };
 
 const MemMap *get_mem_map(addr_t addr, bool panic_if_out) {
