@@ -32,13 +32,14 @@ SECTIONS {
     *(.sdata*)
     _data_end = .;
   } >psram AT>flash : data
+
   .bss (NOLOAD) : {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } >psram : data
+  } >psram
 
   _text_src = LOADADDR(.text);
   _rodata_src = LOADADDR(.rodata);
