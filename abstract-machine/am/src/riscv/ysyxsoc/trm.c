@@ -3,9 +3,9 @@
 #include <klib-macros.h>
 #include <ysyxsoc.h>
 
-#define SRAM_END 0x0f002000
+#define PSRAM_END 0x80400000
 extern char _heap_start;
-Area heap = RANGE(&_heap_start, SRAM_END);
+Area heap = RANGE(&_heap_start, PSRAM_END);
 
 #ifndef MAINARGS
 #define MAINARGS ""
@@ -31,12 +31,12 @@ void _trm_init() {
   while (dst < &_data_end) *dst++ = *src++;
   for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
 
-  __am_uart_init();
+  // __am_uart_init();
 
-  uint32_t mvendorid, marchid;
-  asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
-  asm volatile("csrr %0, marchid" : "=r"(marchid));
-  printf("%c%c%c%c_%u\n", mvendorid >> 24, mvendorid >> 16, mvendorid >> 8, mvendorid, marchid);
+  // uint32_t mvendorid, marchid;
+  // asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
+  // asm volatile("csrr %0, marchid" : "=r"(marchid));
+  // printf("%c%c%c%c_%u\n", mvendorid >> 24, mvendorid >> 16, mvendorid >> 8, mvendorid, marchid);
 
   int ret = main(mainargs);
   halt(ret);

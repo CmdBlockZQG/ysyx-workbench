@@ -1,4 +1,5 @@
 AM_SRCS := riscv/ysyxsoc/start.S \
+           riscv/ysyxsoc/bootloader.c \
            riscv/ysyxsoc/trm.c \
            riscv/ysyxsoc/ioe.c \
            riscv/ysyxsoc/timer.c \
@@ -11,7 +12,7 @@ AM_SRCS := riscv/ysyxsoc/start.S \
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld
-LDFLAGS   += --gc-sections -e _start # --orphan-handling=warn --print-map
+LDFLAGS   += --gc-sections -e _fsbl # --orphan-handling=warn --print-map
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 CFLAGS += -I$(AM_HOME)/am/src/riscv/ysyxsoc/include
 .PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c run
