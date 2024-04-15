@@ -33,7 +33,7 @@ const MemMap mem_map[] = {
   { "mrom", MROM_BASE, MROM_SIZE, mrom, true },
   { "sram", SRAM_BASE, SRAM_SIZE, sram, false },
   { "flash", FLASH_BASE, FLASH_SIZE, flash, true },
-    { "psram", PSRAM_BASE, PSRAM_SIZE, psram, false}
+    { "psram", PSRAM_BASE, PSRAM_SIZE, psram, false }
 };
 
 static const MemMap *get_mem_map(paddr_t addr) {

@@ -36,5 +36,5 @@ SECTIONS {
   _heap_start = ALIGN(0x1000);
 
   _stack_top = ORIGIN(psram);
-  _stack_pointer = ORIGIN(psram) + LENGTH(psram);
+  _stack_pointer = ORIGIN(psram) + 0x800;
 }
