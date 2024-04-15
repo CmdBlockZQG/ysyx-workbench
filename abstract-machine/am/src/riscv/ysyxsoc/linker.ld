@@ -22,20 +22,19 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } >sram AT>flash : data
+  } >psram AT>flash : data
   .bss (NOLOAD) : {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } >sram
+  } >psram
 
   _data_src = LOADADDR(.data);
-
   . = _bss_end;
-  _stack_top = ALIGN(0x100);
-  . = _stack_top + 0x800;
-  _stack_pointer = .;
   _heap_start = ALIGN(0x1000);
+
+  _stack_top = ORIGIN(psram);
+  _stack_pointer = ORIGIN(psram) + LENGTH(psram);
 }
