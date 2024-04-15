@@ -1,6 +1,15 @@
 void _fsbl() __attribute__ ((section ("fsbl")));
+void _ssbl() __attribute__ ((section ("ssbl")));
 
 void _fsbl() {
+  extern char _ssbl_src, _ssbl_start, _ssbl_end;
+  char *src = &_ssbl_src, *dst = &_ssbl_start;
+  while (dst < &_ssbl_end) *dst++ = *src++;
+
+  asm volatile("tail _ssbl");
+}
+
+void _ssbl() {
   extern char _text_src, _text_start, _text_end;
   char *src = &_text_src, *dst = &_text_start;
   while (dst < &_text_end) *dst++ = *src++;
