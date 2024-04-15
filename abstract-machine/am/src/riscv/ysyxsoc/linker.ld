@@ -1,4 +1,4 @@
-ENTRY(_start)
+ENTRY(_fsbl)
 PHDRS { text PT_LOAD; data PT_LOAD; }
 
 MEMORY {
@@ -9,14 +9,21 @@ MEMORY {
 }
 
 SECTIONS {
+  fsbl : {
+    *(fsbl)
+  } >flash AT>flash : text
   .text : {
+    _text_start = .;
     *(entry)
     *(.text*)
-  } >flash AT>flash : text
+    _text_end = .;
+  } >sram AT>flash : text
   .rodata : {
+    _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
-  } >flash AT>flash
+    _rodata_end = .;
+  } >sram AT>flash
   .data : {
     _data_start = .;
     *(.data*)
@@ -31,6 +38,8 @@ SECTIONS {
     _bss_end = .;
   } >psram
 
+  _text_src = LOADADDR(.text);
+  _rodata_src = LOADADDR(.rodata);
   _data_src = LOADADDR(.data);
   . = _bss_end;
   _heap_start = ALIGN(0x1000);
