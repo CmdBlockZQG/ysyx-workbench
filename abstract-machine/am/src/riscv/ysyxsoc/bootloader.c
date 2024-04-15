@@ -1,14 +1,13 @@
 void _fsbl() __attribute__ ((section ("fsbl")));
 
 void _fsbl() {
-  // char *src = &_data_src, *dst = &_data_start;
-  // while (dst < &_data_end) *dst++ = *src++;
-  // for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
+  extern char _text_src, _text_start, _text_end;
   char *src = &_text_src, *dst = &_text_start;
   while (dst < &_text_end) *dst++ = *src++;
 
+  extern char _rodata_src, _rodata_start, _rodata_end;
   src = &_rodata_src; dst = &_rodata_start;
   while (dst < &_rodata_end) *dst++ = *src++;
 
-  asm volatile("jal _start");
+  asm volatile("tail _start");
 }

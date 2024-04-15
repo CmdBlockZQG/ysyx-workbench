@@ -1,5 +1,5 @@
 ENTRY(_fsbl)
-PHDRS { text PT_LOAD; data PT_LOAD; }
+PHDRS { bl PT_LOAD; text PT_LOAD; data PT_LOAD; }
 
 MEMORY {
   sram  : ORIGIN = 0x0f000000, LENGTH = 8K
@@ -11,7 +11,8 @@ MEMORY {
 SECTIONS {
   fsbl : {
     *(fsbl)
-  } >flash AT>flash : text
+  } >flash AT>flash : bl
+
   .text : {
     _text_start = .;
     *(entry)
@@ -24,6 +25,7 @@ SECTIONS {
     *(.rodata*)
     _rodata_end = .;
   } >sram AT>flash
+  
   .data : {
     _data_start = .;
     *(.data*)
