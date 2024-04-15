@@ -18,14 +18,14 @@ SECTIONS {
     *(entry)
     *(.text*)
     _text_end = .;
-  } >sram AT>flash : text
+  } >psram AT>flash : text
   .rodata : {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
     _rodata_end = .;
-  } >sram AT>flash
-  
+  } >psram AT>flash
+
   .data : {
     _data_start = .;
     *(.data*)
@@ -46,6 +46,6 @@ SECTIONS {
   . = _bss_end;
   _heap_start = ALIGN(0x1000);
 
-  _stack_top = ORIGIN(psram);
-  _stack_pointer = ORIGIN(psram) + LENGTH(psram);
+  _stack_top = ORIGIN(sram);
+  _stack_pointer = ORIGIN(sram) + LENGTH(sram);
 }
