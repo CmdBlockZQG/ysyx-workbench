@@ -17,7 +17,7 @@ void sdb_set_batch_mode();
 int is_exit_status_bad();
 void sdb_mainloop();
 void init_disasm(const char *triple);
- 
+
 static char *log_file = nullptr;
 static char *img_file = nullptr;
 static char *elf_file = nullptr;
