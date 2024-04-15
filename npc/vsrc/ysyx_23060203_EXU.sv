@@ -21,16 +21,16 @@ module ysyx_23060203_EXU (
 
   // 寄存器写
   output reg gpr_wen,
-  output [4:0] gpr_waddr,
-  output [31:0] gpr_wdata,
+  output reg [4:0] gpr_waddr,
+  output reg [31:0] gpr_wdata,
 
   // CSR写
   output reg csr_wen1, // 写入使能
-  output [11:0] csr_waddr1, // 写入地址
-  output [31:0] csr_wdata1, // 写入数据
+  output reg [11:0] csr_waddr1, // 写入地址
+  output reg [31:0] csr_wdata1, // 写入数据
   output reg csr_wen2, // 写入使能
-  output [11:0] csr_waddr2, // 写入地址
-  output [31:0] csr_wdata2, // 写入数据
+  output reg [11:0] csr_waddr2, // 写入地址
+  output reg [31:0] csr_wdata2, // 写入数据
 
   // 连接访存模块
   // 访存读请求
@@ -83,12 +83,12 @@ module ysyx_23060203_EXU (
   wire ecall = (opcode == OP_SYS) & (csr_addr == 12'b0);
   // csr操作指令funct不是全0，ecall的csr地址是全0
   wire id_csr_wen1 = (opcode == OP_SYS) & ((|funct) | (csr_addr == 12'b0));
-  assign csr_waddr1 = (|funct) ? csr_addr : CSR_MEPC; // ecall向mepc写入pc
-  assign csr_wdata1 = alu_val;
+  wire [11:0] id_csr_waddr1 = (|funct) ? csr_addr : CSR_MEPC; // ecall向mepc写入pc
+  wire [31:0] id_csr_wdata1 = alu_val;
 
   wire id_csr_wen2 = ecall; // ecall
-  assign csr_waddr2 = CSR_MCAUSE;
-  assign csr_wdata2 = 32'd11; // 11表示sys call
+  wire [11:0] id_csr_waddr2 = CSR_MCAUSE;
+  wire [31:0] id_csr_wdata2 = 32'd11; // 11表示sys call
 
   // -------------------- 控制跳转 --------------------
   reg [31:0] pc_inc;
@@ -162,7 +162,11 @@ module ysyx_23060203_EXU (
       end
 
       csr_wen1 <= id_csr_wen1;
+      csr_waddr1 <= id_csr_waddr1;
+      csr_wdata1 <= id_csr_wdata1;
       csr_wen2 <= id_csr_wen2;
+      csr_waddr2 <= id_csr_waddr2;
+      csr_wdata2 <= id_csr_wdata2;
 
       id_in.ready <= ~id_ls;
     end
