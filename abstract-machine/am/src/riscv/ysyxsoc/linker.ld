@@ -24,7 +24,7 @@ SECTIONS {
     *(.srodata*)
     *(.rodata*)
     _rodata_end = .;
-  } >psram AT>flash
+  } >psram AT>flash : text
   
   .data : {
     _data_start = .;
@@ -38,7 +38,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } >psram
+  } >psram : data
 
   _text_src = LOADADDR(.text);
   _rodata_src = LOADADDR(.rodata);
