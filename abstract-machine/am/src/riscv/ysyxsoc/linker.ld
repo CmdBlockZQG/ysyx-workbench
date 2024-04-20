@@ -11,6 +11,7 @@ MEMORY {
   mrom  : ORIGIN = 0x20000000, LENGTH = 4K
   flash : ORIGIN = 0x30000000, LENGTH = 16M
   psram : ORIGIN = 0x80000000, LENGTH = 4M
+  sdram : ORIGIN = 0xa0000000, LENGTH = 32M
 }
 
 SECTIONS {
@@ -29,20 +30,20 @@ SECTIONS {
     *(entry)
     *(.text*)
     _text_end = .;
-  } >psram AT>flash : text
+  } >sdram AT>flash : text
   .rodata : {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
     _rodata_end = .;
-  } >psram AT>flash
+  } >sdram AT>flash
   
   .data : {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } >psram AT>flash : data
+  } >sdram AT>flash : data
 
   .bss (NOLOAD) : {
     _bss_start = .;
@@ -50,7 +51,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } >psram
+  } >sdram
 
   _ssbl_src = LOADADDR(ssbl);
   _text_src = LOADADDR(.text);
