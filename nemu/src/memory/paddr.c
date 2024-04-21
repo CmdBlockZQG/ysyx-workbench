@@ -39,7 +39,7 @@ const MemMap mem_map[] = {
 };
 
 static const MemMap *get_mem_map(paddr_t addr) {
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < ARRLEN(mem_map); ++i) {
     if (mem_map[i].start <= addr && addr < mem_map[i].start + mem_map[i].size) {
       return &mem_map[i];
     }
