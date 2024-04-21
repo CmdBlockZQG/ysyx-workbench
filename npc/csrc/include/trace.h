@@ -8,7 +8,7 @@ void print_iringbuf();
 
 void ftrace(addr_t pc, addr_t next_pc);
 
-void mtrace_read(addr_t addr, int size);
+void mtrace_read(addr_t addr, int size, word_t data);
 void mtrace_write(addr_t addr, int size, word_t data);
 
 void difftest_step();

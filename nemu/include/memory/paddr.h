@@ -36,6 +36,8 @@ paddr_t host_to_guest(uint8_t *haddr);
 #define FLASH_SIZE 0x1000000
 #define PSRAM_BASE 0x80000000
 #define PSRAM_SIZE 0x400000
+#define SDRAM_BASE 0xa0000000
+#define SDRAM_SIZE 0x2000000
 typedef struct {
   const char* name;
   paddr_t start;

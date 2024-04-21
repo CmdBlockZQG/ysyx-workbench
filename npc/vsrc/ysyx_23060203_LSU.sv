@@ -55,13 +55,18 @@ module ysyx_23060203_LSU (
     if (rreq.valid & rreq.ready) begin
       raddr_align_reg <= raddr[2:0];
       rfunc_reg <= rfunc;
-      mem_read(raddr, {29'b0, ram_r.arsize});
     end
   end
   // TEMP: 忽略回复错误处理
   assign rdata = ram_r_rdata_word;
   assign rres.valid = ram_r.rvalid;
   assign ram_r.rready = rres.ready;
+
+  always @(posedge clk) begin
+    if (ram_r.rvalid & ram_r.rready) begin
+      mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
+    end
+  end
 
   // -------------------- 写请求 --------------------
   assign ram_w.awid = 0;
