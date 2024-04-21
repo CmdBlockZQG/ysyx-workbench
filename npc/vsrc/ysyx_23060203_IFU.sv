@@ -25,7 +25,7 @@ module ysyx_23060203_IFU (
 
   // TEMP: 暂时不考虑错误处理
   assign inst_out.valid = ram_r.rvalid;
-  assign ram_r.rready = inst_out.ready;
+  assign ram_r.rready = inst_out.ready & rstn;
   assign ram_r.arvalid = inst_out.ready;
   assign inst = ram_r.araddr[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
 
