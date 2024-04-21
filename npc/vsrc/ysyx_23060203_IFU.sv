@@ -12,11 +12,9 @@ module ysyx_23060203_IFU (
   // 连接指令内存
   axi_if.master ram_r
 );
-  reg rstn_prev;
   assign ram_r.arsize = 3'b010;
 
   always @(posedge clk) begin
-    rstn_prev <= rstn;
     if (~rstn) begin // 复位
       pc <= 32'h30000000;
       ram_r.araddr <= 32'h30000000;
