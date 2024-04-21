@@ -19,8 +19,7 @@ module ysyx_23060203_IFU (
     rstn_prev <= rstn;
     if (~rstn) begin // 复位
       pc <= 32'h30000000;
-    end else if (rstn & ~rstn_prev) begin // 复位释放
-      ram_r.araddr <= pc;
+      ram_r.araddr <= 32'h30000000;
     end
   end
 
