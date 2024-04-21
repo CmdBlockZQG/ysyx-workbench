@@ -3,9 +3,9 @@
 #include <klib-macros.h>
 #include <ysyxsoc.h>
 
-#define PSRAM_END 0x80400000
+#define SDRAM_END 0xa2000000
 extern char _heap_start;
-Area heap = RANGE(&_heap_start, PSRAM_END);
+Area heap = RANGE(&_heap_start, SDRAM_END);
 
 #ifndef MAINARGS
 #define MAINARGS ""
