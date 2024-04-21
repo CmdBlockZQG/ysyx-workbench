@@ -34,9 +34,9 @@ void abort_err(int err) {
   set_npc_state(NPC_ABORT, cpu_pc, err);
 }
 
-void mem_read(int raddr, int rsize) {
+void mem_read(int raddr, int rsize, int rdata) {
 #ifdef MTRACE
-  mtrace_read(raddr, 1 << rsize);
+  mtrace_read(raddr, 1 << rsize, rdata);
 #endif
 #ifdef DIFFTEST
   if (!get_mem_map(raddr, false)) {
