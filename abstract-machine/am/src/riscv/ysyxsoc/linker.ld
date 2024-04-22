@@ -30,20 +30,20 @@ SECTIONS {
     *(entry)
     *(.text*)
     _text_end = .;
-  } >sdram AT>flash : text
+  } >psram AT>flash : text
   .rodata : {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
     _rodata_end = .;
-  } >sdram AT>flash
+  } >psram AT>flash
   
   .data : {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } >sdram AT>flash : data
+  } >psram AT>flash : data
 
   .bss (NOLOAD) : {
     _bss_start = .;
@@ -51,7 +51,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } >sdram
+  } >psram
 
   _ssbl_src = LOADADDR(ssbl);
   _text_src = LOADADDR(.text);
