@@ -17,10 +17,12 @@ void mtrace_read(addr_t addr, int size, word_t data) {
   log_write(ANSI_FG_CYAN "[MTRACE] Read %d bytes at " FMT_ADDR, size, addr);
   locate_object_sym(addr);
   log_write(": " FMT_WORD ANSI_NONE "\n", data);
+  // printf(ANSI_FG_CYAN "[MTRACE] Read %d bytes at " FMT_ADDR ": " FMT_WORD ANSI_NONE "\n", size, addr, data);
 }
 
 void mtrace_write(addr_t addr, int size, word_t data) {
   log_write(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_ADDR , size, addr);
   locate_object_sym(addr);
   log_write(": " FMT_WORD ANSI_NONE "\n", data);
+  // printf(ANSI_FG_YELLOW "[MTRACE] Write %d bytes at " FMT_ADDR ": " FMT_WORD ANSI_NONE "\n", size, addr, data);
 }
