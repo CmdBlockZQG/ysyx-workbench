@@ -21,15 +21,13 @@ void halt(int code) {
   while (1);
 }
 
-extern char _data_src, _data_start, _data_end, _bss_start, _bss_end;
-int main(const char *args);
-
-void __am_uart_init();
 void _trm_init() {
+  extern char _data_src, _data_start, _data_end, _bss_start, _bss_end;
   char *src = &_data_src, *dst = &_data_start;
   while (dst < &_data_end) *dst++ = *src++;
   for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
 
+  void __am_uart_init();
   __am_uart_init();
 
   uint32_t mvendorid, marchid;
@@ -37,6 +35,7 @@ void _trm_init() {
   asm volatile("csrr %0, marchid" : "=r"(marchid));
   printf("%c%c%c%c_%u\n", mvendorid >> 24, mvendorid >> 16, mvendorid >> 8, mvendorid, marchid);
 
+  int main(const char *args);
   int ret = main(mainargs);
   halt(ret);
 }
