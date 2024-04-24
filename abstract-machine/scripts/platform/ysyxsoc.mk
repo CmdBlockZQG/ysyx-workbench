@@ -31,4 +31,4 @@ run: image
 
 run_bd: image
 	@echo run_bd
-	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run_bd
+	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS) --nvboard" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
