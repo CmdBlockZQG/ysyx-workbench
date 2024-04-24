@@ -13,8 +13,7 @@ Area heap = RANGE(&_heap_start, SDRAM_END);
 static const char mainargs[] = MAINARGS;
 
 void putch(char ch) {
-  while (!((inb(UART_ADDR + 5) >> 5) & 1));
-  outb(UART_ADDR, ch);
+  io_write(AM_UART_TX, ch);
 }
 
 void halt(int code) {
