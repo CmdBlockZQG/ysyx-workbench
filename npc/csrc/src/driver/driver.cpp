@@ -30,6 +30,7 @@ void init_wave(const char *filename) {
 
 void init_nvboard() {
   nvboard = true;
+  Log("NVBoard Enabled");
 
   void nvboard_bind_all_pins(VysyxSoCFull*);
   nvboard_bind_all_pins(top_module);
