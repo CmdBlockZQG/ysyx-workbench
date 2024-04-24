@@ -73,7 +73,7 @@ sim: $(BIN)
 
 run: $(BIN)
 	$(call git_commit, "sim RTL")
-	$(BIN) $(ARGS) $(IMG)
+	$(BIN) $(ARGS) $(IMG) --nvboard
 
 run_nt: $(BIN)
 	$(BIN) $(ARGS) $(IMG)
