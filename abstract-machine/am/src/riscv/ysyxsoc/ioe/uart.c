@@ -1,12 +1,13 @@
 #include <am.h>
 #include <ysyxsoc.h>
 
+#define THR_ADDR UART_ADDR
 #define DIV_LSB_ADDR UART_ADDR
 #define DIV_MSB_ADDR UART_ADDR + 1
 #define IER_ADDR UART_ADDR + 1
 #define FCR_ADDR UART_ADDR + 2
 #define LCR_ADDR UART_ADDR + 3
-#define THR_ADDR UART_ADDR
+#define LST_ADDR UART_ADDR + 5
 
 void __am_uart_init() {
   outb(LCR_ADDR, 0b10000011);
@@ -18,9 +19,10 @@ void __am_uart_init() {
 }
 
 void __am_uart_tx(AM_UART_TX_T *out) {
+  while (!((inb(LST_ADDR) >> 5) & 1));
   outb(THR_ADDR, out->data);
 }
 
 void __am_uart_rx(AM_UART_RX_T *in) {
-  in->data = inb(THR_ADDR);
+  in->data = (inb(LST_ADDR) & 1) ? inb(THR_ADDR) : 0xff;
 }
