@@ -16,7 +16,7 @@ LDFLAGS   += -T $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld
 LDFLAGS   += --gc-sections -e _fsbl # --orphan-handling=warn --print-map
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 CFLAGS += -I$(AM_HOME)/am/src/riscv/ysyxsoc/include
-.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c run
+.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c run run_nvboard
 
 NPCFLAGS += --log=$(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt --batch
 
@@ -28,3 +28,7 @@ image: $(IMAGE).elf
 run: image
 	@echo run
 	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
+
+run_nvboard: image
+	@echo run
+	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS) --nvboard" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
