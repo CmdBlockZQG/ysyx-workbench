@@ -10,7 +10,7 @@
 void __am_uart_init() {
   outb(LCR_ADDR, 0b10000011);
   outb(DIV_MSB_ADDR, 0);
-  outb(DIV_LSB_ADDR, 16);
+  outb(DIV_LSB_ADDR, 128);
   outb(LCR_ADDR, 0b00000011);
   outb(FCR_ADDR, 0b11000110);
   outb(IER_ADDR, 0b00000000);
