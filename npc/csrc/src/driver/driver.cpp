@@ -36,7 +36,6 @@ void init_nvboard() {
   nvboard_bind_all_pins(top_module);
 
   nvboard_init();
-  Log("????");
 }
 
 void finalize_driver() {

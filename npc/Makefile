@@ -67,6 +67,9 @@ override ARGS += --elf=$(ELF)
 endif
 override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 
+gdb: $(BIN)
+	gdb -s $(BIN) $(ARGS) $(IMG) --nvboard
+
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
