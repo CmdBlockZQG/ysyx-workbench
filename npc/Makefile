@@ -67,25 +67,23 @@ override ARGS += --elf=$(ELF)
 endif
 override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 
-gdb: $(BIN)
-	gdb --args $(BIN) $(ARGS) $(IMG) --nvboard
-
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
 run: $(BIN)
 	$(call git_commit, "sim RTL")
-	$(BIN) $(ARGS) $(IMG) --nvboard
-
-run_nt: $(BIN)
 	$(BIN) $(ARGS) $(IMG)
+
+run_bd: $(BIN)
+	$(call git_commit, "sim RTL")
+	$(BIN) $(ARGS) $(IMG) --nvboard
 
 wave:
 	@sed '4,8d' $(BUILD_DIR)/wave.vcd | sed -E '/^ {1,5}\$upscope \$end/d' > $(BUILD_DIR)/wave-tmp.vcd
 	@rm $(BUILD_DIR)/wave.vcd
 	@mv $(BUILD_DIR)/wave-tmp.vcd $(BUILD_DIR)/wave.vcd
 
-.PHONY: default all clean sim run run_nt wave
+.PHONY: default all clean sim run run_bd wave
 
 include ../Makefile
