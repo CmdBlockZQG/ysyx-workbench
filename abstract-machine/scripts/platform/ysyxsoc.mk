@@ -1,12 +1,13 @@
 AM_SRCS := riscv/ysyxsoc/start.S \
            riscv/ysyxsoc/bootloader.c \
            riscv/ysyxsoc/trm.c \
-           riscv/ysyxsoc/ioe.c \
-           riscv/ysyxsoc/timer.c \
            riscv/ysyxsoc/input.c \
-           riscv/ysyxsoc/uart.c \
            riscv/ysyxsoc/cte.c \
            riscv/ysyxsoc/trap.S \
+           riscv/ysyxsoc/ioe/ioe.c \
+           riscv/ysyxsoc/ioe/uart.c \
+           riscv/ysyxsoc/ioe/timer.c \
+           riscv/ysyxsoc/ioe/gpio.c \
            platform/dummy/vme.c \
            platform/dummy/mpe.c
 
@@ -15,7 +16,7 @@ LDFLAGS   += -T $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld
 LDFLAGS   += --gc-sections -e _fsbl # --orphan-handling=warn --print-map
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 CFLAGS += -I$(AM_HOME)/am/src/riscv/ysyxsoc/include
-.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c run
+.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c run run_nvboard
 
 NPCFLAGS += --log=$(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt --batch
 
@@ -27,3 +28,7 @@ image: $(IMAGE).elf
 run: image
 	@echo run
 	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
+
+run_nvboard: image
+	@echo run
+	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS) --nvboard" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
