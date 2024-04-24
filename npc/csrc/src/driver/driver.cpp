@@ -29,6 +29,7 @@ void init_wave(const char *filename) {
 }
 
 void init_nvboard() {
+  printf("NVBoard enabled\n");
   nvboard = true;
 
   void nvboard_bind_all_pins(VysyxSoCFull*);
