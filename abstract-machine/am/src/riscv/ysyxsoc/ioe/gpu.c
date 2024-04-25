@@ -18,7 +18,7 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
   };
 }
 
-void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) { // x y w h
+void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   uint32_t *fb = (uint32_t *)(uintptr_t)VRAM_ADDR;
   uint32_t *p = ctl->pixels;
   for (int i = 0; i < ctl->h; ++i) {
