@@ -1,5 +1,6 @@
 #include <am.h>
 #include <ysyxsoc.h>
+#include <klib.h>
 
 #define W 640
 #define H 480
@@ -17,15 +18,15 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
   };
 }
 
-void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
+void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) { // x y w h
   uint32_t *fb = (uint32_t *)(uintptr_t)VRAM_ADDR;
   uint32_t *p = ctl->pixels;
   for (int i = 0; i < ctl->h; ++i) {
     for (int j = 0; j < ctl->w; ++j) {
-      fb[(ctl->y + i) * W + ctl->x + j] = *p++;
+      printf("%d %d\n", ctl->y + i, ctl->x + j);
+      fb[(ctl->y + i) * W + (ctl->x + j)] = *p++;
     }
   }
-  if (ctl->sync) outl(SYNC_ADDR, 1);
 }
 
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
