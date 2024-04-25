@@ -4,6 +4,7 @@
 #define W 640
 #define H 480
 #define VRAM_ADDR VGA_ADDR
+#define SYNC_ADDR VGA_ADDR + 0x4b000
 
 void __am_gpu_init() {
 }
@@ -24,6 +25,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
       fb[(ctl->y + i) * W + ctl->x + j] = *p++;
     }
   }
+  if (ctl->sync) outl(SYNC_ADDR, 1);
 }
 
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
