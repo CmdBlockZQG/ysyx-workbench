@@ -104,11 +104,16 @@ static inline int get_keycode(uint8_t scan) {
 }
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
+  bool ext_E0 = false;
   uint8_t scan = inb(INPUT_ADDR);
   if (scan == 0x00) { // no key
     kbd->keydown = false;
     kbd->keycode = AM_KEY_NONE;
     return;
+  }
+  if (scan == 0xE0) {
+    ext_E0 = true;
+    scan = get_next_scan();
   }
   if (scan == 0xF0) { // key up
     kbd->keydown = false;
@@ -116,6 +121,6 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   } else { // key down
     kbd->keydown = true;
   }
-  if (scan == 0xE0) kbd->keycode = get_keycode_E0(get_next_scan());
+  if (ext_E0) kbd->keycode = get_keycode_E0(scan);
   else kbd->keycode = get_keycode(scan);
 }
