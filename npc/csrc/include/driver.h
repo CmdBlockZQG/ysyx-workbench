@@ -15,7 +15,7 @@ extern VysyxSoCFull *top_module;
 void init_top(int argc, char **argv);
 void init_wave(const char *filename);
 void init_nvboard();
-void driver_step();
+void driver_cycle();
 void finalize_driver();
 void reset_top();
 

@@ -3,6 +3,7 @@ PHDRS {
   fsbl PT_LOAD;
   ssbl PT_LOAD;
   text PT_LOAD;
+  rodata PT_LOAD;
   data PT_LOAD;
 }
 
@@ -31,12 +32,13 @@ SECTIONS {
     *(.text*)
     _text_end = .;
   } >sdram AT>flash : text
+
   .rodata : {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
     _rodata_end = .;
-  } >sdram AT>flash
+  } >sdram AT>flash : rodata
   
   .data : {
     _data_start = .;

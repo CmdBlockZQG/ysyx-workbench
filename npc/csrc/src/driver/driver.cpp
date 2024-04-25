@@ -43,11 +43,16 @@ void finalize_driver() {
   delete contextp;
 }
 
-void driver_step() {
+static void driver_step() {
   top_module->eval();
-  if (nvboard) nvboard_update();
   contextp->timeInc(1);
   if (trace_file) trace_file->dump(contextp->time());
+}
+
+void driver_cycle() {
+  top_module->clock = 0; driver_step();
+  top_module->clock = 1; driver_step();
+  if (nvboard) nvboard_update();
 }
 
 void reset_top() {

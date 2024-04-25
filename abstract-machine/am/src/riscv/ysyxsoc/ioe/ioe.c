@@ -2,6 +2,7 @@
 #include <klib-macros.h>
 
 void __am_timer_init();
+void __am_gpu_init();
 
 void __am_timer_rtc(AM_TIMER_RTC_T *);
 void __am_timer_uptime(AM_TIMER_UPTIME_T *);
@@ -11,6 +12,9 @@ void __am_uart_rx(AM_UART_RX_T *);
 void __am_gpio_out(AM_GPIO_OUT_T *);
 void __am_gpio_in(AM_GPIO_IN_T *);
 void __am_gpio_seg(AM_GPIO_SEG_T *);
+void __am_gpu_config(AM_GPU_CONFIG_T *);
+void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *);
+void __am_gpu_status(AM_GPU_STATUS_T *);
 
 static void __am_timer_config(AM_TIMER_CONFIG_T *cfg) { cfg->present = true; cfg->has_rtc = false; }
 static void __am_input_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
@@ -31,6 +35,9 @@ static void *lut[128] = {
   [AM_GPIO_OUT    ] = __am_gpio_out,
   [AM_GPIO_IN     ] = __am_gpio_in,
   [AM_GPIO_SEG    ] = __am_gpio_seg,
+  [AM_GPU_CONFIG  ] = __am_gpu_config,
+  [AM_GPU_FBDRAW  ] = __am_gpu_fbdraw,
+  [AM_GPU_STATUS  ] = __am_gpu_status,
 };
 
 static void fail(void *buf) { panic("access nonexist register"); }
@@ -40,6 +47,7 @@ bool ioe_init() {
     if (!lut[i]) lut[i] = fail;
   // __am_uart_init(); // already done in trm init
   __am_timer_init();
+  __am_gpu_init();
   return true;
 }
 

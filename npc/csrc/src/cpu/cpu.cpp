@@ -22,8 +22,7 @@ static void exec_once() {
   extern bool exec_once_flag;
   exec_once_flag = false;
   while (true) {
-    top_module->clock = 0; driver_step();
-    top_module->clock = 1; driver_step();
+    driver_cycle();
     if (exec_once_flag) break;
   }
 }
