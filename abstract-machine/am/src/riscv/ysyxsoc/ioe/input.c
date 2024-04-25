@@ -1,10 +1,12 @@
 #include <am.h>
 #include <ysyxsoc.h>
 
+#define PS2KBD_ADDR PS2_ADDR
+
 static inline uint8_t get_next_scan() {
   uint8_t t;
   while (1) {
-    t = inb(INPUT_ADDR);
+    t = inb(PS2KBD_ADDR);
     if (t) return t;
   }
 }
@@ -105,7 +107,7 @@ static inline int get_keycode(uint8_t scan) {
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   bool ext_E0 = false;
-  uint8_t scan = inb(INPUT_ADDR);
+  uint8_t scan = inb(PS2KBD_ADDR);
   if (scan == 0x00) { // no key
     kbd->keydown = false;
     kbd->keycode = AM_KEY_NONE;
