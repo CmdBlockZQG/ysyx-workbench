@@ -1,10 +1,11 @@
 ENTRY(_fsbl)
-/* PHDRS {
+PHDRS {
   fsbl PT_LOAD;
   ssbl PT_LOAD;
   text PT_LOAD;
+  rodata PT_LOAD;
   data PT_LOAD;
-} */
+}
 
 MEMORY {
   sram  : ORIGIN = 0x0f000000, LENGTH = 8K
@@ -17,33 +18,34 @@ MEMORY {
 SECTIONS {
   fsbl : {
     *(fsbl)
-  } >flash AT>flash
+  } >flash AT>flash : fsbl
 
   ssbl : {
     _ssbl_start = .;
     *(ssbl)
     _ssbl_end = .;
-  } >sram AT>flash
+  } >sram AT>flash : ssbl
 
   .text : {
     _text_start = .;
     *(entry)
     *(.text*)
     _text_end = .;
-  } >sdram AT>flash
+  } >sdram AT>flash : text
+
   .rodata : {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
     _rodata_end = .;
-  } >sdram AT>flash
+  } >sdram AT>flash : rodata
   
   .data : {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } >sdram AT>flash
+  } >sdram AT>flash : data
 
   .bss (NOLOAD) : {
     _bss_start = .;
