@@ -33,7 +33,7 @@ module ysyx_23060203_Xbar (
 `ifdef YSYXSOC
   wire rreq_clint = (read.araddr[31:16] == 16'h0200);
 `else
-  wire rreq_clint = (read.araddr[31:0] == 32'ha0000048);
+  wire rreq_clint = (read.araddr[31:4] == 28'ha000004);
 `endif
 
   always_comb begin
