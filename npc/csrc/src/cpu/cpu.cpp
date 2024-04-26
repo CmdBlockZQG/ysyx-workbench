@@ -5,11 +5,14 @@
 
 addr_t cpu_pc;
 
+static uint64_t nr_cycle = 0;
 static uint64_t nr_inst = 0;
 bool trace_enabled = true;
 
 static void statistic() {
   Log("total instructions = %lu", nr_inst);
+  Log("total cycles = %lu", nr_cycle);
+  Log("average IPC = %lf", nr_inst / (double)nr_cycle);
 }
 
 void assert_fail_msg() {
@@ -23,6 +26,7 @@ static void exec_once() {
   exec_once_flag = false;
   while (true) {
     driver_cycle();
+    ++nr_cycle;
     if (exec_once_flag) break;
   }
 }
