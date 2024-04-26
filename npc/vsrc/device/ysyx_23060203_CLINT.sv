@@ -1,4 +1,4 @@
-module CLINT (
+module ysyx_23060203_CLINT (
   input rstn, clk,
 
   axi_if.slave read
