@@ -4,24 +4,6 @@ module ysyx_23060203_CPU (
   axi_if.master io_master,
   axi_if.slave io_slave
 );
-  CLINT clint (
-    .rstn(rstn), .clk(clk),
-    .read(clint_r)
-  );
-
-  axi_if clint_r;
-  ysyx_23060203_Xbar Xbar (
-    .rstn(rstn), .clk(clk),
-    .read(mem_r),
-    .soc_r(io_master), .clint_r(clint_r)
-  );
-
-  axi_if mem_r;
-  ysyx_23060203_MemArb MemArb (
-    .rstn(rstn), .clk(clk),
-    .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
-    .ram_r(mem_r)
-  );
 
   wire [31:0] gpr_rdata1, gpr_rdata2;
   ysyx_23060203_GPR GPR (
@@ -150,7 +132,27 @@ module ysyx_23060203_CPU (
     .ram_r(lsu_mem_r), .ram_w(io_master)
   );
 
-  // Access Fault 检查
+  axi_if mem_r;
+  ysyx_23060203_MemArb MemArb (
+    .rstn(rstn), .clk(clk),
+    .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
+    .ram_r(mem_r)
+  );
+
+  axi_if clint_r;
+  ysyx_23060203_Xbar Xbar (
+    .rstn(rstn), .clk(clk),
+    .read(mem_r),
+    .soc_r(io_master), .clint_r(clint_r)
+  );
+
+  ysyx_23060203_CLINT clint (
+    .rstn(rstn), .clk(clk),
+    .read(clint_r)
+  );
+
+`ifdef YSYXSOC
+  // SoC Access Fault 检查
   always @(posedge clk) begin
     if (io_master.rvalid & io_master.rresp[1]) begin
       abort_err(101); // read error
@@ -159,5 +161,6 @@ module ysyx_23060203_CPU (
       abort_err(102); // write error
     end
   end
+`endif
 
 endmodule

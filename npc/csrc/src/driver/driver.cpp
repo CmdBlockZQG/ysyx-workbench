@@ -2,19 +2,20 @@
 #include "driver.h"
 
 #include "verilated_vcd_c.h"
-#include "nvboard.h"
-#include "VysyxSoCFull.h"
 
-VysyxSoCFull *top_module;
+#ifdef NVBOARD
+#include "nvboard.h"
+#endif
+
+Vtop *top_module;
 
 static VerilatedContext *contextp;
 static VerilatedVcdC *trace_file;
-static bool nvboard = false;
 
 void init_top(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  top_module = new VysyxSoCFull(contextp, "top");
+  top_module = new Vtop(contextp, "top");
 }
 
 void init_wave(const char *filename) {
@@ -28,13 +29,15 @@ void init_wave(const char *filename) {
   Log("Wave is dumped to %s", filename);
 }
 
-void init_nvboard() {
-  nvboard = true;
 
-  void nvboard_bind_all_pins(VysyxSoCFull*);
+void init_nvboard() {
+#ifdef NVBOARD
+  void nvboard_bind_all_pins(Vtop*);
   nvboard_bind_all_pins(top_module);
 
   nvboard_init();
+  Log("NVBoard initialized");
+#endif
 }
 
 void finalize_driver() {
@@ -52,7 +55,7 @@ static void driver_step() {
 void driver_cycle() {
   top_module->clock = 0; driver_step();
   top_module->clock = 1; driver_step();
-  if (nvboard) nvboard_update();
+  IFDEF(NVBOARD, nvboard_update());
 }
 
 void reset_top() {

@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <getopt.h>
 
@@ -36,7 +37,7 @@ static long load_img() {
       0x00100073, // ebreak
       0xdeadbeef  // some data
     };
-    memcpy(guest_to_host(FLASH_BASE), img, sizeof(img));
+    memcpy(guest_to_host(MUXDEF(YSYXSOC, FLASH_BASE, MEM_BASE)), img, sizeof(img));
     Log("No image is given. Use the default built-in image.");
     ret = 4096;
   } else {
@@ -49,7 +50,7 @@ static long load_img() {
     Log("Image file %s, size = %ld", img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    Assert(fread(guest_to_host(FLASH_BASE), size, 1, fp) == 1, "Error when reading image file");
+    Assert(fread(guest_to_host(MUXDEF(YSYXSOC, FLASH_BASE, MEM_BASE)), size, 1, fp) == 1, "Error when reading image file");
 
     fclose(fp);
     ret = size;
@@ -64,7 +65,6 @@ static int parse_args(int argc, char *argv[]) {
     {"elf"    , required_argument, NULL, 'e'},
     {"wave"   , required_argument, NULL, 'w'},
     {"diff"   , required_argument, NULL, 'd'},
-    {"nvboard", no_argument      , NULL, 'n'},
     {"help"   , no_argument      , NULL, 'h'},
     {0        , 0                , NULL,  0 },
   };
@@ -76,7 +76,6 @@ static int parse_args(int argc, char *argv[]) {
       case 'e': elf_file = optarg; break;
       case 'w': wave_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
-      case 'n': init_nvboard(); break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -85,7 +84,6 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-e,--elf=FILE        load elf file from FILE\n");
         printf("\t-w,--wave=FILE       dump wave to FILE\n");
         printf("\t-d,--diff=REF_SO     run DiffTest with reference REF_SO\n");
-        printf("\t-n,--nvboard         run nvboard\n");
         printf("\t-h,--help            display this information\n");
         printf("\n");
         exit(0);
@@ -103,6 +101,9 @@ int main(int argc, char *argv[]) {
 
   /* open log file */
   init_log(log_file);
+
+  /* initialize NVBoard */
+  IFDEF(NVBOARD, init_nvboard());
 
   /* initialize wave output */
   init_wave(wave_file);

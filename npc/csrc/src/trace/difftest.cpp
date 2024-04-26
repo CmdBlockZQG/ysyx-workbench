@@ -65,7 +65,11 @@ void init_difftest(char *ref_so_file, long img_size) {
   Log("Difftest Ref: %s", ref_so_file);
 
   ref_difftest_init(1234);
+#ifdef YSYXSOC
   ref_difftest_memcpy(FLASH_BASE, guest_to_host(FLASH_BASE), img_size, DIFFTEST_TO_REF);
+#else
+  ref_difftest_memcpy(MEM_BASE, guest_to_host(MEM_BASE), img_size, DIFFTEST_TO_REF);
+#endif
   difftest_regcpy();
 }
 
