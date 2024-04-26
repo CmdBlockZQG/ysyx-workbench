@@ -3,36 +3,25 @@ module npc_RAM (
 
   axi_if.slave in
 );
-  reg reading, writing;
+
   always @(posedge clk) if (~rstn) begin // 复位
-    in.arready <= 1;
     in.rvalid <= 0;
-    reading <= 0;
 
     in.awready <= 1;
     in.wready <= 1;
     in.bvalid <= 0;
-    writing <= 0;
 
     waddr_valid_reg <= 0;
     wdata_valid_reg <= 0;
   end
 
-  reg [31:0] raddr;
+  assign in.arready = 1;
+  assign in.rresp = 2'b00;
   always @(posedge clk) if (rstn) begin
     if (in.rvalid & in.rready) in.rvalid <= 0;
-    if (in.arready & in.arvalid) begin
-      in.arready <= 0;
-      raddr <= in.araddr;
-      reading <= 1;
-    end
-
-    if (~in.arready & reading & ~in.rvalid) begin
-      reading <= 0;
+    if (in.arvalid & in.arready) begin
       in.rvalid <= 1;
-      in.rdata <= {2{pmem_read(raddr)}};
-      in.rresp <= 2'b00;
-      in.arready <= 1;
+      in.rdata <= {2{pmem_read(in.araddr)}};
     end
   end
 
@@ -55,14 +44,18 @@ module npc_RAM (
   always @(posedge clk) if (rstn) begin
     if (waddr_handshake) begin
       waddr_reg <= in.awaddr;
-      in.awready <= 0;
-      if (~write_en) waddr_valid_reg <= 1;
+      if (~write_en) begin
+        waddr_valid_reg <= 1;
+        in.awready <= 0;
+      end
     end
     if (wdata_handshake) begin
       wmask_reg <= in.wstrb;
       wdata_reg <= in.wdata;
-      in.wready <= 0;
-      if (~write_en) wdata_valid_reg <= 1;
+      if (~write_en) begin
+        wdata_valid_reg <= 1;
+        in.wready <= 0;
+      end
     end
 
     if (write_en) begin
