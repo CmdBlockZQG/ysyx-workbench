@@ -101,6 +101,7 @@ int main(int argc, char *argv[]) {
   /* open log file */
   init_log(log_file);
 
+  /* initialize NVBoard */
   IFDEF(NVBOARD, init_nvboard());
 
   /* initialize wave output */

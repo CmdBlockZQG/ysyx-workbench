@@ -2,13 +2,12 @@
 #include "driver.h"
 
 #include "verilated_vcd_c.h"
-#include "VysyxSoCFull.h"
 
 #ifdef NVBOARD
 #include "nvboard.h"
 #endif
 
-VysyxSoCFull *top_module;
+Vtop *top_module;
 
 static VerilatedContext *contextp;
 static VerilatedVcdC *trace_file;
@@ -16,7 +15,7 @@ static VerilatedVcdC *trace_file;
 void init_top(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  top_module = new VysyxSoCFull(contextp, "top");
+  top_module = new Vtop(contextp, "top");
 }
 
 void init_wave(const char *filename) {
@@ -33,10 +32,11 @@ void init_wave(const char *filename) {
 
 void init_nvboard() {
 #ifdef NVBOARD
-  void nvboard_bind_all_pins(VysyxSoCFull*);
+  void nvboard_bind_all_pins(Vtop*);
   nvboard_bind_all_pins(top_module);
 
   nvboard_init();
+  Log("NVBoard initialized");
 #endif
 }
 

@@ -16,8 +16,13 @@ module ysyx_23060203_IFU (
 
   always @(posedge clk) begin
     if (~rstn) begin // 复位
+`ifdef YSYXSOC
       pc <= 32'h30000000;
       ram_r.araddr <= 32'h30000000;
+`else
+      pc <= 32'h80000000;
+      ram_r.araddr <= 32'h80000000;
+`endif
     end
   end
 

@@ -6,6 +6,7 @@ VSRCS += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
 INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
 INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
 CXXFLAGS += -DYSYXSOC=1
+VERILATOR_FLAGS += -DYSYXSOC=1
 else
 TOPNAME = ysyx_23060203_CPU
 endif
@@ -16,7 +17,7 @@ INC_PATH = $(abspath ./csrc/include)
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
 					-O3 --x-assign fast --x-initial fast --noassert
-VERILATOR_FLAGS = --timescale "1ns/1ns" --no-timing --autoflush
+VERILATOR_FLAGS += --timescale "1ns/1ns" --no-timing --autoflush
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -88,11 +89,6 @@ run: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
-wave:
-	@sed '4,8d' $(BUILD_DIR)/wave.vcd | sed -E '/^ {1,5}\$upscope \$end/d' > $(BUILD_DIR)/wave-tmp.vcd
-	@rm $(BUILD_DIR)/wave.vcd
-	@mv $(BUILD_DIR)/wave-tmp.vcd $(BUILD_DIR)/wave.vcd
-
-.PHONY: default all clean sim run wave
+.PHONY: default all clean sim run
 
 include ../Makefile

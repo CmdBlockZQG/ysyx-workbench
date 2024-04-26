@@ -4,7 +4,11 @@
 #include "common.h"
 
 #include "driver.h"
+#ifdef YSYXSOC
 #include "VysyxSoCFull_ysyx_23060203_GPR.h"
+#else
+#include "Vysyx_23060203_CPU_ysyx_23060203_GPR.h"
+#endif
 
 void cpu_init();
 void cpu_exec(uint64_t n);
