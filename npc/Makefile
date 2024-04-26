@@ -5,6 +5,7 @@ VSRCS += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
 VSRCS += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
 INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
 INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
+CXXFLAGS += -DYSYXSOC=1
 else
 TOPNAME = ysyx_23060203_CPU
 endif
@@ -24,9 +25,9 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 $(shell mkdir -p $(BUILD_DIR))
 
 # project source
-VSRCS = $(shell find $(abspath ./vsrc) -name "*.sv")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-INCDIR = "$(abspath ./vsrc)"
+VSRCS += $(shell find $(abspath ./vsrc) -name "*.sv")
+CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+INCDIR += "$(abspath ./vsrc)"
 
 # rules for verilator
 INCFLAGS = $(addprefix -I , $(INC_PATH))
@@ -50,6 +51,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 CSRCS += $(SRC_AUTO_BIND)
 override ARGS += --nvboard
+CXXFLAGS += -DNVBOARD=1
 endif
 
 
