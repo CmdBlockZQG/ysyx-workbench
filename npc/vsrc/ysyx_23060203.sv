@@ -62,6 +62,9 @@ module ysyx_23060203 (
   output        io_slave_rlast,
   output [3:0]  io_slave_rid
 );
+
+`ifdef YSYXSOC
+
   axi_if io_master, io_slave;
 
   ysyx_23060203_CPU NPC_CPU (
@@ -135,4 +138,21 @@ module ysyx_23060203 (
   assign io_slave.arburst = io_slave_arburst;
   assign io_slave.rready  = io_slave_rready;
 
+`else
+
+  axi_if io_master, io_slave;
+
+  npc_RAM NPC_RAM (
+    .clk(clock), .rstn(~reset),
+    .in(io_master)
+  );
+
+  ysyx_23060203_CPU NPC_CPU (
+    .clk(clock), .rstn(~reset),
+    // .io_interrupt(io_interrupt),
+    .io_master(io_master),
+    .io_slave(io_slave)
+  );
+
+`endif
 endmodule

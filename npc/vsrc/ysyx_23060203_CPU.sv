@@ -118,10 +118,6 @@ module ysyx_23060203_CPU (
   decouple_if mem_rres, mem_wres;
   wire [31:0] mem_rdata;
   axi_if lsu_mem_r;
-  axi_if clint_r;
-
-`ifdef YSYXSOC
-
   ysyx_23060203_LSU LSU (
     .rstn(rstn), .clk(clk),
 
@@ -136,43 +132,6 @@ module ysyx_23060203_CPU (
     .ram_r(lsu_mem_r), .ram_w(io_master)
   );
 
-  ysyx_23060203_Xbar Xbar (
-    .rstn(rstn), .clk(clk),
-    .read(mem_r),
-    .soc_r(io_master), .clint_r(clint_r)
-  );
-
-`else
-
-  axi_if npc_mem;
-  npc_RAM (
-    .rstn(rstn), .clk(clk),
-    .in(npc_mem)
-  );
-
-  ysyx_23060203_LSU LSU (
-    .rstn(rstn), .clk(clk),
-
-    .rreq(mem_rreq),
-    .raddr(mem_raddr), .rfunc(mem_rfunc),
-    .rres(mem_rres), .rdata(mem_rdata),
-
-    .wreq(mem_wreq), .wfunc(mem_wfunc),
-    .waddr(mem_waddr), .wdata(mem_wdata),
-    .wres(mem_wres),
-
-    .ram_r(lsu_mem_r), .ram_w(npc_mem)
-  );
-
-
-  ysyx_23060203_Xbar Xbar (
-    .rstn(rstn), .clk(clk),
-    .read(mem_r),
-    .soc_r(npc_mem), .clint_r(clint_r)
-  );
-
-`endif
-
   axi_if mem_r;
   ysyx_23060203_MemArb MemArb (
     .rstn(rstn), .clk(clk),
@@ -180,11 +139,17 @@ module ysyx_23060203_CPU (
     .ram_r(mem_r)
   );
 
+  axi_if clint_r;
+  ysyx_23060203_Xbar Xbar (
+    .rstn(rstn), .clk(clk),
+    .read(mem_r),
+    .soc_r(io_master), .clint_r(clint_r)
+  );
+
   ysyx_23060203_CLINT clint (
     .rstn(rstn), .clk(clk),
     .read(clint_r)
   );
-
 
 `ifdef YSYXSOC
   // SoC Access Fault 检查
