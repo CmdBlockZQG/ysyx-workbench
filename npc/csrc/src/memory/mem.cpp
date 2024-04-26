@@ -65,10 +65,14 @@ void init_mem() {
 }
 
 word_t addr_read(addr_t addr, int len) {
+  Assert(MEM_BASE <= addr && addr + len <= MEM_BASE + MEM_SIZE,
+         "addr = " FMT_ADDR "out of bound", addr);
   return host_read(guest_to_host(addr), len);
 }
 
 void addr_write(addr_t addr, int len, word_t data) {
+  Assert(MEM_BASE <= addr && addr + len <= MEM_BASE + MEM_SIZE,
+         "addr = " FMT_ADDR "out of bound", addr);
   return host_write(guest_to_host(addr), len, data);
 }
 

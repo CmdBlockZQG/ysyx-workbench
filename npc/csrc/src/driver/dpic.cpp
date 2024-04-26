@@ -80,11 +80,6 @@ void mrom_read(int addr, int *data) {
 
 #else
 
-void uart_putch(char c) {
-  putchar(c);
-  fflush(stdout);
-}
-
 int pmem_read(int raddr) {
   raddr = raddr & ~0x3u;
   word_t rdata = addr_read((addr_t)raddr, 4);
@@ -93,6 +88,12 @@ int pmem_read(int raddr) {
 
 void pmem_write(int waddr, int wdata, char wmask) {
   waddr = waddr & ~0x3u;
+  // NPC UART
+  if (waddr == 0xa00003F8) {
+    putchar(wdata & 0xff);
+    fflush(stdout);
+    return;
+  }
   if (wmask & 0b0001) addr_write(waddr + 0, 1, wdata >> 0);
   if (wmask & 0b0010) addr_write(waddr + 1, 1, wdata >> 8);
   if (wmask & 0b0100) addr_write(waddr + 2, 1, wdata >> 16);

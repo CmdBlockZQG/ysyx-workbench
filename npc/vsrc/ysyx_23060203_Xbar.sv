@@ -27,9 +27,14 @@ module ysyx_23060203_Xbar (
   wire rreq_soc = ~rreq_clint;
   assign soc_r.araddr = read.araddr;
   assign soc_r.arsize = read.arsize;
-  wire rreq_clint = (read.araddr[31:16] == 16'h0200);
   assign clint_r.araddr = read.araddr;
   assign clint_r.arsize = read.arsize;
+
+`ifdef YSYXSOC
+  wire rreq_clint = (read.araddr[31:16] == 16'h0200);
+`else
+  wire rreq_clint = (read.araddr[31:0] == 32'ha0000048);
+`endif
 
   always_comb begin
     if (rreq_soc) begin
