@@ -1,4 +1,6 @@
 ENABLE_YSYXSOC ?= 0
+ARGS ?= --log=$(BUILD_DIR)/log.txt
+
 ifeq ($(ENABLE_YSYXSOC), 1)
 TOPNAME = ysyxSoCFull
 VSRCS += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
@@ -7,8 +9,10 @@ INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
 INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
 CXXFLAGS += -DYSYXSOC=1
 VERILATOR_FLAGS += -DYSYXSOC=1
+override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 else
 TOPNAME = ysyx_23060203
+override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
 NXDC_FILES = constr/top.nxdc
@@ -72,14 +76,11 @@ all: default
 clean:
 	rm -rf $(BUILD_DIR)
 
-
-ARGS ?= --log=$(BUILD_DIR)/log.txt
 # override ARGS += --wave=$(BUILD_DIR)/wave.vcd
 IMG ?=
 ifdef ELF
 override ARGS += --elf=$(ELF)
 endif
-override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL")
