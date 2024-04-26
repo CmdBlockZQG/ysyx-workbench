@@ -3,6 +3,8 @@
 
 #include <cstring>
 
+#ifdef YSYXSOC
+
 static uint8_t mrom [MROM_SIZE] PG_ALIGN;
 // static uint8_t sram [SRAM_SIZE] PG_ALIGN;
 static uint8_t flash [FLASH_SIZE] PG_ALIGN;
@@ -49,3 +51,25 @@ void addr_write(addr_t addr, int len, word_t data) {
   Assert(!m->readonly, "addr = " FMT_ADDR " readonly", addr);
   return host_write(addr - m->start + m->ptr, len, data);
 }
+
+#else
+
+static uint8_t pmem[MEM_SIZE] PG_ALIGN = {};
+
+uint8_t *guest_to_host(addr_t addr) {
+  return addr - MEM_BASE + pmem;
+}
+
+void init_mem() {
+  memset(pmem, 0xCB, MEM_SIZE);
+}
+
+word_t addr_read(addr_t addr, int len) {
+  return host_read(guest_to_host(addr), len);
+}
+
+void addr_write(addr_t addr, int len, word_t data) {
+  return host_write(guest_to_host(addr), len, data);
+}
+
+#endif

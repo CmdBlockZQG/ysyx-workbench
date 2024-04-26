@@ -6,7 +6,7 @@ module ysyx_23060203_LSU (
   input [2:0] rfunc,
   decouple_if.in rreq,
   // 访存读回复
-  output reg [31:0] rdata,
+  output [31:0] rdata,
   decouple_if.out rres,
   // 访存写
   input [2:0] wfunc,
@@ -64,7 +64,7 @@ module ysyx_23060203_LSU (
 
   always @(posedge clk) begin
     if (ram_r.rvalid & ram_r.rready) begin
-      mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
+      event_mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
     end
   end
 
@@ -103,7 +103,7 @@ module ysyx_23060203_LSU (
 
     if (ram_w.awvalid & ram_w.awready) begin
       waddr_flag <= 0;
-      mem_write(waddr, {29'b0, ram_w.awsize}, wdata);
+      event_mem_write(waddr, {29'b0, ram_w.awsize}, wdata);
     end
     if (ram_w.wvalid & ram_w.wready) begin
       wdata_flag <= 0;

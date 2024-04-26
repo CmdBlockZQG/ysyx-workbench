@@ -150,7 +150,8 @@ module ysyx_23060203_CPU (
     .ram_r(lsu_mem_r), .ram_w(io_master)
   );
 
-  // Access Fault 检查
+`ifdef YSYXSOC
+  // SoC Access Fault 检查
   always @(posedge clk) begin
     if (io_master.rvalid & io_master.rresp[1]) begin
       abort_err(101); // read error
@@ -159,5 +160,6 @@ module ysyx_23060203_CPU (
       abort_err(102); // write error
     end
   end
+`endif
 
 endmodule

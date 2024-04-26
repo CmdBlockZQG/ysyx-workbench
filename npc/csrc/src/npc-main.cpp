@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <getopt.h>
 
@@ -36,7 +37,7 @@ static long load_img() {
       0x00100073, // ebreak
       0xdeadbeef  // some data
     };
-    memcpy(guest_to_host(FLASH_BASE), img, sizeof(img));
+    memcpy(guest_to_host(MUXDEF(YSYXSOC, FLASH_BASE, MEM_BASE)), img, sizeof(img));
     Log("No image is given. Use the default built-in image.");
     ret = 4096;
   } else {
@@ -49,7 +50,7 @@ static long load_img() {
     Log("Image file %s, size = %ld", img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    Assert(fread(guest_to_host(FLASH_BASE), size, 1, fp) == 1, "Error when reading image file");
+    Assert(fread(guest_to_host(MUXDEF(YSYXSOC, FLASH_BASE, MEM_BASE)), size, 1, fp) == 1, "Error when reading image file");
 
     fclose(fp);
     ret = size;

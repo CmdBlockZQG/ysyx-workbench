@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+#ifdef YSYXSOC
+
 #define MROM_BASE 0x20000000
 #define MROM_SIZE 4096
 #define SRAM_BASE 0x0f000000
@@ -24,10 +26,14 @@ struct MemMap {
 
 const MemMap *get_mem_map(addr_t addr, bool panic_if_out);
 
-#define PG_ALIGN __attribute((aligned(4096)))
+#else
 
-#define MEM_LEFT ((addr_t)MBASE)
-#define MEM_RIGHT ((addr_t)MBASE + MSIZE - 1)
+#define MEM_BASE 0x80000000
+#define MEM_SIZE 0x8000000
+
+#endif
+
+#define PG_ALIGN __attribute((aligned(4096)))
 
 uint8_t *guest_to_host(addr_t addr);
 
