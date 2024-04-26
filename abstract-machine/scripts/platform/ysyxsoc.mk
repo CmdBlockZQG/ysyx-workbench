@@ -28,8 +28,8 @@ image: $(IMAGE).elf
 
 run: image
 	@echo run
-	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
+	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf ENABLE_YSYXSOC=1 run
 
 run_nvboard: image
 	@echo run
-	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS) --nvboard" IMG=$(IMAGE).bin ELF=$(IMAGE).elf run
+	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf ENABLE_YSYXSOC=1 ENABLE_NVBOARD=1 run

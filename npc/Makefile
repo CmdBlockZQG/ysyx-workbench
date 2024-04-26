@@ -1,4 +1,14 @@
+ENABLE_YSYXSOC ?= 0
+ifeq ($(ENABLE_YSYXSOC), 1)
 TOPNAME = ysyxSoCFull
+VSRCS += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
+VSRCS += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
+INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
+INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
+else
+TOPNAME = ysyx_23060203_CPU
+endif
+
 NXDC_FILES = constr/top.nxdc
 INC_PATH = $(abspath ./csrc/include)
 
@@ -13,23 +23,10 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 $(shell mkdir -p $(BUILD_DIR))
 
-# constraint file
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-$(SRC_AUTO_BIND): $(NXDC_FILES)
-	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.sv")
-VSRCS += $(shell find $(abspath ../ysyxSoC/perip) -name "*.v")
-VSRCS += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-CSRCS += $(SRC_AUTO_BIND)
 INCDIR = "$(abspath ./vsrc)"
-INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
-INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
-
-# rules for NVBoard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I , $(INC_PATH))
@@ -42,6 +39,19 @@ CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += $(shell llvm-config --libs)
 
 LDFLAGS += -lreadline
+
+# NVBoard
+ENABLE_NVBOARD ?= 0
+ifeq ($(ENABLE_NVBOARD), 1)
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+# constraint file
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILES)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+CSRCS += $(SRC_AUTO_BIND)
+override ARGS += --nvboard
+endif
+
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
