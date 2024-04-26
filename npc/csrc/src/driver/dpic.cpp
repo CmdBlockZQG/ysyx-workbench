@@ -88,7 +88,6 @@ int pmem_read(int raddr) {
 
 void pmem_write(int waddr, int wdata, char wmask) {
   waddr = waddr & ~0x3u;
-  printf(FMT_ADDR " " FMT_WORD " %x\n", waddr, wdata, wmask);
   // NPC UART
   if (waddr == 0xa00003F8) {
     putchar(wdata & 0xff);
