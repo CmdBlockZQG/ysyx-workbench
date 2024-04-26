@@ -3,9 +3,9 @@
 # Add necessary options if the target is a shared library
 ifeq ($(SHARE),1)
 ifeq ($(CONFIG_DIFFTEST_YSYXSOC),y)
-SO = -so
-else
 SO = -so-ysyxsoc
+else
+SO = -so
 endif
 CFLAGS  += -fPIC -fvisibility=hidden
 LDFLAGS += -shared -fPIC
