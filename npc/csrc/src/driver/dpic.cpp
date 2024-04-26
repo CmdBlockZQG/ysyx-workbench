@@ -1,7 +1,7 @@
 #ifdef YSYXSOC
 #include "VysyxSoCFull__Dpi.h"
 #else
-#include "Vysyx_23060203_CPU__Dpi.h"
+#include "Vysyx_23060203__Dpi.h"
 #endif
 
 #include "common.h"

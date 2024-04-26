@@ -8,7 +8,7 @@ INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
 CXXFLAGS += -DYSYXSOC=1
 VERILATOR_FLAGS += -DYSYXSOC=1
 else
-TOPNAME = ysyx_23060203_CPU
+TOPNAME = ysyx_23060203
 endif
 
 NXDC_FILES = constr/top.nxdc

@@ -12,11 +12,13 @@
 #include "VysyxSoCFull_ysyx_23060203_CPU.h"
 #define cpu_module top_module->ysyxSoCFull->asic->cpu->cpu->NPC_CPU
 #else
-#include "Vysyx_23060203_CPU.h"
-#define cpu_module top_module
+#include "Vysyx_23060203.h"
+#include "Vysyx_23060203_ysyx_23060203.h"
+#include "Vysyx_23060203_ysyx_23060203_CPU.h"
+#define cpu_module top_module->ysyx_23060203->NPC_CPU
 #endif
 
-typedef MUXDEF(YSYXSOC, VysyxSoCFull, Vysyx_23060203_CPU) Vtop;
+typedef MUXDEF(YSYXSOC, VysyxSoCFull, Vysyx_23060203) Vtop;
 
 extern Vtop *top_module;
 

@@ -7,7 +7,7 @@
 #ifdef YSYXSOC
 #include "VysyxSoCFull_ysyx_23060203_GPR.h"
 #else
-#include "Vysyx_23060203_CPU_ysyx_23060203_GPR.h"
+#include "Vysyx_23060203_ysyx_23060203_GPR.h"
 #endif
 
 void cpu_init();
@@ -18,7 +18,7 @@ static inline int check_reg_idx(int idx) {
   return idx;
 }
 
-#define gpr(idx) (idx ?  cpu_module->GPR->rf[check_reg_idx(idx) - 1] : 0)
+#define gpr(idx) (idx ? cpu_module->GPR->rf[check_reg_idx(idx) - 1] : 0)
 extern addr_t cpu_pc;
 
 static inline const char *reg_name(int idx) {
