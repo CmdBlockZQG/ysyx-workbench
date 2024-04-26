@@ -33,7 +33,9 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I , $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -Wall -Werror -DTOP_NAME="\"V$(TOPNAME)\"" 
+CXXFLAGS += $(INCFLAGS) -Wall -Werror \
+					  -DTOP_NAME="\"V$(TOPNAME)\"" \
+						-fmacro-prefix-map=/home/cmdblock/ysyx/ysyx-workbench/npc/csrc=.
 
 # rules for llvm disasm
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
