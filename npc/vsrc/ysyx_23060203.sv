@@ -140,18 +140,24 @@ module ysyx_23060203 (
 
 `else
 
-  axi_if io_master, io_slave;
-
-  npc_RAM NPC_RAM (
-    .clk(clock), .rstn(~reset),
-    .in(io_master)
-  );
-
+  axi_if nc;
+  axi_if io_master;
   ysyx_23060203_CPU NPC_CPU (
     .clk(clock), .rstn(~reset),
     // .io_interrupt(io_interrupt),
     .io_master(io_master),
-    .io_slave(io_slave)
+    .io_slave(nc)
+  );
+
+  axi_adapter cpu_ram (
+    .master(io_master),
+    .slave(io_slave)
+  );
+
+  axi_if io_slave;
+  npc_RAM NPC_RAM (
+    .clk(clock), .rstn(~reset),
+    .in(io_slave)
   );
 
 `endif

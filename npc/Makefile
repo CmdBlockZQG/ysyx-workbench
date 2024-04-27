@@ -91,6 +91,10 @@ run: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
+verilog: $(VSRCS)
+	sv2v $(addprefix -y , $(INCDIR)) -w npcFull.v --top=ysyx_23060203 $(VSRCS)
+
+
 .PHONY: default all clean sim run
 
 include ../Makefile
