@@ -21,7 +21,11 @@ module npc_RAM (
     if (in.rvalid & in.rready) in.rvalid <= 0;
     if (in.arvalid & in.arready) begin
       in.rvalid <= 1;
+`ifndef SYNTHESIS
       in.rdata <= {2{pmem_read(in.araddr)}};
+`else
+      in.rdata <= 64'b0;
+`endif
     end
   end
 
@@ -59,8 +63,10 @@ module npc_RAM (
     end
 
     if (write_en) begin
+`ifndef SYNTHESIS
       pmem_write({waddr[31:3], 3'b000}, wdata[31:0 ], {4'b0, wmask[3:0]});
       pmem_write({waddr[31:3], 3'b100}, wdata[63:32], {4'b0, wmask[7:4]});
+`endif
 
       in.bresp <= 2'b00;
       in.bvalid <= 1;
