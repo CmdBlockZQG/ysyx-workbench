@@ -24,8 +24,8 @@ module ysyx_23060203_ALU (
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_ALU.sv:10:3
 	output reg [31:0] val;
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_ALU.sv:14:3
-	localparam [2:0] ALU_LTS = 3'b010;
-	localparam [2:0] ALU_LTU = 3'b011;
+	localparam ALU_LTS = 3'b010;
+	localparam ALU_LTU = 3'b011;
 	wire binv = (funcs | (funct == ALU_LTS)) | (funct == ALU_LTU);
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_ALU.sv:17:3
 	wire [31:0] a = alu_a;
@@ -44,12 +44,12 @@ module ysyx_23060203_ALU (
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_ALU.sv:26:3
 	wire signed [31:0] sra = $signed(a) >>> $signed(bs);
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_ALU.sv:28:3
-	localparam [2:0] ALU_ADD = 3'b000;
-	localparam [2:0] ALU_AND = 3'b111;
-	localparam [2:0] ALU_OR = 3'b110;
-	localparam [2:0] ALU_SHL = 3'b001;
-	localparam [2:0] ALU_SHR = 3'b101;
-	localparam [2:0] ALU_XOR = 3'b100;
+	localparam ALU_ADD = 3'b000;
+	localparam ALU_AND = 3'b111;
+	localparam ALU_OR = 3'b110;
+	localparam ALU_SHL = 3'b001;
+	localparam ALU_SHR = 3'b101;
+	localparam ALU_XOR = 3'b100;
 	always @(*) begin
 		// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_ALU.sv:29:5
 		cf = 0;
@@ -130,12 +130,12 @@ module ysyx_23060203_CSR (
 	reg [31:0] mepc;
 	reg [31:0] mcause;
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_CSR.sv:17:3
-	localparam [11:0] CSR_MARCHID = 12'hf12;
-	localparam [11:0] CSR_MCAUSE = 12'h342;
-	localparam [11:0] CSR_MEPC = 12'h341;
-	localparam [11:0] CSR_MSTATUS = 12'h300;
-	localparam [11:0] CSR_MTVEC = 12'h305;
-	localparam [11:0] CSR_MVENDORID = 12'hf11;
+	localparam CSR_MARCHID = 12'hf12;
+	localparam CSR_MCAUSE = 12'h342;
+	localparam CSR_MEPC = 12'h341;
+	localparam CSR_MSTATUS = 12'h300;
+	localparam CSR_MTVEC = 12'h305;
+	localparam CSR_MVENDORID = 12'hf11;
 	always @(*)
 		// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_CSR.sv:18:5
 		case (raddr)
@@ -228,7 +228,7 @@ module ysyx_23060203_GPR (
 	rdata2
 );
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_GPR.sv:1:28
-	parameter integer NR_REG = 16;
+	parameter NR_REG = 16;
 	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_GPR.sv:2:3
 	input rstn;
 	input clk;
@@ -552,7 +552,7 @@ module ysyx_23060203 (
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:3:3
 			wire awvalid;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:4:3
-			reg awready;
+			wire awready;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:5:3
 			wire [31:0] awaddr;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:6:3
@@ -564,7 +564,7 @@ module ysyx_23060203 (
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:9:3
 			wire [1:0] awburst;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:10:3
-			reg wready;
+			wire wready;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:11:3
 			wire wvalid;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:12:3
@@ -576,9 +576,9 @@ module ysyx_23060203 (
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:15:3
 			wire bready;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:16:3
-			reg bvalid;
+			wire bvalid;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:17:3
-			reg [1:0] bresp;
+			wire [1:0] bresp;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:18:3
 			wire [3:0] bid;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:20:3
@@ -598,11 +598,11 @@ module ysyx_23060203 (
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:27:3
 			wire rready;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:28:3
-			reg rvalid;
+			wire rvalid;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:29:3
 			wire [1:0] rresp;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:30:3
-			reg [63:0] rdata;
+			wire [63:0] rdata;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:31:3
 			wire rlast;
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:32:3
@@ -677,130 +677,7 @@ module ysyx_23060203 (
 			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/interface/axi.sv:68:3
 		end
 	endgenerate
-	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203.sv:146:3
-	// expanded module instance: NPC_RAM
-	generate
-		if (1) begin : NPC_RAM
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:2:3
-			wire rstn;
-			wire clk;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:4:3
-			// removed modport instance in
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:7:3
-			reg waddr_valid_reg;
-			reg wdata_valid_reg;
-			always @(posedge clk)
-				if (~rstn) begin
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:8:5
-					ysyx_23060203.io_master.rvalid <= 0;
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:10:5
-					ysyx_23060203.io_master.awready <= 1;
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:11:5
-					ysyx_23060203.io_master.wready <= 1;
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:12:5
-					ysyx_23060203.io_master.bvalid <= 0;
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:14:5
-					waddr_valid_reg <= 0;
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:15:5
-					wdata_valid_reg <= 0;
-				end
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:18:3
-			assign ysyx_23060203.io_master.arready = 1;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:19:3
-			assign ysyx_23060203.io_master.rresp = 2'b00;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:20:3
-			always @(posedge clk)
-				if (rstn) begin
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:21:5
-					if (ysyx_23060203.io_master.rvalid & ysyx_23060203.io_master.rready)
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:21:32
-						ysyx_23060203.io_master.rvalid <= 0;
-					if (ysyx_23060203.io_master.arvalid & ysyx_23060203.io_master.arready) begin
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:23:7
-						ysyx_23060203.io_master.rvalid <= 1;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:24:7
-						ysyx_23060203.io_master.rdata <= {2 {pmem_read(ysyx_23060203.io_master.araddr)}};
-					end
-				end
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:28:3
-			wire waddr_handshake = ysyx_23060203.io_master.awready & ysyx_23060203.io_master.awvalid;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:29:3
-			reg [31:0] waddr_reg;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:30:3
-			wire [31:0] waddr = (waddr_handshake ? ysyx_23060203.io_master.awaddr : waddr_reg);
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:31:3
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:32:3
-			wire waddr_valid = waddr_handshake | waddr_valid_reg;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:34:3
-			wire wdata_handshake = ysyx_23060203.io_master.wready & ysyx_23060203.io_master.wvalid;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:35:3
-			reg [63:0] wdata_reg;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:36:3
-			reg [7:0] wmask_reg;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:37:3
-			wire [63:0] wdata = (wdata_handshake ? ysyx_23060203.io_master.wdata : wdata_reg);
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:38:3
-			wire [7:0] wmask = (wdata_handshake ? ysyx_23060203.io_master.wstrb : wmask_reg);
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:39:3
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:40:3
-			wire wdata_valid = wdata_handshake | wdata_valid_reg;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:42:3
-			wire write_en = waddr_valid & wdata_valid;
-			// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:44:3
-			always @(posedge clk)
-				if (rstn) begin
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:45:5
-					if (waddr_handshake) begin
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:46:7
-						waddr_reg <= ysyx_23060203.io_master.awaddr;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:47:7
-						if (~write_en) begin
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:48:9
-							waddr_valid_reg <= 1;
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:49:9
-							ysyx_23060203.io_master.awready <= 0;
-						end
-					end
-					if (wdata_handshake) begin
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:53:7
-						wmask_reg <= ysyx_23060203.io_master.wstrb;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:54:7
-						wdata_reg <= ysyx_23060203.io_master.wdata;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:55:7
-						if (~write_en) begin
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:56:9
-							wdata_valid_reg <= 1;
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:57:9
-							ysyx_23060203.io_master.wready <= 0;
-						end
-					end
-					if (write_en) begin
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:62:7
-						pmem_write({waddr[31:3], 3'b000}, wdata[31:0], {4'b0000, wmask[3:0]});
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:63:7
-						pmem_write({waddr[31:3], 3'b100}, wdata[63:32], {4'b0000, wmask[7:4]});
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:65:7
-						ysyx_23060203.io_master.bresp <= 2'b00;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:66:7
-						ysyx_23060203.io_master.bvalid <= 1;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:67:7
-						ysyx_23060203.io_master.awready <= 1;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:68:7
-						ysyx_23060203.io_master.wready <= 1;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:70:7
-						waddr_valid_reg <= 0;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:71:7
-						wdata_valid_reg <= 0;
-					end
-					if (ysyx_23060203.io_master.bvalid & ysyx_23060203.io_master.bready)
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/device/npc_RAM.sv:74:32
-						ysyx_23060203.io_master.bvalid <= 0;
-				end
-		end
-	endgenerate
-	assign NPC_RAM.clk = clock;
-	assign NPC_RAM.rstn = ~reset;
-	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203.sv:151:3
+	// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203.sv:153:3
 	// expanded module instance: NPC_CPU
 	generate
 		if (1) begin : NPC_CPU
@@ -975,16 +852,9 @@ module ysyx_23060203 (
 						if (ysyx_23060203.NPC_CPU.ifu_mem_r.arvalid & ysyx_23060203.NPC_CPU.ifu_mem_r.arready)
 							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IFU.sv:38:7
 							pc <= ysyx_23060203.NPC_CPU.ifu_mem_r.araddr;
-						if (ysyx_23060203.NPC_CPU.inst_if.valid & ysyx_23060203.NPC_CPU.inst_if.ready) begin
+						if (ysyx_23060203.NPC_CPU.inst_if.valid & ysyx_23060203.NPC_CPU.inst_if.ready)
 							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IFU.sv:44:7
 							ysyx_23060203.NPC_CPU.ifu_mem_r.araddr <= npc;
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IFU.sv:45:7
-							if (inst == 32'h00100073)
-								// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IFU.sv:46:9
-								halt;
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IFU.sv:48:7
-							inst_complete(pc, inst);
-						end
 					end
 			end
 			assign IFU.rstn = rstn;
@@ -1109,15 +979,15 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:60:3
 				assign immJ = {{12 {inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:62:3
-				localparam [4:0] OP_AUIPC = 5'b00101;
-				localparam [4:0] OP_BRANCH = 5'b11000;
-				localparam [4:0] OP_CALRI = 5'b00100;
-				localparam [4:0] OP_JAL = 5'b11011;
-				localparam [4:0] OP_JALR = 5'b11001;
-				localparam [4:0] OP_LOAD = 5'b00000;
-				localparam [4:0] OP_LUI = 5'b01101;
-				localparam [4:0] OP_STORE = 5'b01000;
-				localparam [4:0] OP_SYS = 5'b11100;
+				localparam OP_AUIPC = 5'b00101;
+				localparam OP_BRANCH = 5'b11000;
+				localparam OP_CALRI = 5'b00100;
+				localparam OP_JAL = 5'b11011;
+				localparam OP_JALR = 5'b11001;
+				localparam OP_LOAD = 5'b00000;
+				localparam OP_LUI = 5'b01101;
+				localparam OP_STORE = 5'b01000;
+				localparam OP_SYS = 5'b11100;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:63:5
 					case (opcode)
@@ -1143,16 +1013,16 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:74:3
 				wire [31:0] zimm = {27'b000000000000000000000000000, inst[19:15]};
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:76:3
-				localparam [11:0] CSR_MEPC = 12'h341;
-				localparam [11:0] CSR_MTVEC = 12'h305;
+				localparam CSR_MEPC = 12'h341;
+				localparam CSR_MTVEC = 12'h305;
 				assign csr_raddr = (|funct ? inst[31:20] : (inst[31:20] == 12'b000000000000 ? CSR_MTVEC : CSR_MEPC));
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:77:3
 				assign csr = csr_rdata;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:81:3
 				reg [31:0] csr_alu_a;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:82:3
-				localparam [2:0] CSRF_RW = 3'b001;
-				localparam [2:0] CSRF_RWI = 3'b101;
+				localparam CSRF_RW = 3'b001;
+				localparam CSRF_RWI = 3'b101;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:83:5
 					case (funct)
@@ -1167,7 +1037,7 @@ module ysyx_23060203 (
 							csr_alu_a = csr;
 					endcase
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:90:3
-				localparam [4:0] OP_CALRR = 5'b01100;
+				localparam OP_CALRR = 5'b01100;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:91:5
 					case (opcode)
@@ -1204,13 +1074,13 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:112:3
 				reg [2:0] branch_alu_funct;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:113:3
-				localparam [2:0] ALU_LTS = 3'b010;
-				localparam [2:0] ALU_LTU = 3'b011;
-				localparam [2:0] ALU_XOR = 3'b100;
-				localparam [2:0] BR_BGE = 3'b101;
-				localparam [2:0] BR_BGEU = 3'b111;
-				localparam [2:0] BR_BLT = 3'b100;
-				localparam [2:0] BR_BLTU = 3'b110;
+				localparam ALU_LTS = 3'b010;
+				localparam ALU_LTU = 3'b011;
+				localparam ALU_XOR = 3'b100;
+				localparam BR_BGE = 3'b101;
+				localparam BR_BGEU = 3'b111;
+				localparam BR_BLT = 3'b100;
+				localparam BR_BLTU = 3'b110;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:114:5
 					case (funct)
@@ -1227,12 +1097,12 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:122:3
 				reg [2:0] csr_alu_funct;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:123:3
-				localparam [2:0] ALU_AND = 3'b111;
-				localparam [2:0] ALU_OR = 3'b110;
-				localparam [2:0] CSRF_RC = 3'b011;
-				localparam [2:0] CSRF_RCI = 3'b111;
-				localparam [2:0] CSRF_RS = 3'b010;
-				localparam [2:0] CSRF_RSI = 3'b110;
+				localparam ALU_AND = 3'b111;
+				localparam ALU_OR = 3'b110;
+				localparam CSRF_RC = 3'b011;
+				localparam CSRF_RCI = 3'b111;
+				localparam CSRF_RS = 3'b010;
+				localparam CSRF_RSI = 3'b110;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:124:5
 					case (funct)
@@ -1247,7 +1117,7 @@ module ysyx_23060203 (
 							csr_alu_funct = ALU_XOR;
 					endcase
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:133:3
-				localparam [2:0] ALU_ADD = 3'b000;
+				localparam ALU_ADD = 3'b000;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:134:5
 					case (opcode)
@@ -1267,7 +1137,7 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:143:3
 				wire funcs = inst[30];
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:145:3
-				localparam [2:0] ALU_SHR = 3'b101;
+				localparam ALU_SHR = 3'b101;
 				wire funcs_en = (opcode == OP_CALRR) | ((opcode == OP_CALRI) & (funct == ALU_SHR));
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_IDU.sv:147:3
 				wire funcs_csr = ((opcode == OP_SYS) & funct[1]) & funct[0];
@@ -1435,16 +1305,16 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:62:3
 				reg [31:0] id_gpr_wdata;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:63:3
-				localparam [4:0] OP_AUIPC = 5'b00101;
-				localparam [4:0] OP_BRANCH = 5'b11000;
-				localparam [4:0] OP_CALRI = 5'b00100;
-				localparam [4:0] OP_CALRR = 5'b01100;
-				localparam [4:0] OP_JAL = 5'b11011;
-				localparam [4:0] OP_JALR = 5'b11001;
-				localparam [4:0] OP_LOAD = 5'b00000;
-				localparam [4:0] OP_LUI = 5'b01101;
-				localparam [4:0] OP_STORE = 5'b01000;
-				localparam [4:0] OP_SYS = 5'b11100;
+				localparam OP_AUIPC = 5'b00101;
+				localparam OP_BRANCH = 5'b11000;
+				localparam OP_CALRI = 5'b00100;
+				localparam OP_CALRR = 5'b01100;
+				localparam OP_JAL = 5'b11011;
+				localparam OP_JALR = 5'b11001;
+				localparam OP_LOAD = 5'b00000;
+				localparam OP_LUI = 5'b01101;
+				localparam OP_STORE = 5'b01000;
+				localparam OP_SYS = 5'b11100;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:64:5
 					case (opcode)
@@ -1482,14 +1352,14 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:85:3
 				wire id_csr_wen1 = (opcode == OP_SYS) & (|funct | (csr_addr == 12'b000000000000));
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:86:3
-				localparam [11:0] CSR_MEPC = 12'h341;
+				localparam CSR_MEPC = 12'h341;
 				wire [11:0] id_csr_waddr1 = (|funct ? csr_addr : CSR_MEPC);
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:87:3
 				wire [31:0] id_csr_wdata1 = alu_val;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:89:3
 				wire id_csr_wen2 = ecall;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:90:3
-				localparam [11:0] CSR_MCAUSE = 12'h342;
+				localparam CSR_MCAUSE = 12'h342;
 				wire [11:0] id_csr_waddr2 = CSR_MCAUSE;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:91:3
 				wire [31:0] id_csr_wdata2 = 32'd11;
@@ -1510,12 +1380,12 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:101:3
 				reg br_en;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:102:3
-				localparam [2:0] BR_BEQ = 3'b000;
-				localparam [2:0] BR_BGE = 3'b101;
-				localparam [2:0] BR_BGEU = 3'b111;
-				localparam [2:0] BR_BLT = 3'b100;
-				localparam [2:0] BR_BLTU = 3'b110;
-				localparam [2:0] BR_BNE = 3'b001;
+				localparam BR_BEQ = 3'b000;
+				localparam BR_BGE = 3'b101;
+				localparam BR_BGEU = 3'b111;
+				localparam BR_BLT = 3'b100;
+				localparam BR_BLTU = 3'b110;
+				localparam BR_BNE = 3'b001;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_EXU.sv:103:5
 					case (funct)
@@ -1837,10 +1707,10 @@ module ysyx_23060203 (
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:30:3
 				reg [31:0] ram_r_rdata_word;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:31:3
-				localparam [2:0] LD_BS = 3'b000;
-				localparam [2:0] LD_BU = 3'b100;
-				localparam [2:0] LD_HS = 3'b001;
-				localparam [2:0] LD_HU = 3'b101;
+				localparam LD_BS = 3'b000;
+				localparam LD_BU = 3'b100;
+				localparam LD_HS = 3'b001;
+				localparam LD_HU = 3'b101;
 				always @(*)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:32:5
 					case (rfunc_reg)
@@ -1899,96 +1769,92 @@ module ysyx_23060203 (
 				always @(posedge clk)
 					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:66:5
 					if (ysyx_23060203.NPC_CPU.lsu_mem_r.rvalid & ysyx_23060203.NPC_CPU.lsu_mem_r.rready)
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:67:7
-						event_mem_read(raddr, {29'b00000000000000000000000000000, ysyx_23060203.NPC_CPU.lsu_mem_r.arsize}, rdata);
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:72:3
-				assign ysyx_23060203.io_master.awid = 0;
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:73:3
-				assign ysyx_23060203.io_master.awlen = 0;
+						;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:74:3
-				assign ysyx_23060203.io_master.awburst = 0;
+				assign ysyx_23060203.io_master.awid = 0;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:75:3
-				assign ysyx_23060203.io_master.wlast = 1;
+				assign ysyx_23060203.io_master.awlen = 0;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:76:3
-				localparam [2:0] ST_H = 3'b001;
-				localparam [2:0] ST_W = 3'b010;
+				assign ysyx_23060203.io_master.awburst = 0;
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:77:3
+				assign ysyx_23060203.io_master.wlast = 1;
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:78:3
+				localparam ST_H = 3'b001;
+				localparam ST_W = 3'b010;
 				always @(*)
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:77:5
+					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:79:5
 					case (wfunc)
 						ST_H:
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:79:13
+							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:81:13
 							ysyx_23060203.io_master.awsize = 3'b001;
 						ST_W:
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:80:13
+							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:82:13
 							ysyx_23060203.io_master.awsize = 3'b010;
 						default:
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:81:16
+							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:83:16
 							ysyx_23060203.io_master.awsize = 3'b000;
 					endcase
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:85:3
-				wire [63:0] wdata_aligned = {32'b00000000000000000000000000000000, wdata} << {waddr[2:0], 3'b000};
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:86:3
-				reg [7:0] wmask;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:87:3
-				localparam [2:0] ST_B = 3'b000;
+				wire [63:0] wdata_aligned = {32'b00000000000000000000000000000000, wdata} << {waddr[2:0], 3'b000};
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:88:3
+				reg [7:0] wmask;
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:89:3
+				localparam ST_B = 3'b000;
 				always @(*)
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:88:5
+					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:90:5
 					case (wfunc)
 						ST_B:
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:89:13
+							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:91:13
 							wmask = 8'b00000001;
 						ST_H:
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:90:13
+							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:92:13
 							wmask = 8'b00000011;
 						default:
-							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:92:16
+							// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:94:16
 							wmask = 8'b00001111;
 					endcase
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:95:3
-				wire [7:0] wmask_aligned = wmask << waddr[2:0];
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:97:3
+				wire [7:0] wmask_aligned = wmask << waddr[2:0];
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:99:3
 				reg waddr_flag;
 				reg wdata_flag;
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:98:3
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:100:3
 				always @(posedge clk) begin
-					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:99:5
+					// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:101:5
 					if (~rstn) begin
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:100:7
+						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:102:7
 						waddr_flag <= 1;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:101:7
+						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:103:7
 						wdata_flag <= 1;
 					end
-					if (ysyx_23060203.io_master.awvalid & ysyx_23060203.io_master.awready) begin
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:105:7
+					if (ysyx_23060203.io_master.awvalid & ysyx_23060203.io_master.awready)
+						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:107:7
 						waddr_flag <= 0;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:106:7
-						event_mem_write(waddr, {29'b00000000000000000000000000000, ysyx_23060203.io_master.awsize}, wdata);
-					end
 					if (ysyx_23060203.io_master.wvalid & ysyx_23060203.io_master.wready)
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:109:7
+						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:113:7
 						wdata_flag <= 0;
 					if (ysyx_23060203.io_master.bvalid & ysyx_23060203.io_master.bready) begin
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:112:7
+						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:116:7
 						waddr_flag <= 1;
-						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:113:7
+						// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:117:7
 						wdata_flag <= 1;
 					end
 				end
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:116:3
-				assign ysyx_23060203.io_master.awaddr = waddr;
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:117:3
-				assign ysyx_23060203.io_master.awvalid = ysyx_23060203.NPC_CPU.mem_wreq.valid & waddr_flag;
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:118:3
-				assign ysyx_23060203.io_master.wdata = wdata_aligned;
-				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:119:3
-				assign ysyx_23060203.io_master.wstrb = wmask_aligned;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:120:3
-				assign ysyx_23060203.io_master.wvalid = ysyx_23060203.NPC_CPU.mem_wreq.valid & wdata_flag;
+				assign ysyx_23060203.io_master.awaddr = waddr;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:121:3
-				assign ysyx_23060203.NPC_CPU.mem_wreq.ready = (ysyx_23060203.io_master.awready | ~waddr_flag) & (ysyx_23060203.io_master.wready | ~wdata_flag);
+				assign ysyx_23060203.io_master.awvalid = ysyx_23060203.NPC_CPU.mem_wreq.valid & waddr_flag;
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:122:3
+				assign ysyx_23060203.io_master.wdata = wdata_aligned;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:123:3
-				assign ysyx_23060203.NPC_CPU.mem_wres.valid = ysyx_23060203.io_master.bvalid;
+				assign ysyx_23060203.io_master.wstrb = wmask_aligned;
 				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:124:3
+				assign ysyx_23060203.io_master.wvalid = ysyx_23060203.NPC_CPU.mem_wreq.valid & wdata_flag;
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:125:3
+				assign ysyx_23060203.NPC_CPU.mem_wreq.ready = (ysyx_23060203.io_master.awready | ~waddr_flag) & (ysyx_23060203.io_master.wready | ~wdata_flag);
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:127:3
+				assign ysyx_23060203.NPC_CPU.mem_wres.valid = ysyx_23060203.io_master.bvalid;
+				// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/ysyx_23060203_LSU.sv:128:3
 				assign ysyx_23060203.io_master.bready = ysyx_23060203.NPC_CPU.mem_wres.ready;
 			end
 			assign LSU.rstn = rstn;
@@ -2437,16 +2303,4 @@ module ysyx_23060203 (
 endmodule
 // removed module with interface ports: ysyx_23060203_IFU
 // removed module with interface ports: ysyx_23060203_MemArb
-// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:1:1
-// removed ["import \"DPI-C\"  function void halt();"]
-// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:2:1
-// removed ["import \"DPI-C\"  function void inst_complete(\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:2:44\n\tinput int pc,\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:2:58\n\tinput int inst\n);"]
-// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:4:1
-// removed ["import \"DPI-C\"  function void event_mem_read(\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:5:3\n\tinput int raddr,\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:6:3\n\tinput int rsize,\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:7:3\n\tinput int rdata\n);"]
-// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:9:1
-// removed ["import \"DPI-C\"  function void event_mem_write(\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:10:3\n\tinput int waddr,\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:11:3\n\tinput int wsize,\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:12:3\n\tinput int wdata\n);"]
-// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:21:1
-// removed ["import \"DPI-C\"  function int pmem_read(\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:21:39\n\tinput int raddr\n);"]
-// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:22:1
-// removed ["import \"DPI-C\"  function void pmem_write(\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:23:3\n\tinput int waddr,\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:24:3\n\tinput int wdata,\n\t// Trace: /home/cmdblock/ysyx/ysyx-workbench/npc/vsrc/DPIC.sv:25:3\n\tinput byte wmask\n);"]
 // removed module with interface ports: ysyx_23060203_IDU

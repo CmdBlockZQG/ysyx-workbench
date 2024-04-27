@@ -19,6 +19,9 @@ module ysyx_23060203_LSU (
   axi_if.master ram_r,
   axi_if.master ram_w
 );
+
+  `include "params/mem.sv"
+
   // -------------------- 读请求 --------------------
   // 暂存寄存器
   reg [2:0] raddr_align_reg;
