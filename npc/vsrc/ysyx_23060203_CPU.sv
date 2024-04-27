@@ -82,9 +82,11 @@ module ysyx_23060203_CPU (
   wire [31:0] gpr_wdata, csr_wdata1, csr_wdata2;
   // MEM
   decouple_if mem_rreq();
+  decouple_if mem_rres();
   wire [2:0] mem_rfunc;
   wire [31:0] mem_raddr;
   decouple_if mem_wreq();
+  decouple_if mem_wres();
   wire [2:0] mem_wfunc;
   wire [31:0] mem_waddr, mem_wdata;
   ysyx_23060203_EXU EXU (
@@ -115,8 +117,6 @@ module ysyx_23060203_CPU (
     .mem_wres(mem_wres)
   );
 
-  decouple_if mem_rres();
-  decouple_if mem_wres();
   wire [31:0] mem_rdata;
   axi_if lsu_mem_r();
   ysyx_23060203_LSU LSU (
