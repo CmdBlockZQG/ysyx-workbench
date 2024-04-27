@@ -65,7 +65,8 @@ module ysyx_23060203 (
 
 `ifdef YSYXSOC
 
-  axi_if io_master, io_slave;
+  axi_if io_master();
+  axi_if io_slave();
 
   ysyx_23060203_CPU NPC_CPU (
     .clk(clock), .rstn(~reset),
