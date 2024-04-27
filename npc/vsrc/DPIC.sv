@@ -1,3 +1,5 @@
+`ifndef SYNTHESIS
+
 import "DPI-C" function void halt();
 import "DPI-C" function void inst_complete(input int pc, input int inst);
 
@@ -24,5 +26,7 @@ import "DPI-C" function void pmem_write(
   input int wdata,
   input byte wmask
 );
+
+`endif
 
 `endif

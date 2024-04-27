@@ -19,6 +19,9 @@ module ysyx_23060203_LSU (
   axi_if.master ram_r,
   axi_if.master ram_w
 );
+
+  `include "params/mem.sv"
+
   // -------------------- 读请求 --------------------
   // 暂存寄存器
   reg [2:0] raddr_align_reg;
@@ -64,7 +67,9 @@ module ysyx_23060203_LSU (
 
   always @(posedge clk) begin
     if (ram_r.rvalid & ram_r.rready) begin
+`ifndef SYNTHESIS
       event_mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
+`endif
     end
   end
 
@@ -103,7 +108,9 @@ module ysyx_23060203_LSU (
 
     if (ram_w.awvalid & ram_w.awready) begin
       waddr_flag <= 0;
+`ifndef SYNTHESIS
       event_mem_write(waddr, {29'b0, ram_w.awsize}, wdata);
+`endif
     end
     if (ram_w.wvalid & ram_w.wready) begin
       wdata_flag <= 0;

@@ -11,6 +11,9 @@ module ysyx_23060203_CSR (
   input [11:0] waddr2, // 写入地址
   input [31:0] wdata2 // 写入数据
 );
+
+  `include "params/csr.sv"
+
   reg [31:0] mstatus, mtvec, mepc, mcause;
 
   // 读逻辑
