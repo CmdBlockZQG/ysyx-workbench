@@ -30,10 +30,10 @@ module ysyx_23060203_CPU (
     .waddr2(csr_waddr2), .wdata2(csr_wdata2)
   );
 
-  axi_if ifu_mem_r;
+  axi_if ifu_mem_r();
   wire [31:0] pc;
   wire [31:0] inst;
-  decouple_if inst_if;
+  decouple_if inst_if();
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),
     .npc(npc),
@@ -54,7 +54,7 @@ module ysyx_23060203_CPU (
   wire [4:0] rd;
   wire [31:0] src1, src2, imm, csr;
   // decouple
-  decouple_if id_if;
+  decouple_if id_if();
   ysyx_23060203_IDU  IDU (
     .pc(pc), .inst(inst), .inst_in(inst_if),
     // 寄存器读
@@ -81,10 +81,10 @@ module ysyx_23060203_CPU (
   wire [11:0] csr_waddr1, csr_waddr2;
   wire [31:0] gpr_wdata, csr_wdata1, csr_wdata2;
   // MEM
-  decouple_if mem_rreq;
+  decouple_if mem_rreq();
   wire [2:0] mem_rfunc;
   wire [31:0] mem_raddr;
-  decouple_if mem_wreq;
+  decouple_if mem_wreq();
   wire [2:0] mem_wfunc;
   wire [31:0] mem_waddr, mem_wdata;
   ysyx_23060203_EXU EXU (
@@ -115,9 +115,10 @@ module ysyx_23060203_CPU (
     .mem_wres(mem_wres)
   );
 
-  decouple_if mem_rres, mem_wres;
+  decouple_if mem_rres();
+  decouple_if mem_wres();
   wire [31:0] mem_rdata;
-  axi_if lsu_mem_r;
+  axi_if lsu_mem_r();
   ysyx_23060203_LSU LSU (
     .rstn(rstn), .clk(clk),
 
@@ -132,14 +133,14 @@ module ysyx_23060203_CPU (
     .ram_r(lsu_mem_r), .ram_w(io_master)
   );
 
-  axi_if mem_r;
+  axi_if mem_r();
   ysyx_23060203_MemArb MemArb (
     .rstn(rstn), .clk(clk),
     .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
     .ram_r(mem_r)
   );
 
-  axi_if clint_r;
+  axi_if clint_r();
   ysyx_23060203_Xbar Xbar (
     .rstn(rstn), .clk(clk),
     .read(mem_r),
