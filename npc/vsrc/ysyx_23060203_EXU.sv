@@ -187,6 +187,7 @@ module ysyx_23060203_EXU (
             mem_raddr <= alu_val;
             mem_rfunc <= funct;
             load_flag <= 1;
+            mem_rres.ready <= 1;
           end
         OP_STORE:
           if (~mem_wreq.valid & ~store_flag) begin
@@ -210,6 +211,7 @@ module ysyx_23060203_EXU (
 
       // 访存请求回复
       if (mem_r_res_hs) begin
+        mem_rres.ready <= 0;
         gpr_wen <= 1;
         gpr_waddr <= rd_reg;
         gpr_wdata <= mem_rdata;
