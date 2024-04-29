@@ -196,6 +196,7 @@ module ysyx_23060203_EXU (
             mem_waddr <= id_in.valid ? alu_val : alu_val_reg;
             mem_wdata <= id_in.valid ? src2 : src2_reg;
             store_flag <= 1;
+            mem_wres.ready <= 1;
           end
         default: ;
       endcase
@@ -222,6 +223,7 @@ module ysyx_23060203_EXU (
 `endif
       end
       if (mem_w_res_hs) begin
+        mem_wres.ready <= 0;
         id_in.ready <= 1;
         store_flag <= 0;
 `ifndef SYNTHESIS
