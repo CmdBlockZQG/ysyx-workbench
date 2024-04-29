@@ -130,9 +130,9 @@ module ysyx_23060203_EXU (
       id_in.ready <= 1;
 
       mem_rreq.valid <= 0;
-      mem_rres.ready <= 1;
+      mem_rres.ready <= 0;
       mem_wreq.valid <= 0;
-      mem_wres.ready <= 1;
+      mem_wres.ready <= 0;
 
       load_flag <= 0;
       store_flag <= 0;
@@ -173,6 +173,9 @@ module ysyx_23060203_EXU (
       csr_wdata2 <= id_csr_wdata2;
 
       id_in.ready <= ~id_ls;
+`ifndef SYNTHESIS
+      if (~id_ls) perf_event(PERF_EXU_READY);
+`endif
     end
 
     if (~id_in.ready | id_in.valid) begin
@@ -184,6 +187,7 @@ module ysyx_23060203_EXU (
             mem_raddr <= alu_val;
             mem_rfunc <= funct;
             load_flag <= 1;
+            mem_rres.ready <= 1;
           end
         OP_STORE:
           if (~mem_wreq.valid & ~store_flag) begin
@@ -192,6 +196,7 @@ module ysyx_23060203_EXU (
             mem_waddr <= id_in.valid ? alu_val : alu_val_reg;
             mem_wdata <= id_in.valid ? src2 : src2_reg;
             store_flag <= 1;
+            mem_wres.ready <= 1;
           end
         default: ;
       endcase
@@ -207,15 +212,23 @@ module ysyx_23060203_EXU (
 
       // 访存请求回复
       if (mem_r_res_hs) begin
+        mem_rres.ready <= 0;
         gpr_wen <= 1;
         gpr_waddr <= rd_reg;
         gpr_wdata <= mem_rdata;
         id_in.ready <= 1;
         load_flag <= 0;
+`ifndef SYNTHESIS
+        perf_event(PERF_EXU_READY);
+`endif
       end
       if (mem_w_res_hs) begin
+        mem_wres.ready <= 0;
         id_in.ready <= 1;
         store_flag <= 0;
+`ifndef SYNTHESIS
+        perf_event(PERF_EXU_READY);
+`endif
       end
     end
 

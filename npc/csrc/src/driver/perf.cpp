@@ -12,8 +12,7 @@
 
 static const char *perfcnt_name[] = {
   "IFU_FETCH",      // IFU取到指令
-  "LSU_LOAD_RESP",  // LSU取到数据
-  "EXU_READY",      // EXU完成计算
+
   "IDU_UPIMM",      // 译码 LUI AUIPC
   "IDU_JUMP",       // 译码无条件跳转 JAL JALR
   "IDU_BRANCH",     // 译码分支 BXX
@@ -21,8 +20,23 @@ static const char *perfcnt_name[] = {
   "IDU_STORE",      // 译码储存 SXX
   "IDU_CALRI",      // 译码 寄存器-立即数 整数计算 XXI
   "IDU_CALRR",      // 译码 寄存器-寄存器 整数计算 XXX
-  "IDU_SYS",       // 译码SYS指令 ECALL EBREAK
-  "IDU_CSR"        // 译码CSR指令 CSRXX
+  "IDU_SYS",        // 译码SYS指令 ECALL EBREAK
+  "IDU_CSR",        // 译码CSR指令 CSRXX
+
+  "EXU_UPIMM",      // 执行 LUI AUIPC
+  "EXU_JUMP",       // 执行无条件跳转 JAL JALR
+  "EXU_BRANCH",     // 执行分支 BXX
+  "EXU_LOAD",       // 执行加载 LXX
+  "EXU_STORE",      // 执行储存 SXX
+  "EXU_CALRI",      // 执行 寄存器-立即数 整数计算 XXI
+  "EXU_CALRR",      // 执行 寄存器-寄存器 整数计算 XXX
+  "EXU_SYS",        // 执行SYS指令 ECALL EBREAK
+  "EXU_CSR",        // 执行CSR指令 CSRXX
+  "EXU_READY",      // EXU完成计算
+
+  "LSU_LOAD",       // LSU取数据
+  "LSU_LOAD_RESP",  // LSU取到数据
+  "LSU_WRITE",      // LSU存数据
 };
 
 const int perfcnt_num = ARRLEN(perfcnt_name);

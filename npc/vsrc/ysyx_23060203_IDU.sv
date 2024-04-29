@@ -1,5 +1,5 @@
 module ysyx_23060203_IDU (
-  // 组合逻辑,无时钟和复位
+  input rstn, clk,
 
   input [31:0] inst, // 指令输入
   input [31:0] pc, // PC输入
@@ -147,4 +147,24 @@ module ysyx_23060203_IDU (
   wire funcs_csr = (opcode == OP_SYS) & funct[1] & funct[0];
 
   assign alu_funcs = (funcs & funcs_en) | funcs_csr;
+
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  always @(posedge clk) if (rstn & inst_in.valid & inst_in.ready) begin
+    case (opcode)
+      OP_LUI, OP_AUIPC: perf_event(PERF_IDU_UPIMM);
+      OP_JAL, OP_JALR: perf_event(PERF_IDU_JUMP);
+      OP_BRANCH: perf_event(PERF_IDU_BRANCH);
+      OP_LOAD: perf_event(PERF_IDU_LOAD);
+      OP_STORE: perf_event(PERF_IDU_STORE);
+      OP_CALRI: perf_event(PERF_IDU_CALRI);
+      OP_CALRR: perf_event(PERF_IDU_CALRR);
+      OP_SYS: begin
+        if (funct == 3'b000) perf_event(PERF_IDU_SYS);
+        else perf_event(PERF_IDU_CSR);
+      end
+      default: begin end // TEMP: 暂时无报告未知指令的逻辑
+    endcase
+  end
+`endif
 endmodule
