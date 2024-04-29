@@ -65,14 +65,14 @@ module ysyx_23060203_LSU (
   assign rres.valid = ram_r.rvalid;
   assign ram_r.rready = rres.ready;
 
+`ifndef SYNTHESIS
   always @(posedge clk) begin
     if (ram_r.rvalid & ram_r.rready) begin
-`ifndef SYNTHESIS
       perf_event(PERF_LSU_LOAD_RESP);
       event_mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
-`endif
     end
   end
+`endif
 
   // -------------------- 写请求 --------------------
   assign ram_w.awid = 0;
