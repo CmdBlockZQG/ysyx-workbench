@@ -173,6 +173,9 @@ module ysyx_23060203_EXU (
       csr_wdata2 <= id_csr_wdata2;
 
       id_in.ready <= ~id_ls;
+`ifndef SYNTHESIS
+      if (~id_ls) perf_event(PERF_EXU_READY);
+`endif
     end
 
     if (~id_in.ready | id_in.valid) begin
@@ -212,10 +215,16 @@ module ysyx_23060203_EXU (
         gpr_wdata <= mem_rdata;
         id_in.ready <= 1;
         load_flag <= 0;
+`ifndef SYNTHESIS
+        perf_event(PERF_EXU_READY);
+`endif
       end
       if (mem_w_res_hs) begin
         id_in.ready <= 1;
         store_flag <= 0;
+`ifndef SYNTHESIS
+        perf_event(PERF_EXU_READY);
+`endif
       end
     end
 

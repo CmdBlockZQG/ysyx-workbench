@@ -56,6 +56,8 @@ module ysyx_23060203_CPU (
   // decouple
   decouple_if id_if();
   ysyx_23060203_IDU  IDU (
+    .rstn(rstn), .clk(clk),
+
     .pc(pc), .inst(inst), .inst_in(inst_if),
     // 寄存器读
     .gpr_raddr1(gpr_raddr1), .gpr_rdata1(gpr_rdata1),
