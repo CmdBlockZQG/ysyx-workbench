@@ -71,6 +71,9 @@ module ysyx_23060203_LSU (
       perf_event(PERF_LSU_LOAD_RESP);
       event_mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
     end
+    if (rstn & ram_r.arvalid & ram_r.arready) begin
+      perf_event(PERF_IDU_CSR);
+    end
   end
 `endif
 
