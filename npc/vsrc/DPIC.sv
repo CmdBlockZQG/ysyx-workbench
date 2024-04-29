@@ -14,6 +14,8 @@ import "DPI-C" function void event_mem_write(
   input int wdata
 );
 
+import "DPI-C" function void perf_event(input int id);
+
 `ifdef YSYXSOC
 
 import "DPI-C" function void abort_err(input int err);
@@ -27,6 +29,6 @@ import "DPI-C" function void pmem_write(
   input byte wmask
 );
 
-`endif
+`endif // YSYXSOC
 
-`endif
+`endif // SYNTHESIS
