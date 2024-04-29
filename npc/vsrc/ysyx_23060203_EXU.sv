@@ -130,9 +130,9 @@ module ysyx_23060203_EXU (
       id_in.ready <= 1;
 
       mem_rreq.valid <= 0;
-      mem_rres.ready <= 1;
+      mem_rres.ready <= 0;
       mem_wreq.valid <= 0;
-      mem_wres.ready <= 1;
+      mem_wres.ready <= 0;
 
       load_flag <= 0;
       store_flag <= 0;
