@@ -67,7 +67,7 @@ module ysyx_23060203_LSU (
 
 `ifndef SYNTHESIS
   always @(posedge clk) begin
-    if (ram_r.rvalid & ram_r.rready) begin
+    if (rstn & ram_r.rvalid & ram_r.rready) begin
       perf_event(PERF_LSU_LOAD_RESP);
       event_mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
     end
