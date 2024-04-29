@@ -36,6 +36,9 @@ module ysyx_23060203_IFU (
     // 确认ram收到地址
     if (ram_r.arvalid & ram_r.arready) begin
       pc <= ram_r.araddr;
+`ifndef SYNTHESIS
+      perf_event(PERF_IFU_FETCH);
+`endif
     end
 
     // 确认下游收到数据

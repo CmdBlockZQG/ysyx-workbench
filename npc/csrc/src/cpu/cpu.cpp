@@ -2,6 +2,7 @@
 #include "cpu.h"
 #include "mem.h"
 #include "trace.h"
+#include "perf.h"
 
 addr_t cpu_pc;
 
@@ -13,6 +14,7 @@ static void statistic() {
   Log("total instructions = %lu", nr_inst);
   Log("total cycles = %lu", nr_cycle);
   Log("average IPC = %lf", nr_inst / (double)nr_cycle);
+  log_perf_stat();
 }
 
 void assert_fail_msg() {
