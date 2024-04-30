@@ -20,8 +20,8 @@ module ysyx_23060203_IFU (
       pc <= 32'h30000000;
       ram_r.araddr <= 32'h30000000;
 `else
-      pc <= 32'h80000000;
-      ram_r.araddr <= 32'h80000000;
+      pc <= 32'h80000000 - 32'd4;
+      // ram_r.araddr <= 32'h80000000;
 `endif
     end
   end
@@ -30,12 +30,13 @@ module ysyx_23060203_IFU (
   assign inst_out.valid = ram_r.rvalid;
   assign ram_r.rready = inst_out.ready;
   assign ram_r.arvalid = inst_out.ready & rstn;
-  assign inst = ram_r.araddr[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
+  assign inst = pc[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
+
+  assign ram_r.araddr = npc;
 
   always @(posedge clk) begin if (rstn) begin
     // 确认ram收到地址
     if (ram_r.arvalid & ram_r.arready) begin
-      pc <= ram_r.araddr;
 `ifndef SYNTHESIS
       perf_event(PERF_IFU_FETCH);
 `endif
@@ -43,8 +44,7 @@ module ysyx_23060203_IFU (
 
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
-      // 接收npc
-      ram_r.araddr <= npc;
+      pc <= npc;
 `ifndef SYNTHESIS
       if (inst == 32'h100073) begin
         halt();
