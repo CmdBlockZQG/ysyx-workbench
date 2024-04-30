@@ -21,15 +21,6 @@ module npc_RAM (
     in.rvalid <= in.arvalid;
     if (in.arvalid) in.rdata <= {2{pmem_read(in.araddr)}};
     else in.rdata <= 64'b0;
-//     if (in.rvalid & in.rready) in.rvalid <= 0;
-//     if (in.arvalid & in.arready) begin
-//       in.rvalid <= 1;
-// `ifndef SYNTHESIS
-      
-// `else
-      
-// `endif
-//     end
   end
 
   wire waddr_handshake = in.awready & in.awvalid;

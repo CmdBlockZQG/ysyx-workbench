@@ -41,11 +41,6 @@ module ysyx_23060203_CPU (
     .ram_r(ifu_mem_r)
   );
 
-  npc_RAM NPC_RAM_TEST (
-    .clk(clk), .rstn(rstn),
-    .in(ifu_mem_r)
-  );
-
   // GPR
   wire [4:0] gpr_raddr1, gpr_raddr2;
   wire [11:0] csr_raddr;
@@ -140,17 +135,17 @@ module ysyx_23060203_CPU (
     .ram_r(lsu_mem_r), .ram_w(io_master)
   );
 
-  // axi_if mem_r();
-  // ysyx_23060203_MemArb MemArb (
-  //   .rstn(rstn), .clk(clk),
-  //   .ifu_r(), .lsu_r(lsu_mem_r),
-  //   .ram_r(mem_r)
-  // );
+  axi_if mem_r();
+  ysyx_23060203_MemArb MemArb (
+    .rstn(rstn), .clk(clk),
+    .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
+    .ram_r(mem_r)
+  );
 
   axi_if clint_r();
   ysyx_23060203_Xbar Xbar (
     .rstn(rstn), .clk(clk),
-    .read(lsu_mem_r),
+    .read(mem_r),
     .soc_r(io_master), .clint_r(clint_r)
   );
 
