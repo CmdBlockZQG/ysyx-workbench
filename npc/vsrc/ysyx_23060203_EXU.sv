@@ -245,4 +245,30 @@ module ysyx_23060203_EXU (
       csr_wen2 <= 0;
     end
   end end
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  // reg perf_go;
+  // always @(posedge clk) if (~rstn) begin
+  //   perf_go <= 0;
+  // end
+
+  // wire perf_id_hs = id_in.valid & id_in.ready;
+  // reg [4:0] perf_opcode_reg;
+  // wire [4:0] perf_opcode = id_in.valid ? opcode : perf_opcode_reg;
+  // reg [2:0] perf_funct_reg;
+  // wire [2:0] perf_funct = id_in.valid ? funct : perf_funct_reg;
+  // always @(posedge clk) if (rstn) begin
+  //   // 取得译码结果
+  //   if (perf_id_hs) begin
+  //     perf_go <= 1;
+  //     perf_opcode_reg <= opcode;
+  //   end
+
+
+
+  //   if (perf_id_hs | perf_go) begin
+      
+  //   end
+  // end
+`endif
 endmodule
