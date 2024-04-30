@@ -18,9 +18,15 @@ module npc_RAM (
   assign in.arready = 1;
   assign in.rresp = 2'b00;
   always @(posedge clk) if (rstn) begin
-    in.rvalid <= in.arvalid;
-    if (in.arvalid) in.rdata <= {2{pmem_read(in.araddr)}};
-    else in.rdata <= 64'b0;
+    if (in.rvalid & in.rready) in.rvalid <= 0;
+    if (in.arvalid & in.arready) begin
+      in.rvalid <= 1;
+`ifndef SYNTHESIS
+      in.rdata <= {2{pmem_read(in.araddr)}};
+`else
+      in.rdata <= 64'b0;
+`endif
+    end
   end
 
   wire waddr_handshake = in.awready & in.awvalid;
