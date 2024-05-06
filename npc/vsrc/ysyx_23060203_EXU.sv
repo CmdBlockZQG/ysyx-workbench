@@ -257,9 +257,7 @@ module ysyx_23060203_EXU (
   reg [2:0] perf_funct_reg;
   wire [2:0] perf_funct = perf_id_hs ? funct : perf_funct_reg;
 
-  always @(posedge clk) if (~rstn) begin
-    
-  end else begin
+  always @(posedge clk) if (rstn) begin
     if (perf_id_hs) begin
       perf_opcode_reg <= opcode;
       perf_funct_reg <= funct;
