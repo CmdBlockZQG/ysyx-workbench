@@ -23,5 +23,5 @@ typedef enum {
   PERF_EXU_READY,
   PERF_LSU_LOAD,
   PERF_LSU_LOAD_RESP,
-  PERF_LSU_WRITE
+  PERF_LSU_STORE
 } perf_cnt_t;

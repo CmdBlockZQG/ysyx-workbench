@@ -36,9 +36,9 @@ static const char *perfcnt_name[] = {
   "EXU_CSR",        // 执行CSR指令 CSRXX
   "EXU_READY",      // EXU完成计算
 
-  "LSU_LOAD",       // LSU取数据
+  "LSU_LOAD",       // LSU取数据ing
   "LSU_LOAD_RESP",  // LSU取到数据
-  "LSU_WRITE",      // LSU存数据
+  "LSU_STORE",      // LSU存数据ing
 };
 
 const int perfcnt_num = ARRLEN(perfcnt_name);

@@ -68,7 +68,6 @@ module ysyx_23060203_LSU (
 `ifndef SYNTHESIS
   always @(posedge clk) begin
     if (rstn & ram_r.rvalid & ram_r.rready) begin
-      perf_event(PERF_LSU_LOAD_RESP);
       event_mem_read(raddr, {29'b0, ram_r.arsize}, rdata);
     end
   end
@@ -130,5 +129,25 @@ module ysyx_23060203_LSU (
   // TEMP: 忽略回复错误处理
   assign wres.valid = ram_w.bvalid;
   assign ram_w.bready = wres.ready;
+
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  reg perf_reading, perf_writing;
+  always @(posedge clk) if (~rstn) begin
+    perf_reading <= 0;
+    perf_writing <= 0;
+  end else begin
+    if (perf_reading) perf_event(PERF_LSU_LOAD);
+    if (ram_r.arvalid & ram_r.arready) perf_reading <= 1;
+    if (ram_r.rvalid & ram_r.rready) begin
+      perf_reading <= 0;
+      perf_event(PERF_LSU_LOAD_RESP);
+    end
+
+    if (perf_writing) perf_event(PERF_LSU_STORE);
+    if (ram_w.awvalid & ram_w.awready) perf_writing <= 1; // TEMP: 目前，地址和数据会同时提供
+    if (ram_w.bvalid & ram_w.bready) perf_writing <= 0;
+  end
+`endif
 
 endmodule
