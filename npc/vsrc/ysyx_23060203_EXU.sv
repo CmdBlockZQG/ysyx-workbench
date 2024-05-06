@@ -245,4 +245,42 @@ module ysyx_23060203_EXU (
       csr_wen2 <= 0;
     end
   end end
+
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+
+  wire perf_id_hs = id_in.ready & id_in.valid;
+
+  reg [4:0] perf_opcode_reg;
+  wire [4:0] perf_opcode = perf_id_hs ? opcode : perf_opcode_reg;
+
+  reg [2:0] perf_funct_reg;
+  wire [2:0] perf_funct = perf_id_hs ? funct : perf_funct_reg;
+
+  always @(posedge clk) if (~rstn) begin
+    
+  end else begin
+    if (perf_id_hs) begin
+      perf_opcode_reg <= opcode;
+      perf_funct_reg <= funct;
+    end
+
+    if (perf_id_hs | ~id_in.ready) begin
+      case (perf_opcode)
+        OP_LUI, OP_AUIPC: perf_event(PERF_EXU_UPIMM);
+        OP_JAL, OP_JALR: perf_event(PERF_EXU_JUMP);
+        OP_BRANCH: perf_event(PERF_EXU_BRANCH);
+        OP_LOAD: perf_event(PERF_EXU_LOAD);
+        OP_STORE: perf_event(PERF_EXU_STORE);
+        OP_CALRI: perf_event(PERF_EXU_CALRI);
+        OP_CALRR: perf_event(PERF_EXU_CALRR);
+        OP_SYS: begin
+          if (perf_funct == 3'b000) perf_event(PERF_EXU_SYS);
+          else perf_event(PERF_EXU_CSR);
+        end
+        default: begin end // TEMP: 暂时无报告未知指令的逻辑
+      endcase
+    end
+  end
+`endif
 endmodule
