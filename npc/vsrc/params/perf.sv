@@ -1,5 +1,7 @@
 typedef enum {
   PERF_IFU_FETCH,
+  PERF_IFU_WAIT_MEM,
+  PERF_IFU_WAIT_EXU,
   PERF_IDU_UPIMM,
   PERF_IDU_JUMP,
   PERF_IDU_BRANCH,
@@ -21,5 +23,5 @@ typedef enum {
   PERF_EXU_READY,
   PERF_LSU_LOAD,
   PERF_LSU_LOAD_RESP,
-  PERF_LSU_WRITE
+  PERF_LSU_STORE
 } perf_cnt_t;

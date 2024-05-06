@@ -14,6 +14,8 @@ static void statistic() {
   Log("total instructions = %lu", nr_inst);
   Log("total cycles = %lu", nr_cycle);
   Log("average IPC = %lf", nr_inst / (double)nr_cycle);
+
+  log_write("---------- Performance Counter ----------\n");
   log_perf_stat();
 }
 
@@ -31,6 +33,7 @@ static void exec_once() {
     ++nr_cycle;
     if (exec_once_flag) break;
   }
+  ++nr_inst;
 }
 
 static void wp_and_difftest() {
@@ -55,7 +58,6 @@ static void execute(uint64_t n) {
 #endif
 
     exec_once();
-    ++nr_inst;
     wp_and_difftest();
     if (nr_inst >= MAX_CYCLE) {
       Log("Cycle limit exceed, abort");

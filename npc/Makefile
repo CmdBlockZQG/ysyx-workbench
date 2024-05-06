@@ -89,6 +89,7 @@ sim: $(BIN)
 
 run: $(BIN)
 	$(call git_commit, "sim RTL")
+	@git rev-parse HEAD
 	$(BIN) $(ARGS) $(IMG)
 
 .PHONY: default all clean sim run
