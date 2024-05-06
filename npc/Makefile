@@ -77,7 +77,7 @@ all: default
 clean:
 	rm -rf $(BUILD_DIR)
 
-override ARGS += --wave=$(BUILD_DIR)/wave.vcd
+# override ARGS += --wave=$(BUILD_DIR)/wave.vcd
 IMG ?=
 ifdef ELF
 override ARGS += --elf=$(ELF)
