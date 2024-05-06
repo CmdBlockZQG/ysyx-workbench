@@ -53,4 +53,34 @@ module ysyx_23060203_IFU (
 `endif
     end
   end end
+
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  typedef enum { perf_none, perf_wait_mem, perf_wait_exu } perf_state_t;
+  perf_state_t perf_st;
+  always @(posedge clk) if (~rstn) begin
+    perf_st <= perf_none;
+  end else begin
+    case (perf_st)
+      perf_wait_mem: begin
+        perf_event(PERF_IFU_WAIT_MEM);
+        if (inst_out.valid & inst_out.ready) begin
+          perf_st <= perf_wait_exu;
+        end
+      end
+      perf_wait_exu: begin
+        perf_event(PERF_IFU_WAIT_EXU);
+        if (ram_r.arvalid & ram_r.arready) begin
+          perf_st <= perf_wait_mem;
+        end
+      end
+      default: begin
+        if (ram_r.arvalid & ram_r.arready) begin
+          perf_st <= perf_wait_mem;
+        end
+      end
+  endcase
+  end
+`endif
+
 endmodule

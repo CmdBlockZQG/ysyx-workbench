@@ -11,15 +11,17 @@
 // CPLT  : 完成 complete 的缩写
 
 static const char *perfcnt_name[] = {
-  "IFU_FETCH",      // IFU取到指令
+  "IFU_FETCH",       // IFU取到指令
+  "IFU_WAIT_MEM",    // IFU因访存延迟等待
+  "IFU_WAIT_EXU",    // IFU因指令执行等待
 
-  "IDU_UPIMM",      // 译码 LUI AUIPC
-  "IDU_JUMP",       // 译码无条件跳转 JAL JALR
-  "IDU_BRANCH",     // 译码分支 BXX
-  "IDU_LOAD",       // 译码加载 LXX
-  "IDU_STORE",      // 译码储存 SXX
-  "IDU_CALRI",      // 译码 寄存器-立即数 整数计算 XXI
-  "IDU_CALRR",      // 译码 寄存器-寄存器 整数计算 XXX
+  "IDU_UPIMM",       // 译码 LUI AUIPC
+  "IDU_JUMP",        // 译码无条件跳转 JAL JALR
+  "IDU_BRANCH",      // 译码分支 BXX
+  "IDU_LOAD",        // 译码加载 LXX
+  "IDU_STORE",       // 译码储存 SXX
+  "IDU_CALRI",       // 译码 寄存器-立即数 整数计算 XXI
+  "IDU_CALRR",       // 译码 寄存器-寄存器 整数计算 XXX
   "IDU_SYS",        // 译码SYS指令 ECALL EBREAK
   "IDU_CSR",        // 译码CSR指令 CSRXX
 
