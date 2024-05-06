@@ -79,7 +79,7 @@ module ysyx_23060203_IFU (
           perf_st <= perf_wait_mem;
         end
       end
-  endcase
+    endcase
   end
 `endif
 
