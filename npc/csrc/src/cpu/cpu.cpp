@@ -91,4 +91,5 @@ void cpu_exec(uint64_t n) {
 void init_cpu() {
   reset_top();
   exec_once();
+  nr_cycle = 0;
 }
