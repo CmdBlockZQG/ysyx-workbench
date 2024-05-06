@@ -47,11 +47,9 @@ module ysyx_23060203_IFU (
       ram_r.araddr <= npc;
 `ifndef SYNTHESIS
       if (inst == 32'h100073) begin
-        inst_complete(pc, inst);
         halt();
-      end else begin
-        inst_complete(pc, inst);
       end
+      inst_complete(pc, inst);
 `endif
     end
   end end

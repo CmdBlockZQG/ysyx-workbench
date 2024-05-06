@@ -31,6 +31,7 @@ static void exec_once() {
     ++nr_cycle;
     if (exec_once_flag) break;
   }
+  ++nr_inst;
 }
 
 static void wp_and_difftest() {
@@ -55,7 +56,6 @@ static void execute(uint64_t n) {
 #endif
 
     exec_once();
-    ++nr_inst;
     wp_and_difftest();
     if (nr_inst >= MAX_CYCLE) {
       Log("Cycle limit exceed, abort");
