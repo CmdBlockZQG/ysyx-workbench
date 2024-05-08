@@ -1,5 +1,5 @@
 #include "macro.h"
-#include "utils.h"
+#include "perf.h"
 
 #ifdef YSYXSOC
 #include "VysyxSoCFull__Dpi.h"
@@ -49,9 +49,8 @@ void perf_event(int id) {
   perfcnt_val[id] += 1;
 }
 
-void log_perf_stat() {
-  log_write("---------- Performance Counter ----------\n");
+void log_perf_stat(FILE *fp) {
   for (int i = 0; i < perfcnt_num; ++i) {
-    log_write("%-20s\t%10d\n", perfcnt_name[i], perfcnt_val[i]);
+    fprintf(fp, "%-20s\t%10d\n", perfcnt_name[i], perfcnt_val[i]);
   }
 }

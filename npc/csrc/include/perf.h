@@ -1,6 +1,8 @@
 #ifndef __PERF_H__
 #define __PERF_H__
 
-void log_perf_stat();
+#include "utils.h"
+
+void log_perf_stat(FILE *);
 
 #endif

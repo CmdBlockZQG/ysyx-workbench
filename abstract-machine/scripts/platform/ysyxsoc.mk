@@ -17,7 +17,7 @@ LDFLAGS   += -T $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld
 LDFLAGS   += --gc-sections -e _fsbl # --orphan-handling=warn --print-map
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 CFLAGS += -I$(AM_HOME)/am/src/riscv/ysyxsoc/include
-.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c run run_nvboard
+.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c run run_nvboard perf
 
 NPCFLAGS += --log=$(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt --batch
 

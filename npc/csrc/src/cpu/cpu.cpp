@@ -14,7 +14,13 @@ static void statistic() {
   Log("total instructions = %lu", nr_inst);
   Log("total cycles = %lu", nr_cycle);
   Log("average IPC = %lf", nr_inst / (double)nr_cycle);
-  log_perf_stat();
+
+  extern FILE *log_fp;
+  log_write("---------- Performance Counter ----------\n");
+  log_perf_stat(log_fp);
+
+  FILE *fp = fopen("build/perf.txt", "w");
+  Assert(fp, "Can not open file 'build/perf.txt'");
 }
 
 void assert_fail_msg() {
