@@ -91,8 +91,15 @@ run: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
-perf: $(BIN) scripts/perf.py
-	@python3 scripts/perf.py
+
+PERF_SCRIPT = ./scripts/perf.py
+PERF_OUTPUT = $(BUILD_DIR)/perf.txt
+
+perf: $(BIN) $(PERF_SCRIPT)
+	$(BIN) $(ARGS) $(IMG)
+	@echo -n "GIT_HASH " >> $(PERF_OUTPUT)
+	@git rev-parse HEAD >> $(PERF_OUTPUT)
+	@python3 $(PERF_SCRIPT)
 
 .PHONY: default all clean sim run
 
