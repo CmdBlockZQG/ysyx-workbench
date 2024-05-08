@@ -21,6 +21,8 @@ static void statistic() {
 
   FILE *fp = fopen("build/perf.txt", "w");
   Assert(fp, "Can not open file 'build/perf.txt'");
+  log_perf_stat(fp);
+  fclose(fp);
 }
 
 void assert_fail_msg() {

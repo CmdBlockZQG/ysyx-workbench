@@ -35,5 +35,5 @@ run_nvboard: image
 	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf ENABLE_YSYXSOC=1 ENABLE_NVBOARD=1 run
 
 perf: image
-  @echo run
-  $(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf ENABLE_YSYXSOC=1 perf
+	@echo run
+	$(MAKE) -C $(NPC_HOME) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin ELF=$(IMAGE).elf ENABLE_YSYXSOC=1 perf
