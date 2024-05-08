@@ -91,6 +91,9 @@ run: $(BIN)
 	$(call git_commit, "sim RTL")
 	$(BIN) $(ARGS) $(IMG)
 
+perf: $(BIN) scripts/perf.py
+	@python3 scripts/perf.py
+
 .PHONY: default all clean sim run
 
 include ../Makefile
