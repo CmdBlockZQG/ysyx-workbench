@@ -49,8 +49,8 @@ void perf_event(int id) {
   perfcnt_val[id] += 1;
 }
 
-void log_perf_stat(FILE *fp) {
+void log_perf_stat() {
   for (int i = 0; i < perfcnt_num; ++i) {
-    fprintf(fp, "%-20s\t%10d\n", perfcnt_name[i], perfcnt_val[i]);
+    log_write("%-20s\t%10d\n", perfcnt_name[i], perfcnt_val[i]);
   }
 }

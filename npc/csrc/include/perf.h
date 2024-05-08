@@ -3,6 +3,6 @@
 
 #include "utils.h"
 
-void log_perf_stat(FILE *);
+void log_perf_stat();
 
 #endif
