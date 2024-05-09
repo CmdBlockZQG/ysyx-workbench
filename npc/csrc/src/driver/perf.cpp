@@ -43,7 +43,7 @@ static const char *perfcnt_name[] = {
 
 const int perfcnt_num = ARRLEN(perfcnt_name);
 
-static int perfcnt_val[perfcnt_num] = {0};
+static uint64_t perfcnt_val[perfcnt_num] = {0};
 
 void perf_event(int id) {
   perfcnt_val[id] += 1;
@@ -51,6 +51,6 @@ void perf_event(int id) {
 
 void log_perf_stat() {
   for (int i = 0; i < perfcnt_num; ++i) {
-    log_write("%-20s\t%10d\n", perfcnt_name[i], perfcnt_val[i]);
+    log_write("%-20s\t%15lu\n", perfcnt_name[i], perfcnt_val[i]);
   }
 }

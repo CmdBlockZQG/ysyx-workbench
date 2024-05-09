@@ -51,7 +51,7 @@ static void execute(uint64_t n) {
 
 #ifdef ITRACE
     extern word_t itrace_inst;
-    itrace(cpu_pc, itrace_inst, n <= 24);
+    itrace(cpu_pc, itrace_inst, n <= 24); // FIXME: 
 #endif
 #ifdef FTRACE
     ftrace(cpu_pc, cpu_module->npc);
