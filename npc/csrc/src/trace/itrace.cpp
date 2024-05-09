@@ -20,7 +20,7 @@ void itrace(addr_t pc, uint64_t inst, bool print) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, buf + buf_size - p, pc, inst_p, 4);
 
-  log_write("%s\n", buf);
+  IFDEF(ILOGALL, log_write("%s\n", buf));
   if (print) puts(buf);
 
   memcpy(iringbuf[iringbuf_ptr++], buf, buf_size);
@@ -28,6 +28,7 @@ void itrace(addr_t pc, uint64_t inst, bool print) {
 }
 
 void print_iringbuf() {
+  puts("----- iringbuf -----");
   for (int i = 0; i < 16; ++i) {
     char *str = iringbuf[(iringbuf_ptr + i) & 0xf];
     if (*str) puts(str);

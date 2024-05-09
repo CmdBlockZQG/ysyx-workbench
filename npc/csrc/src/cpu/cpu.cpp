@@ -20,8 +20,8 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
-  IFDEF(ITRACE, print_iringbuf());
   reg_display();
+  IFDEF(ITRACE, print_iringbuf());
   statistic();
 }
 
@@ -47,11 +47,12 @@ static void wp_and_difftest() {
 }
 
 static void execute(uint64_t n) {
+  bool print = n <= 24;
   while (n--) {
 
 #ifdef ITRACE
     extern word_t itrace_inst;
-    itrace(cpu_pc, itrace_inst, n <= 24);
+    itrace(cpu_pc, itrace_inst, print);
 #endif
 #ifdef FTRACE
     ftrace(cpu_pc, cpu_module->npc);
@@ -80,7 +81,9 @@ void cpu_exec(uint64_t n) {
 
   switch (npc_state.state) {
     case NPC_RUNNING: npc_state.state = NPC_STOP; break;
-    case NPC_END: case NPC_ABORT:
+    case NPC_ABORT: IFDEF(ITRACE, print_iringbuf());
+    // fall through
+    case NPC_END:
       Log("npc: %s at pc = " FMT_ADDR,
           (npc_state.state == NPC_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
