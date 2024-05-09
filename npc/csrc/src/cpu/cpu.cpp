@@ -20,8 +20,8 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
-  IFDEF(ITRACE, print_iringbuf());
   reg_display();
+  IFDEF(ITRACE, print_iringbuf());
   statistic();
 }
 

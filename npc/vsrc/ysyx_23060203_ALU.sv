@@ -31,7 +31,7 @@ module ysyx_23060203_ALU (
   always_comb begin
     cf = 0;
     case (funct)
-      ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, binv} + 1; // 减法需要加一个1
+      ALU_ADD, ALU_LTS, ALU_LTU: {cf, e} = a + b + {31'b0, binv}; // 减法需要加一个1
       ALU_SHL: e = a << bs;
       ALU_XOR: e = a ^ b;
       ALU_SHR: e = funcs ? sra : a >> bs; // 0逻辑，1算数
