@@ -28,6 +28,7 @@ void itrace(addr_t pc, uint64_t inst, bool print) {
 }
 
 void print_iringbuf() {
+  puts("----- iringbuf -----");
   for (int i = 0; i < 16; ++i) {
     char *str = iringbuf[(iringbuf_ptr + i) & 0xf];
     if (*str) puts(str);

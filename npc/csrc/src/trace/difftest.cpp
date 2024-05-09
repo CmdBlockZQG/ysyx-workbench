@@ -117,7 +117,6 @@ void difftest_step() {
     printf("----- npc state -----\npc = " FMT_ADDR "\n", cpu_pc);
     reg_display();
     display_ref(&ref);
-    putchar('\n');
   }
 }
 #else
