@@ -30,10 +30,7 @@ void itrace(addr_t pc, uint64_t inst, bool print) {
 void print_iringbuf() {
   for (int i = 0; i < 16; ++i) {
     char *str = iringbuf[(iringbuf_ptr + i) & 0xf];
-    if (*str) {
-      puts(str);
-      log_write("%s\n", str);
-    }
+    if (*str) puts(str);
   }
   putchar('\n');
 }
