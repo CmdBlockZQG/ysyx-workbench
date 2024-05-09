@@ -47,11 +47,12 @@ static void wp_and_difftest() {
 }
 
 static void execute(uint64_t n) {
+  bool print = n <= 24;
   while (n--) {
 
 #ifdef ITRACE
     extern word_t itrace_inst;
-    itrace(cpu_pc, itrace_inst, false); // FIXME: 
+    itrace(cpu_pc, itrace_inst, print);
 #endif
 #ifdef FTRACE
     ftrace(cpu_pc, cpu_module->npc);
