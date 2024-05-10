@@ -28,22 +28,7 @@ module ysyx_23060203_LSU (
   reg [2:0] rfunc_reg;
 
   // 组合逻辑
-
-  // wire [63:0] ram_r_rdata_shifted = ram_r.rdata >> {raddr_align_reg, 3'b0};
-  reg [63:0] ram_r_rdata_shifted;
-  always_comb begin
-    case (raddr_align_reg)
-      3'b000: ram_r_rdata_shifted = ram_r.rdata;
-      3'b001: ram_r_rdata_shifted = {8'b0, ram_r.rdata[63:8]};
-      3'b010: ram_r_rdata_shifted = {16'b0, ram_r.rdata[63:16]};
-      3'b011: ram_r_rdata_shifted = {24'b0, ram_r.rdata[63:24]};
-      3'b100: ram_r_rdata_shifted = {32'b0, ram_r.rdata[63:32]};
-      3'b101: ram_r_rdata_shifted = {40'b0, ram_r.rdata[63:40]};
-      3'b110: ram_r_rdata_shifted = {48'b0, ram_r.rdata[63:48]};
-      3'b111: ram_r_rdata_shifted = {56'b0, ram_r.rdata[63:56]};
-      default: ram_r_rdata_shifted = ram_r.rdata;
-    endcase
-  end
+  wire [63:0] ram_r_rdata_shifted = ram_r.rdata >> {raddr_align_reg, 3'b0};
 
   reg [31:0] ram_r_rdata_word;
   always_comb begin
@@ -102,22 +87,7 @@ module ysyx_23060203_LSU (
     endcase
   end
 
-  // wire [63:0] wdata_aligned = {32'b0, wdata} << {waddr[2:0], 3'b0};
-  reg [63:0] wdata_aligned;
-  always_comb begin
-    case (waddr[2:0])
-      3'b000: wdata_aligned = {32'b0, wdata[31:0]};
-      3'b001: wdata_aligned = {24'b0, wdata[31:0], 8'b0};
-      3'b010: wdata_aligned = {16'b0, wdata[31:0], 16'b0};
-      3'b011: wdata_aligned = {8'b0, wdata[31:0], 24'b0};
-      3'b100: wdata_aligned = {wdata[31:0], 32'b0};
-      3'b101: wdata_aligned = {wdata[23:0], 40'b0};
-      3'b110: wdata_aligned = {wdata[15:0], 48'b0};
-      3'b111: wdata_aligned = {wdata[7:0], 56'b0};
-      default: wdata_aligned = {32'b0, wdata[31:0]};
-    endcase
-  end
-
+  wire [63:0] wdata_aligned = {32'b0, wdata} << {waddr[2:0], 3'b0};
   reg [7:0] wmask; //未对齐的wmask,基准是没有去掉末尾的waddr
   always_comb begin
     case (wfunc)
@@ -127,21 +97,7 @@ module ysyx_23060203_LSU (
       default: wmask = 8'b00001111; // 合并ST_W
     endcase
   end
-  // wire [7:0] wmask_aligned = wmask << waddr[2:0];
-  reg [7:0] wmask_aligned;
-  always_comb begin
-    case (waddr[2:0])
-      3'b000: wmask_aligned = wmask[7:0];
-      3'b001: wmask_aligned = {wmask[6:0], 1'b0};
-      3'b010: wmask_aligned = {wmask[5:0], 2'b0};
-      3'b011: wmask_aligned = {wmask[4:0], 3'b0};
-      3'b100: wmask_aligned = {wmask[3:0], 4'b0};
-      3'b101: wmask_aligned = {wmask[2:0], 5'b0};
-      3'b110: wmask_aligned = {wmask[1:0], 6'b0};
-      3'b111: wmask_aligned = {wmask[0:0], 7'b0};
-      default: wmask_aligned = wmask;
-    endcase
-  end
+  wire [7:0] wmask_aligned = wmask << waddr[2:0];
 
   reg waddr_flag, wdata_flag;
   always @(posedge clk) begin

@@ -21,21 +21,21 @@ module ysyx_23060203_EXU (
 
   // 寄存器写
   output reg gpr_wen,
-  output [4:0] gpr_waddr,
+  output reg [4:0] gpr_waddr,
   output reg [31:0] gpr_wdata,
 
   // CSR写
   output reg csr_wen1, // 写入使能
-  output [11:0] csr_waddr1, // 写入地址
-  output [31:0] csr_wdata1, // 写入数据
+  output reg [11:0] csr_waddr1, // 写入地址
+  output reg [31:0] csr_wdata1, // 写入数据
   output reg csr_wen2, // 写入使能
-  output [11:0] csr_waddr2, // 写入地址
-  output [31:0] csr_wdata2, // 写入数据
+  output reg [11:0] csr_waddr2, // 写入地址
+  output reg [31:0] csr_wdata2, // 写入数据
 
   // 连接访存模块
   // 访存读请求
-  output [31:0] mem_raddr,
-  output [2:0] mem_rfunc,
+  output reg [31:0] mem_raddr,
+  output reg [2:0] mem_rfunc,
   decouple_if.out mem_rreq,
   // 访存读回复
   input [31:0] mem_rdata,
@@ -124,8 +124,6 @@ module ysyx_23060203_EXU (
   wire [31:0] npc_orig = npc_base + pc_inc;
   assign npc = {npc_orig[31:1], 1'b0};
 
-  assign gpr_waddr = rd;
-
   // -------------------- 时序逻辑 --------------------
   always @(posedge clk) begin
     if (~rstn) begin
@@ -142,6 +140,10 @@ module ysyx_23060203_EXU (
     end
   end
 
+  // 暂存寄存器
+  reg [31:0] alu_val_reg, src2_reg;
+  reg [2:0] funct_reg;
+  reg [4:0] opcode_reg, rd_reg;
   // 每个步骤的处理状态寄存器
   reg load_flag, store_flag, mem_res_flag;
   // 辅助组合
@@ -149,26 +151,26 @@ module ysyx_23060203_EXU (
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
   wire id_ls = (opcode == OP_LOAD) | (opcode == OP_STORE);
 
-  assign csr_waddr1 = id_csr_waddr1;
-  assign csr_waddr2 = id_csr_waddr2;
-  assign csr_wdata1 = id_csr_wdata1;
-  assign csr_wdata2 = id_csr_wdata2;
-
-  assign mem_raddr = alu_val;
-  assign mem_rfunc = funct;
-  assign mem_wfunc = funct;
-  assign mem_waddr = alu_val;
-  assign mem_wdata = src2;
-
   always @(posedge clk) begin if (rstn) begin
     if (id_in.ready & id_in.valid) begin
+      alu_val_reg <= alu_val;
+      src2_reg <= src2;
+      funct_reg <= funct;
+      opcode_reg <= opcode;
+      rd_reg <= rd;
+
       if (id_gpr_wen & opcode != OP_LOAD) begin
         gpr_wen <= 1;
+        gpr_waddr <= rd;
         gpr_wdata <= id_gpr_wdata;
       end
 
       csr_wen1 <= id_csr_wen1;
+      csr_waddr1 <= id_csr_waddr1;
+      csr_wdata1 <= id_csr_wdata1;
       csr_wen2 <= id_csr_wen2;
+      csr_waddr2 <= id_csr_waddr2;
+      csr_wdata2 <= id_csr_wdata2;
 
       id_in.ready <= ~id_ls;
 `ifndef SYNTHESIS
@@ -178,16 +180,21 @@ module ysyx_23060203_EXU (
 
     if (~id_in.ready | id_in.valid) begin
       // 发送访存请求
-      case (opcode)
+      case (id_in.valid ? opcode : opcode_reg)
         OP_LOAD:
           if (~mem_rreq.valid & ~load_flag) begin
             mem_rreq.valid <= 1;
+            mem_raddr <= alu_val;
+            mem_rfunc <= funct;
             load_flag <= 1;
             mem_rres.ready <= 1;
           end
         OP_STORE:
           if (~mem_wreq.valid & ~store_flag) begin
             mem_wreq.valid <= 1;
+            mem_wfunc <= id_in.valid ? funct : funct_reg;
+            mem_waddr <= id_in.valid ? alu_val : alu_val_reg;
+            mem_wdata <= id_in.valid ? src2 : src2_reg;
             store_flag <= 1;
             mem_wres.ready <= 1;
           end
@@ -207,6 +214,7 @@ module ysyx_23060203_EXU (
       if (mem_r_res_hs) begin
         mem_rres.ready <= 0;
         gpr_wen <= 1;
+        gpr_waddr <= rd_reg;
         gpr_wdata <= mem_rdata;
         id_in.ready <= 1;
         load_flag <= 0;
