@@ -27,23 +27,31 @@ module ysyx_23060203_ICache (
   wire cache_valid = row_valid[index] & (row_tag[index] == tag);
   wire [BLOCK_W-1:0] cache_out = row_data[index];
 
+  reg cache_resp_valid;
+
   assign ram_out.arsize = 3'b010;
 
   assign ram_out.arvalid = ~cache_valid & ifu_in.arvalid;
   assign ram_out.araddr = addr;
 
   assign ram_out.rready = 1;
-  assign ifu_in.rvalid = cache_valid | ram_out.rvalid;
+  assign ifu_in.rvalid = cache_valid ? cache_resp_valid : ram_out.rvalid;
   assign ifu_in.rdata = cache_valid ? {2{cache_out}} : ram_out.rdata; // TEMP: 块大小32
 
 
   always @(posedge clk) if (~rstn) begin
     for (integer i = 0; i < ROW_N; i = i + 1) row_valid[i] <= 0;
     ifu_in.arready <= 1;
+    cache_resp_valid <= 0;
   end else begin
     if (ifu_in_ar_hs) begin
       addr_reg <= ifu_in.araddr;
-      if (~cache_valid) ifu_in.arready <= 0;
+      if (cache_valid) cache_resp_valid <= 1;
+      else ifu_in.arready <= 0;
+    end
+
+    if (ifu_in.rvalid & ifu_in.rready) begin
+      if (cache_resp_valid) cache_resp_valid <= 0;
     end
 
     if (ram_out.rvalid & ram_out.rready) begin
