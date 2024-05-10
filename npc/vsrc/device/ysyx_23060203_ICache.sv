@@ -56,10 +56,11 @@ module ysyx_23060203_ICache (
 
     if (ram_out.rvalid & ram_out.rready) begin
       ifu_in.arready <= 1;
-
-      row_valid[index] <= 1;
-      row_tag[index] <= tag;
-      row_data[index] <= addr[2] ? ram_out.rdata[63:32] : ram_out.rdata[31:0];
+      if (enable) begin
+        row_valid[index] <= 1;
+        row_tag[index] <= tag;
+        row_data[index] <= addr[2] ? ram_out.rdata[63:32] : ram_out.rdata[31:0];
+      end
     end
   end
 
