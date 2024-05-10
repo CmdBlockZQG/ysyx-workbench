@@ -144,12 +144,10 @@ module ysyx_23060203 (
   axi_if io_master();
   axi_if io_slave();
 
-`ifndef SYNTHESIS
   npc_RAM NPC_RAM (
     .clk(clock), .rstn(~reset),
     .in(io_master)
   );
-`endif
 
   ysyx_23060203_CPU NPC_CPU (
     .clk(clock), .rstn(~reset),
