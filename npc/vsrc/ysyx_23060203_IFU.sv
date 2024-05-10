@@ -30,7 +30,10 @@ module ysyx_23060203_IFU (
   assign inst_out.valid = ram_r.rvalid;
   assign ram_r.rready = inst_out.ready;
   assign ram_r.arvalid = inst_out.ready & rstn;
-  assign inst = ram_r.araddr[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
+
+  reg [31:0] inst_reg;
+  wire [31:0] inst_r = ram_r.araddr[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
+  assign inst = ram_r.rvalid ? inst_r : inst_reg;
 
   always @(posedge clk) begin if (rstn) begin
     // 确认ram收到地址
@@ -45,6 +48,7 @@ module ysyx_23060203_IFU (
     if (inst_out.valid & inst_out.ready) begin
       // 接收npc
       ram_r.araddr <= npc;
+      inst_reg <= inst_r;
 `ifndef SYNTHESIS
       if (inst == 32'h100073) begin
         halt();
