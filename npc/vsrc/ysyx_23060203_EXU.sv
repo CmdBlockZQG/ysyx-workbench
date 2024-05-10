@@ -26,11 +26,11 @@ module ysyx_23060203_EXU (
 
   // CSR写
   output reg csr_wen1, // 写入使能
-  output reg [11:0] csr_waddr1, // 写入地址
-  output reg [31:0] csr_wdata1, // 写入数据
+  output [11:0] csr_waddr1, // 写入地址
+  output [31:0] csr_wdata1, // 写入数据
   output reg csr_wen2, // 写入使能
-  output reg [11:0] csr_waddr2, // 写入地址
-  output reg [31:0] csr_wdata2, // 写入数据
+  output [11:0] csr_waddr2, // 写入地址
+  output [31:0] csr_wdata2, // 写入数据
 
   // 连接访存模块
   // 访存读请求
@@ -149,6 +149,11 @@ module ysyx_23060203_EXU (
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
   wire id_ls = (opcode == OP_LOAD) | (opcode == OP_STORE);
 
+  assign csr_waddr1 = id_csr_waddr1;
+  assign csr_waddr2 = id_csr_waddr2;
+  assign csr_wdata1 = id_csr_wdata1;
+  assign csr_wdata2 = id_csr_wdata2;
+
   always @(posedge clk) begin if (rstn) begin
     if (id_in.ready & id_in.valid) begin
       if (id_gpr_wen & opcode != OP_LOAD) begin
@@ -157,11 +162,7 @@ module ysyx_23060203_EXU (
       end
 
       csr_wen1 <= id_csr_wen1;
-      csr_waddr1 <= id_csr_waddr1;
-      csr_wdata1 <= id_csr_wdata1;
       csr_wen2 <= id_csr_wen2;
-      csr_waddr2 <= id_csr_waddr2;
-      csr_wdata2 <= id_csr_wdata2;
 
       id_in.ready <= ~id_ls;
 `ifndef SYNTHESIS
