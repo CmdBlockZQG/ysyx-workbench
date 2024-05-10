@@ -1,4 +1,4 @@
-// `ifndef YSYXSOC
+`ifndef YSYXSOC
 module npc_RAM (
   input rstn, clk,
 
@@ -79,4 +79,4 @@ module npc_RAM (
     if (in.bvalid & in.bready) in.bvalid <= 0;
   end
 endmodule
-// `endif
+`endif
