@@ -28,7 +28,22 @@ module ysyx_23060203_LSU (
   reg [2:0] rfunc_reg;
 
   // 组合逻辑
-  wire [63:0] ram_r_rdata_shifted = ram_r.rdata >> {raddr_align_reg, 3'b0};
+
+  // wire [63:0] ram_r_rdata_shifted = ram_r.rdata >> {raddr_align_reg, 3'b0};
+  reg [63:0] ram_r_rdata_shifted;
+  always_comb begin
+    case (raddr_align_reg)
+      3'b000: ram_r_rdata_shifted = ram_r.rdata;
+      3'b001: ram_r_rdata_shifted = {8'b0, ram_r.rdata[63:8]};
+      3'b010: ram_r_rdata_shifted = {16'b0, ram_r.rdata[63:16]};
+      3'b011: ram_r_rdata_shifted = {24'b0, ram_r.rdata[63:24]};
+      3'b100: ram_r_rdata_shifted = {32'b0, ram_r.rdata[63:32]};
+      3'b101: ram_r_rdata_shifted = {40'b0, ram_r.rdata[63:40]};
+      3'b110: ram_r_rdata_shifted = {48'b0, ram_r.rdata[63:48]};
+      3'b111: ram_r_rdata_shifted = {56'b0, ram_r.rdata[63:56]};
+      default: ram_r_rdata_shifted = ram_r.rdata;
+    endcase
+  end
 
   reg [31:0] ram_r_rdata_word;
   always_comb begin
