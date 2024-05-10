@@ -140,10 +140,6 @@ module ysyx_23060203_EXU (
     end
   end
 
-  // 暂存寄存器
-  reg [31:0] alu_val_reg, src2_reg;
-  reg [2:0] funct_reg;
-  reg [4:0] opcode_reg, rd_reg;
   // 每个步骤的处理状态寄存器
   reg load_flag, store_flag, mem_res_flag;
   // 辅助组合
@@ -153,12 +149,6 @@ module ysyx_23060203_EXU (
 
   always @(posedge clk) begin if (rstn) begin
     if (id_in.ready & id_in.valid) begin
-      alu_val_reg <= alu_val;
-      src2_reg <= src2;
-      funct_reg <= funct;
-      opcode_reg <= opcode;
-      rd_reg <= rd;
-
       if (id_gpr_wen & opcode != OP_LOAD) begin
         gpr_wen <= 1;
         gpr_waddr <= rd;
@@ -180,7 +170,7 @@ module ysyx_23060203_EXU (
 
     if (~id_in.ready | id_in.valid) begin
       // 发送访存请求
-      case (id_in.valid ? opcode : opcode_reg)
+      case (opcode)
         OP_LOAD:
           if (~mem_rreq.valid & ~load_flag) begin
             mem_rreq.valid <= 1;
@@ -192,9 +182,9 @@ module ysyx_23060203_EXU (
         OP_STORE:
           if (~mem_wreq.valid & ~store_flag) begin
             mem_wreq.valid <= 1;
-            mem_wfunc <= id_in.valid ? funct : funct_reg;
-            mem_waddr <= id_in.valid ? alu_val : alu_val_reg;
-            mem_wdata <= id_in.valid ? src2 : src2_reg;
+            mem_wfunc <= funct;
+            mem_waddr <= alu_val;
+            mem_wdata <= src2;
             store_flag <= 1;
             mem_wres.ready <= 1;
           end
@@ -214,7 +204,7 @@ module ysyx_23060203_EXU (
       if (mem_r_res_hs) begin
         mem_rres.ready <= 0;
         gpr_wen <= 1;
-        gpr_waddr <= rd_reg;
+        gpr_waddr <= rd;
         gpr_wdata <= mem_rdata;
         id_in.ready <= 1;
         load_flag <= 0;
