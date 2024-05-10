@@ -64,7 +64,7 @@ module ysyx_23060203_IFU (
     case (perf_st)
       perf_wait_mem: begin
         perf_event(PERF_IFU_WAIT_MEM);
-        if (ram_r.rvalid & ram_r.rready) begin
+        if (inst_out.valid & inst_out.ready) begin
           perf_st <= perf_wait_exu;
         end
       end
