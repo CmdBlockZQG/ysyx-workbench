@@ -1,7 +1,7 @@
 module ysyx_23060203_ICache (
   input rstn, clk,
 
-  axi_if.master ifu_in,
+  axi_if.slave ifu_in,
   axi_if.master ram_out
 );
 
