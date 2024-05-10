@@ -156,6 +156,9 @@ module ysyx_23060203_EXU (
 
   assign mem_raddr = alu_val;
   assign mem_rfunc = funct;
+  assign mem_wfunc = funct;
+  assign mem_waddr = alu_val;
+  assign mem_wdata = src2;
 
   always @(posedge clk) begin if (rstn) begin
     if (id_in.ready & id_in.valid) begin
@@ -185,9 +188,6 @@ module ysyx_23060203_EXU (
         OP_STORE:
           if (~mem_wreq.valid & ~store_flag) begin
             mem_wreq.valid <= 1;
-            mem_wfunc <= funct;
-            mem_waddr <= alu_val;
-            mem_wdata <= src2;
             store_flag <= 1;
             mem_wres.ready <= 1;
           end
