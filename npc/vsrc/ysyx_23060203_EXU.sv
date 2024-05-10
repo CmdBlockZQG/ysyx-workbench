@@ -21,7 +21,7 @@ module ysyx_23060203_EXU (
 
   // 寄存器写
   output reg gpr_wen,
-  output reg [4:0] gpr_waddr,
+  output [4:0] gpr_waddr,
   output reg [31:0] gpr_wdata,
 
   // CSR写
@@ -124,6 +124,8 @@ module ysyx_23060203_EXU (
   wire [31:0] npc_orig = npc_base + pc_inc;
   assign npc = {npc_orig[31:1], 1'b0};
 
+  assign gpr_waddr = rd;
+
   // -------------------- 时序逻辑 --------------------
   always @(posedge clk) begin
     if (~rstn) begin
@@ -151,7 +153,6 @@ module ysyx_23060203_EXU (
     if (id_in.ready & id_in.valid) begin
       if (id_gpr_wen & opcode != OP_LOAD) begin
         gpr_wen <= 1;
-        gpr_waddr <= rd;
         gpr_wdata <= id_gpr_wdata;
       end
 
@@ -204,7 +205,6 @@ module ysyx_23060203_EXU (
       if (mem_r_res_hs) begin
         mem_rres.ready <= 0;
         gpr_wen <= 1;
-        gpr_waddr <= rd;
         gpr_wdata <= mem_rdata;
         id_in.ready <= 1;
         load_flag <= 0;
