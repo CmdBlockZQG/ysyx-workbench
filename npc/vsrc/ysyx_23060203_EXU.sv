@@ -34,8 +34,8 @@ module ysyx_23060203_EXU (
 
   // 连接访存模块
   // 访存读请求
-  output reg [31:0] mem_raddr,
-  output reg [2:0] mem_rfunc,
+  output [31:0] mem_raddr,
+  output [2:0] mem_rfunc,
   decouple_if.out mem_rreq,
   // 访存读回复
   input [31:0] mem_rdata,
@@ -154,6 +154,9 @@ module ysyx_23060203_EXU (
   assign csr_wdata1 = id_csr_wdata1;
   assign csr_wdata2 = id_csr_wdata2;
 
+  assign mem_raddr = alu_val;
+  assign mem_rfunc = funct;
+
   always @(posedge clk) begin if (rstn) begin
     if (id_in.ready & id_in.valid) begin
       if (id_gpr_wen & opcode != OP_LOAD) begin
@@ -176,8 +179,6 @@ module ysyx_23060203_EXU (
         OP_LOAD:
           if (~mem_rreq.valid & ~load_flag) begin
             mem_rreq.valid <= 1;
-            mem_raddr <= alu_val;
-            mem_rfunc <= funct;
             load_flag <= 1;
             mem_rres.ready <= 1;
           end
