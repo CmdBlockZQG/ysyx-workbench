@@ -29,9 +29,8 @@ module ysyx_23060203_ICache (
 
   assign ram_out.arsize = 3'b010;
 
-  assign ifu_in.arready = cache_valid | ram_out.arready;
   assign ram_out.arvalid = ~cache_valid & ifu_in.arvalid;
-  assign ram_out.araddr = ifu_in.araddr;
+  assign ram_out.araddr = addr;
 
   assign ram_out.rready = 1;
   assign ifu_in.rvalid = cache_valid | ram_out.rvalid;
@@ -39,17 +38,20 @@ module ysyx_23060203_ICache (
 
 
   always @(posedge clk) if (~rstn) begin
-    pending <= 0;
-    row_valid <= 0;
+    for (integer i = 0; i < ROW_N; i = i + 1) row_valid[i] <= 0;
+    ifu_in.arready <= 1;
   end else begin
     if (ifu_in_ar_hs) begin
       addr_reg <= ifu_in.araddr;
+      if (~cache_valid) ifu_in.arready <= 0;
     end
 
     if (ram_out.rvalid & ram_out.rready) begin
+      ifu_in.arready <= 1;
+
       row_valid[index] <= 1;
-      row_tag <= tag;
-      row_data <= ram_out.rdata;
+      row_tag[index] <= tag;
+      row_data[index] <= addr[2] ? ram_out.rdata[63:32] : ram_out.rdata[31:0];
     end
   end
 
