@@ -39,6 +39,9 @@ static const char *perfcnt_name[] = {
   "LSU_LOAD",       // LSU取数据ing
   "LSU_LOAD_RESP",  // LSU取到数据
   "LSU_STORE",      // LSU存数据ing
+
+  "ICACHE_HIT",     // 指令缓存命中
+  "ICACHE_MISS"     // 指令缓存缺失
 };
 
 const int perfcnt_num = ARRLEN(perfcnt_name);

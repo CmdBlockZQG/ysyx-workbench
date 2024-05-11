@@ -51,7 +51,16 @@ module ysyx_23060203_ICache (
     end
 
     if (ifu_in.rvalid & ifu_in.rready) begin
-      if (cache_resp_valid) cache_resp_valid <= 0;
+      if (cache_resp_valid) begin
+        cache_resp_valid <= 0;
+`ifndef SYNTHESIS
+        perf_event(PERF_ICACHE_HIT);
+`endif
+      end else begin
+`ifndef SYNTHESIS
+        perf_event(PERF_ICACHE_MISS);
+`endif
+      end
     end
 
     if (ram_out.rvalid & ram_out.rready) begin
