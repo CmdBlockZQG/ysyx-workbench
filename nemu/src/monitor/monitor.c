@@ -98,7 +98,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-e,--elf=FILE           load elf file from FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
-        printf("\t-p,--pctrace=FILE       dump pctrace for cachesim to FILE\n");
+        printf("\t-c,--pctrace=FILE       dump pctrace for cachesim to FILE\n");
         printf("\n");
         exit(0);
     }
