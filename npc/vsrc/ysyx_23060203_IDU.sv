@@ -31,6 +31,11 @@ module ysyx_23060203_IDU (
   // 总线
   decouple_if.out id_out
 );
+
+  `include "params/opcode.sv"
+  `include "params/branch.sv"
+  `include "params/csr.sv"
+
   assign inst_in.ready = id_out.ready;
   assign id_out.valid = inst_in.valid;
 
