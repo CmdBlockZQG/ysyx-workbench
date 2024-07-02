@@ -8,7 +8,6 @@ static uint32_t last_pc;
 static int exec_cnt = 0;
 
 void init_pctrace(const char *filename) {
-  Log("pctrace file: %s\n", filename);
   if (!filename) return;
   Log("PC trace is written to %s", filename);
   fp = fopen(filename, "wb");
