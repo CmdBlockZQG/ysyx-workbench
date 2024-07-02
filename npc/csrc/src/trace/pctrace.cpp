@@ -18,7 +18,8 @@ void init_pctrace(const char *filename) {
 
 void pctrace(addr_t pc) {
   if (!fp) return;
-  int off = pc - last_pc;
+  int off;
+  *(uint32_t *)&off = pc - last_pc;
   if (off == 4) {
     exec_cnt++;
   } else {
