@@ -151,6 +151,10 @@ config ITRACE_COND
   string "Only trace instructions when the condition is true"
   default "true"
 
+config PCTRACE
+  depends on TRACE
+  bool "Enable pc trace file dump for cachesim"
+  default n
 
 config DIFFTEST
   depends on TARGET_NATIVE_ELF
