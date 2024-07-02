@@ -6,6 +6,8 @@
 void itrace(addr_t pc, uint64_t inst, bool print);
 void print_iringbuf();
 
+void pctrace(addr_t pc);
+
 void ftrace(addr_t pc, addr_t next_pc);
 
 void mtrace_read(addr_t addr, int size, word_t data);

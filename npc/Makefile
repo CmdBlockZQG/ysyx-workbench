@@ -78,6 +78,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 # override ARGS += --wave=$(BUILD_DIR)/wave.vcd
+override ARGS += --pctrace=$(BUILD_DIR)/pctrace
 IMG ?=
 ifdef ELF
 override ARGS += --elf=$(ELF)

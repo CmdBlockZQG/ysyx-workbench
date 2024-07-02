@@ -48,5 +48,10 @@ int main(int argc, char *argv[]) {
   /* Start engine. */
   engine_start();
 
+#ifdef CONFIG_PCTRACE
+  void finalize_pctrace();
+  finalize_pctrace();
+#endif
+
   return is_exit_status_bad();
 }

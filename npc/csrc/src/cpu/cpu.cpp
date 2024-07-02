@@ -54,6 +54,9 @@ static void execute(uint64_t n) {
     extern word_t itrace_inst;
     itrace(cpu_pc, itrace_inst, print);
 #endif
+#ifdef PCTRACE
+    pctrace(cpu_pc);
+#endif
 #ifdef FTRACE
     ftrace(cpu_pc, cpu_module->npc);
 #endif
