@@ -1,5 +1,5 @@
 ENABLE_YSYXSOC ?= 0
-ARGS ?= --log=$(BUILD_DIR)/log.txt
+ARGS ?= --log=$(BUILD_DIR)/log.txt --pctrace$(BUILD_DIR)/pctrace
 
 ifeq ($(ENABLE_YSYXSOC), 1)
 TOPNAME = ysyxSoCFull
