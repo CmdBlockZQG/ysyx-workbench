@@ -43,6 +43,7 @@ void pctrace(paddr_t pc) {
 }
 
 void finalize_pctrace() {
+  Log("123123");
   if (exec_cnt) {
     while (exec_cnt) {
       int d = exec_cnt < 16384 ? exec_cnt : 16383;
