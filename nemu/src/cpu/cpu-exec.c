@@ -118,7 +118,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 
 #ifdef CONFIG_PCTRACE
   void pctrace(paddr_t pc);
-  IFDEF(CONFIG_PCTRACE, pctrace(s->pc));
+  pctrace(s->pc);
 #endif
 
 #ifdef CONFIG_ITRACE
