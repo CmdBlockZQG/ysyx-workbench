@@ -198,9 +198,8 @@ config WATCHPOINT
     Enable watchpoints, part of sdb.
     Which stops the program when values of user-specified expressions change.
 
-config DIFFTEST_YSYXSOC
-  depends on TARGET_SHARE
-  bool "Difftest feature for ysyxSoC"
+config YSYXSOC
+  bool "run in ysyxSoC environment"
   default n
 
 choice

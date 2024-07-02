@@ -27,7 +27,7 @@ uint8_t* guest_to_host(paddr_t paddr);
 /* convert the host virtual address in NEMU to guest physical address in the guest program */
 paddr_t host_to_guest(uint8_t *haddr);
 
-#ifdef CONFIG_DIFFTEST_YSYXSOC
+#ifdef CONFIG_YSYXSOC
 #define MROM_BASE 0x20000000
 #define MROM_SIZE 4096
 #define SRAM_BASE 0x0f000000
@@ -48,7 +48,7 @@ typedef struct {
 #endif
 
 static inline bool in_pmem(paddr_t addr) {
-#ifdef CONFIG_DIFFTEST_YSYXSOC
+#ifdef CONFIG_YSYXSOC
   return true;
 #else
   return addr - CONFIG_MBASE < CONFIG_MSIZE;

@@ -2,7 +2,7 @@
 
 # Add necessary options if the target is a shared library
 ifeq ($(SHARE),1)
-ifeq ($(CONFIG_DIFFTEST_YSYXSOC),y)
+ifeq ($(CONFIG_YSYXSOC),y)
 SO = -so-ysyxsoc
 else
 SO = -so
