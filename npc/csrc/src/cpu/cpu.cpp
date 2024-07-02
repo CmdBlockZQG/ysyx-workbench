@@ -53,6 +53,8 @@ static void execute(uint64_t n) {
 #ifdef ITRACE
     extern word_t itrace_inst;
     itrace(cpu_pc, itrace_inst, print);
+#endif
+#ifdef PCTRACE
     printf(FMT_WORD "\n", cpu_pc);
 #endif
 #ifdef FTRACE

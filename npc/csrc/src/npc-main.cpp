@@ -29,12 +29,12 @@ static long load_img() {
   long ret;
   if (!img_file) {
     const uint32_t img[] = {
-      0x00500093, // addi x1, x0, 5
-      0x008002ef, // jal x5, 8
-      0x00608113, // addi x2, x1, 6
-      0x00310093, // addi x1, x2, 3
-      0x00108093, // addi x1, x1, 1
-      0x00100073, // ebreak
+      0x00500093, //  0 addi x1, x0, 5
+      0x008002ef, //  4 jal x5, 8
+      0x00608113, //  8 addi x2, x1, 6
+      0x00310093, //  c addi x1, x2, 3
+      0x00108093, // 10 addi x1, x1, 1
+      0x00100073, // 11 ebreak
       0xdeadbeef  // some data
     };
     memcpy(guest_to_host(MUXDEF(YSYXSOC, FLASH_BASE, MEM_BASE)), img, sizeof(img));
