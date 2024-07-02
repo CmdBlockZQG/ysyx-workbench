@@ -55,7 +55,7 @@ static void execute(uint64_t n) {
     itrace(cpu_pc, itrace_inst, print);
 #endif
 #ifdef PCTRACE
-    printf(FMT_WORD "\n", cpu_pc);
+    pctrace(cpu_pc);
 #endif
 #ifdef FTRACE
     ftrace(cpu_pc, cpu_module->npc);

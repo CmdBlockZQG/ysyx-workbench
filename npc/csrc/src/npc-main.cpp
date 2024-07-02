@@ -18,12 +18,15 @@ void sdb_set_batch_mode();
 int is_exit_status_bad();
 void sdb_mainloop();
 void init_disasm(const char *triple);
+void init_pctrace(const char *filename);
+void finalize_pctrace();
 
 static char *log_file = nullptr;
 static char *img_file = nullptr;
 static char *elf_file = nullptr;
 static char *wave_file = nullptr;
 static char *diff_so_file = nullptr;
+static char *pctrace_file = nullptr;
 
 static long load_img() {
   long ret;
@@ -76,6 +79,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'e': elf_file = optarg; break;
       case 'w': wave_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
+      case 'p': pctrace_file = optarg; break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -84,6 +88,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-e,--elf=FILE        load elf file from FILE\n");
         printf("\t-w,--wave=FILE       dump wave to FILE\n");
         printf("\t-d,--diff=REF_SO     run DiffTest with reference REF_SO\n");
+        printf("\t-p,--pctrace=FILE    dump pctrace for cachesim to FILE\n");
         printf("\t-h,--help            display this information\n");
         printf("\n");
         exit(0);
@@ -126,6 +131,9 @@ int main(int argc, char *argv[]) {
   /* initialize differential testing */
   init_difftest(diff_so_file, img_size);
 
+  /* initialize pc trace */
+  IFDEF(PCTRACE, init_pctrace(pctrace_file));
+
   /* initialize simple debugger */
   init_sdb();
 
@@ -134,6 +142,9 @@ int main(int argc, char *argv[]) {
 
   /* finalize driver */
   finalize_driver();
+
+  /* finalize pc trace */
+  IFDEF(PCTRACE, finalize_pctrace());
 
   return is_exit_status_bad();
 }
