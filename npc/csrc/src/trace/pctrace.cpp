@@ -44,5 +44,14 @@ void pctrace(addr_t pc) {
 }
 
 void finalize_pctrace() {
+  if (exec_cnt) {
+    while (exec_cnt) {
+      int d = std::min(16383, exec_cnt);
+      exec_cnt -= d;
+      uint16_t x = (d << 2) | 0b01;
+      fwrite(&x, sizeof(x), 1, fp);
+    }
+  }
+  assert(exec_cnt == 0);
   if (fp) fclose(fp);
 }
