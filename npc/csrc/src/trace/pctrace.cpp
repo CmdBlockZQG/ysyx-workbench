@@ -18,7 +18,6 @@ void init_pctrace(const char *filename) {
 
 void pctrace(addr_t pc) {
   if (!fp) return;
-  printf(FMT_ADDR "\n", pc);
   int off = pc - last_pc;
   if (off == 4) {
     exec_cnt++;
