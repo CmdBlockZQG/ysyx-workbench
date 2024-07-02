@@ -68,6 +68,7 @@ static int parse_args(int argc, char *argv[]) {
     {"elf"    , required_argument, NULL, 'e'},
     {"wave"   , required_argument, NULL, 'w'},
     {"diff"   , required_argument, NULL, 'd'},
+    {"pctrace", required_argument, NULL, 'p'},
     {"help"   , no_argument      , NULL, 'h'},
     {0        , 0                , NULL,  0 },
   };
