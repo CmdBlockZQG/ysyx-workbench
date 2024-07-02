@@ -24,7 +24,7 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
-#ifdef CONFIG_DIFFTEST_YSYXSOC
+#ifdef CONFIG_YSYXSOC
 static uint8_t mrom [MROM_SIZE] PG_ALIGN;
 static uint8_t sram [SRAM_SIZE] PG_ALIGN;
 static uint8_t flash [FLASH_SIZE] PG_ALIGN;
@@ -44,14 +44,14 @@ static const MemMap *get_mem_map(paddr_t addr) {
       return &mem_map[i];
     }
   }
-  panic("addr = " FMT_PADDR " out of bound", addr);
+  return NULL;
 }
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) {
-#ifdef CONFIG_DIFFTEST_YSYXSOC
-  if (paddr - CONFIG_MBASE < CONFIG_MSIZE) return pmem + paddr - CONFIG_MBASE;
+#ifdef CONFIG_YSYXSOC
   const MemMap *m = get_mem_map(paddr);
+  Assert(m, "addr = " FMT_PADDR " out of bound", paddr);
   return paddr - m->start + m->ptr;
 #else
   return pmem + paddr - CONFIG_MBASE;
@@ -60,12 +60,28 @@ uint8_t* guest_to_host(paddr_t paddr) {
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static word_t pmem_read(paddr_t addr, int len) {
-  word_t ret = host_read(guest_to_host(addr), len);
-  return ret;
+#ifdef CONFIG_YSYXSOC
+  const MemMap *m = get_mem_map(addr);
+  if (m) return host_read(addr - m->start + m->ptr, len);
+  if (addr == 0x10000005) return 0xff; // UART_LST
+  else return 0; // return 0 for all other soc device registers
+#else
+  return host_read(guest_to_host(addr), len);
+#endif
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
+#ifdef CONFIG_YSYXSOC
+  const MemMap *m = get_mem_map(addr);
+  if (m) host_write(addr - m->start + m->ptr, len, data);
+  if (addr == 0x10000000) { // UART
+    putchar(data);
+    fflush(stdout);
+  }
+  // ignore all store to device
+#else
   host_write(guest_to_host(addr), len, data);
+#endif
 }
 
 static void out_of_bound(paddr_t addr) {
