@@ -18,5 +18,8 @@ void _ssbl() {
   src = &_text_src, dst = &_text_start;
   while (dst < &_text_end) *dst++ = *src++;
 
+  volatile char *test = &_text_src;
+  for (int i = 1; i <= 32; ++i) *test++;
+
   asm volatile("tail _start");
 }
