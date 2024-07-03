@@ -19,7 +19,7 @@ void _ssbl() {
   while (dst < &_text_end) *dst++ = *src++;
 
   volatile char *test = &_text_src;
-  for (int i = 1; i <= 32; ++i) {
+  for (volatile int i = 1; i <= 32; ++i) {
     *(volatile char *)&_rodata_end = *test;
     test++;
   }
