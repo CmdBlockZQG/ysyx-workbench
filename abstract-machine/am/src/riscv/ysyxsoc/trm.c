@@ -27,13 +27,13 @@ void _trm_init() {
   while (dst < &_data_end) *dst++ = *src++;
   for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
 
-  void __am_uart_init();
-  __am_uart_init();
+  // void __am_uart_init();
+  // __am_uart_init();
 
-  uint32_t mvendorid, marchid;
-  asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
-  asm volatile("csrr %0, marchid" : "=r"(marchid));
-  printf("%c%c%c%c_%u\n", mvendorid >> 24, mvendorid >> 16, mvendorid >> 8, mvendorid, marchid);
+  // uint32_t mvendorid, marchid;
+  // asm volatile("csrr %0, mvendorid" : "=r"(mvendorid));
+  // asm volatile("csrr %0, marchid" : "=r"(marchid));
+  // printf("%c%c%c%c_%u\n", mvendorid >> 24, mvendorid >> 16, mvendorid >> 8, mvendorid, marchid);
 
   int main(const char *args);
   int ret = main(mainargs);
