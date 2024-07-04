@@ -14,7 +14,9 @@ module ysyx_23060203_IFU (
 );
   assign ram_r.arsize = 3'b010;
 
+  reg rstn_lst;
   always @(posedge clk) begin
+    rstn_lst <= rstn;
     if (~rstn) begin // 复位
 `ifdef YSYXSOC
       pc <= 32'h30000000;
@@ -24,6 +26,7 @@ module ysyx_23060203_IFU (
       ram_r.araddr <= 32'h80000000;
 `endif
     end
+    if (rstn & ~rstn_lst) ram_r.arvalid <= 1;
   end
 
   // TEMP: 暂时不考虑错误处理
