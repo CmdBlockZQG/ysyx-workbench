@@ -112,7 +112,9 @@ module ysyx_23060203_ICache (
   wire [INDEX_W-1:0] index = addr[OFFSET_W+INDEX_W-1:OFFSET_W];
   wire [TAG_W-1:0] tag = addr[31:OFFSET_W+INDEX_W];
 
-  wire cache_hit = line_valid[index] & (line_tag[index] == tag);
+  wire cache_hit_req = line_valid[index] & (line_tag[index] == tag);
+  reg cache_hit_reg;
+  wire cache_hit = ifu_in_ar_hs ? cache_hit_req : cache_hit_reg;
   wire [BLOCK_W-1:0] cache_out = line_data[index];
 
   reg cache_resp_valid;
@@ -132,10 +134,12 @@ module ysyx_23060203_ICache (
     for (i = 0; i < SET_N; i = i + 1) line_valid[i] <= 0;
     ifu_in.arready <= 1;
     cache_resp_valid <= 0;
+    cache_hit_reg <= 0;
   end else begin
     if (ifu_in_ar_hs) begin
       addr_reg <= ifu_in.araddr;
-      if (cache_hit) cache_resp_valid <= 1;
+      cache_hit_reg <= cache_hit_req;
+      if (cache_hit_req) cache_resp_valid <= 1;
       else ifu_in.arready <= 0;
     end
 

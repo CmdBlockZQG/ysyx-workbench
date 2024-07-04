@@ -42,6 +42,11 @@ module ysyx_23060203_IFU (
       pc <= ram_r.araddr;
     end
 
+    // 读取到下一条指令
+    if (ram_r.rvalid & ram_r.rready) begin
+      
+    end
+
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
       // 接收npc
