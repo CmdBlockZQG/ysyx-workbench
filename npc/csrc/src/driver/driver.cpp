@@ -46,13 +46,13 @@ void finalize_driver() {
   delete contextp;
 }
 
+bool wave_rec = false;
+
 static void driver_step() {
   top_module->eval();
   contextp->timeInc(1);
 
-  static uint64_t cnt = 0;
-  ++cnt;
-  if (trace_file && cnt > 2 * 1600000) trace_file->dump(contextp->time());
+  if (trace_file && wave_rec) trace_file->dump(contextp->time());
 }
 
 void driver_cycle() {

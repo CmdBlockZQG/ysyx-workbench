@@ -34,6 +34,9 @@ static void exec_once() {
     if (exec_once_flag) break;
   }
   ++nr_inst;
+
+  extern bool wave_rec;
+  if (nr_inst > 160000) wave_rec = true;
 }
 
 static void wp_and_difftest() {
