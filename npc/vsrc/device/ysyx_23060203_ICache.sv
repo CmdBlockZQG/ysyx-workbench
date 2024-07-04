@@ -42,7 +42,7 @@ module ysyx_23060203_ICache (
   assign ram_out.arlen = BLOCK_SZ - 1; // burst length = BLOCK_SZ
   assign ram_out.arburst = (BLOCK_SZ == 1) ? 2'b00 : 2'b10; // wrap burst
 
-  assign ram_out.arvalid = ~cache_hit & ifu_in.arvalid & rstn;
+  assign ram_out.arvalid = ~cache_hit & ifu_in.arvalid;
   assign ram_out.araddr = {tag, index, off_next, 2'b00};
 
   assign ram_out.rready = 1;
