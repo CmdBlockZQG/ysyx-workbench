@@ -63,7 +63,7 @@ module npc_RAM (
     end
 
     if (~in.arready & in.rvalid & in.rready) begin
-      if (arlen == 8'b0) begin // burst的最后一拍
+      if (in.rlast) begin // burst的最后一拍
         in.arready <= 1;
         in.rvalid <= 0;
         in.rlast <= 0;
@@ -71,7 +71,7 @@ module npc_RAM (
         arlen <= arlen - 1;
         araddr <= araddr_next;
         in.rdata <= {2{pmem_read(araddr_next)}};
-        in.rlast <= (arlen == 8'h1);
+        in.rlast <= (arlen == 8'h0);
       end
     end
   end
