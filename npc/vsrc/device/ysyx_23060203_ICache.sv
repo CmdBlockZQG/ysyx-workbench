@@ -1,4 +1,4 @@
-module ysyx_23060203_ICache (
+module ysyx_23060203_ICache_new (
   input rstn, clk,
 
   axi_if.slave ifu_in,
@@ -86,7 +86,7 @@ module ysyx_23060203_ICache (
 
 endmodule
 
-module ysyx_23060203_ICache_old (
+module ysyx_23060203_ICache (
   input rstn, clk,
 
   axi_if.slave ifu_in,
