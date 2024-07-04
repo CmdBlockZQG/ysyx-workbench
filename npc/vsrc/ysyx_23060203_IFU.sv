@@ -32,8 +32,11 @@ module ysyx_23060203_IFU (
   // TEMP: 暂时不考虑错误处理
   assign inst_out.valid = ram_r.rvalid;
   assign ram_r.rready = inst_out.ready;
+  wire resp = ram_r.rready & ram_r.rvalid;
   // assign ram_r.arvalid = inst_out.ready & rstn;
-  assign inst = ram_r.araddr[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
+  reg [31:0] inst_reg;
+  wire [31:0] inst_resp = ram_r.araddr[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
+  assign inst = resp ? inst_resp : inst_reg;
 
   always @(posedge clk) begin if (rstn) begin
     // 确认ram收到地址
@@ -41,6 +44,8 @@ module ysyx_23060203_IFU (
       ram_r.arvalid <= 0;
       pc <= ram_r.araddr;
     end
+
+    if (resp) inst_reg <= inst_resp;
 
     // 确认下游收到数据
     if (inst_out.valid & inst_out.ready) begin
