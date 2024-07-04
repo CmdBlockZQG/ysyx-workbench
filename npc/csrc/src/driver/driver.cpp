@@ -52,7 +52,7 @@ static void driver_step() {
 
   static uint64_t cnt = 0;
   ++cnt;
-  if (trace_file && cnt > 160000) trace_file->dump(contextp->time());
+  if (trace_file && cnt > 2 * 1600000) trace_file->dump(contextp->time());
 }
 
 void driver_cycle() {
