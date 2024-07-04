@@ -26,9 +26,9 @@ module ysyx_23060203_ICache (
   reg [(OFFSET_W-2)-1:0] off_reg;
 
   reg req = ifu_in.arvalid & ifu_in.arready;
-  wire [TAG_W-1:0] tag = req ? req_tag : tag_reg;
-  wire [INDEX_W-1:0] index = req ? req_index : index_reg;
-  wire [(OFFSET_W-2)-1:0] off = req ? req_off : off_reg;
+  wire [TAG_W-1:0] tag = ifu_in.arvalid ? req_tag : tag_reg;
+  wire [INDEX_W-1:0] index = ifu_in.arvalid ? req_index : index_reg;
+  wire [(OFFSET_W-2)-1:0] off = ifu_in.arvalid ? req_off : off_reg;
   wire [(OFFSET_W-2)-1:0] off_next = off + 1;
   wire [31:0] addr = {tag, index, off, 2'b0};
 
