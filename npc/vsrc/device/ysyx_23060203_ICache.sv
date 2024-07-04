@@ -125,7 +125,7 @@ module ysyx_23060203_ICache (
   assign ram_out.arvalid = ~cache_hit & ifu_in.arvalid;
   assign ram_out.araddr = addr;
 
-  assign ram_out.rready = 1;
+  assign ram_out.rready = ifu_in.rready;
   assign ifu_in.rvalid = cache_hit ? cache_resp_valid : ram_out.rvalid;
   assign ifu_in.rdata = cache_hit ? {2{cache_out}} : ram_out.rdata; // TEMP: 块大小32
 
