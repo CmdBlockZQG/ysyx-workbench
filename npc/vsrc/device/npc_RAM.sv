@@ -37,7 +37,7 @@ module npc_RAM (
   end
   wire [31:0] wrap_mask = (32'h1 << (arsize + len_w)) - 32'h1;
 
-  wire [31:0] araddr_incr_next = araddr + {29'b0, arsize} + 32'h1;
+  wire [31:0] araddr_incr_next = araddr + (32'h1 << arsize);
 
   reg [31:0] araddr_next;
   always_comb begin
