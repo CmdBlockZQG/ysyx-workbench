@@ -71,7 +71,7 @@ module npc_RAM (
         burst_cnt <= burst_cnt - 1;
         araddr <= araddr_next;
         in.rdata <= {2{pmem_read(araddr_next)}};
-        in.rlast <= (burst_cnt == 8'h0);
+        in.rlast <= (burst_cnt == 8'h1);
       end
     end
   end
