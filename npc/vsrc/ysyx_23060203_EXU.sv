@@ -234,7 +234,7 @@ module ysyx_23060203_EXU (
 
     // 确认GPR写入
     // 因为不可能连续两个周期写，所以这个是对的
-    if (gpr_wen & ~(id_in.ready & id_in.valid & id_gpr_wen & opcode != OP_LOAD) & ~((~id_in.ready | id_in.valid) & mem_r_res_hs)) begin
+    if (gpr_wen) begin
       gpr_wen <= 0;
     end
     // CSR同理
