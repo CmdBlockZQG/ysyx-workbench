@@ -14,7 +14,9 @@ module ysyx_23060203_IFU (
 );
   assign ram_r.arsize = 3'b010;
 
+  reg rstn_lst;
   always @(posedge clk) begin
+    rstn_lst <= rstn;
     if (~rstn) begin // 复位
 `ifdef YSYXSOC
       pc <= 32'h30000000;
@@ -24,17 +26,19 @@ module ysyx_23060203_IFU (
       ram_r.araddr <= 32'h80000000;
 `endif
     end
+    if (rstn & ~rstn_lst) ram_r.arvalid <= 1;
   end
 
   // TEMP: 暂时不考虑错误处理
   assign inst_out.valid = ram_r.rvalid;
   assign ram_r.rready = inst_out.ready;
-  assign ram_r.arvalid = inst_out.ready & rstn;
+  // assign ram_r.arvalid = inst_out.ready & rstn;
   assign inst = ram_r.araddr[2] ? ram_r.rdata[63:32] : ram_r.rdata[31:0];
 
   always @(posedge clk) begin if (rstn) begin
     // 确认ram收到地址
     if (ram_r.arvalid & ram_r.arready) begin
+      ram_r.arvalid <= 0;
       pc <= ram_r.araddr;
     end
 
@@ -42,6 +46,7 @@ module ysyx_23060203_IFU (
     if (inst_out.valid & inst_out.ready) begin
       // 接收npc
       ram_r.araddr <= npc;
+      ram_r.arvalid <= 1;
 `ifndef SYNTHESIS
       if (inst == 32'h100073) begin
         halt();
