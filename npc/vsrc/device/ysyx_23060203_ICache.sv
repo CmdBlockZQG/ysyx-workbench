@@ -38,7 +38,7 @@ module ysyx_23060203_ICache_new (
   // read burst
   assign ram_out.arsize = 3'b010; // 4 Bytes
   assign ram_out.arlen = BLOCK_SZ - 1; // burst length = BLOCK_SZ
-  assign ram_out.arburst = 2'b10; // wrap burst
+  assign ram_out.arburst = (BLOCK_SZ == 1) ? 2'b00 : 2'b10; // wrap burst
 
   assign ram_out.arvalid = ~cache_hit & ifu_in.arvalid;
   assign ram_out.araddr = {tag, index, off + 1, 2'b00};

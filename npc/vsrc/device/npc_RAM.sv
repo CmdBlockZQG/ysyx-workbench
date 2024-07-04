@@ -6,7 +6,9 @@ module npc_RAM (
 );
 
   always @(posedge clk) if (~rstn) begin // 复位
+    in.arready <= 1;
     in.rvalid <= 0;
+    in.rlast <= 0;
 
     in.awready <= 1;
     in.wready <= 1;
@@ -16,17 +18,62 @@ module npc_RAM (
     wdata_valid_reg <= 0;
   end
 
-  assign in.arready = 1;
   assign in.rresp = 2'b00;
-  assign in.rlast = 1; // TEMP: 不支持burst
+
+  reg [31:0] araddr;
+  reg [7:0] arlen;
+  reg [2:0] arsize;
+  reg [1:0] arburst;
+
+  reg [2:0] len_w;
+  always_comb begin
+    case (arlen)
+      8'h01: len_w = 3'h1;
+      8'h03: len_w = 3'h2;
+      8'h07: len_w = 3'h3;
+      8'h0f: len_w = 3'h4;
+      default: len_w = 3'h0;
+    endcase
+  end
+  wire [31:0] wrap_mask = (32'h1 << (arsize + len_w)) - 32'h1;
+
+  wire [31:0] araddr_incr_next = araddr + {29'b0, arsize} + 32'h1;
+
+  reg [31:0] araddr_next;
+  always_comb begin
+    case (arburst)
+      2'b01: araddr_next = araddr_incr_next; // incr
+      2'b10: araddr_next = (araddr & ~wrap_mask) | (araddr_incr_next & wrap_mask);
+      default: araddr_next = araddr; // fixed
+    endcase
+  end
+
   always @(posedge clk) if (rstn) begin
-    in.rvalid <= in.arvalid;
-`ifndef SYNTHESIS
-    if (in.arvalid) in.rdata <= {2{pmem_read(in.araddr)}};
-    else in.rdata <= 64'b0;
-`else
-    in.rdata <= 64'b0;
-`endif
+    if (in.arvalid & in.arready) begin
+      in.arready <= 0; // idle -> access
+
+      araddr <= in.araddr;
+      arlen <= in.arlen;
+      arsize <= in.arsize;
+      arburst <= in.arburst;
+
+      in.rvalid <= 1;
+      in.rdata <= {2{pmem_read(in.araddr)}};
+      in.rlast <= (in.arlen == 8'b0);
+    end
+
+    if (~in.arready & in.rvalid & in.rready) begin
+      if (arlen == 8'b0) begin // burst的最后一拍
+        in.arready <= 1;
+        in.rvalid <= 0;
+        in.rlast <= 0;
+      end else begin
+        arlen <= arlen - 1;
+        araddr <= araddr_next;
+        in.rdata <= {2{pmem_read(araddr_next)}};
+        in.rlast <= (arlen == 8'h1);
+      end
+    end
   end
 
   wire waddr_handshake = in.awready & in.awvalid;
