@@ -137,7 +137,6 @@ module ysyx_23060203_EXU (
       load_flag <= 0;
       store_flag <= 0;
       mem_res_flag <= 0;
-      load_ok <= 0;
     end
   end
 
@@ -146,7 +145,7 @@ module ysyx_23060203_EXU (
   reg [2:0] funct_reg;
   reg [4:0] opcode_reg, rd_reg;
   // 每个步骤的处理状态寄存器
-  reg load_flag, store_flag, mem_res_flag, load_ok;
+  reg load_flag, store_flag, mem_res_flag;
   // 辅助组合
   wire mem_r_res_hs = mem_rres.valid & mem_rres.ready;
   wire mem_w_res_hs = mem_wres.valid & mem_wres.ready;
@@ -217,14 +216,12 @@ module ysyx_23060203_EXU (
         gpr_wen <= 1;
         gpr_waddr <= rd_reg;
         gpr_wdata <= mem_rdata;
-        load_ok <= 1;
+        id_in.ready <= 1;
         load_flag <= 0;
 `ifndef SYNTHESIS
         perf_event(PERF_EXU_READY);
 `endif
       end
-      if (load_ok) id_in.ready <= 1;
-
       if (mem_w_res_hs) begin
         mem_wres.ready <= 0;
         id_in.ready <= 1;
