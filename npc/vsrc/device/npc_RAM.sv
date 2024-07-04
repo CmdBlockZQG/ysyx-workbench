@@ -18,7 +18,7 @@ module npc_RAM (
 
   assign in.arready = 1;
   assign in.rresp = 2'b00;
-  assign in.rlast = 1; // TEMP: 不支持burst
+  // assign in.rlast = 1; // TEMP: 不支持burst
   always @(posedge clk) if (rstn) begin
     in.rvalid <= in.arvalid;
 `ifndef SYNTHESIS
