@@ -76,6 +76,8 @@ module ysyx_23060203_MemArb (
   assign lsu_r.rdata = ram_r.rdata;
   assign ifu_r.rresp = ram_r.rresp;
   assign lsu_r.rresp = ram_r.rresp;
+  assign ifu_r.rlast = ram_r.rlast;
+  assign lsu_r.rlast = ram_r.rlast;
   assign ifu_r.rvalid = ~res_dev ? ram_r.rvalid : 0;
   assign lsu_r.rvalid = res_dev ? ram_r.rvalid : 0;
   assign ram_r.rready = res_dev ? lsu_r.rready : ifu_r.rready;
