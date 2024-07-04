@@ -1,4 +1,4 @@
-module ysyx_23060203_ICache_new (
+module ysyx_23060203_ICache (
   input rstn, clk,
 
   axi_if.slave ifu_in,
@@ -15,7 +15,7 @@ module ysyx_23060203_ICache_new (
   // TEMP: 直接映射实现
   reg line_valid [SET_N];
   reg [TAG_W-1:0] line_tag [SET_N];
-  reg [BLOCK_W-1:0] line_data [SET_N][BLOCK_SZ];
+  reg [31:0] line_data [SET_N][BLOCK_SZ];
 
   wire [TAG_W-1:0] req_tag = ifu_in.araddr[31:OFFSET_W+INDEX_W];
   wire [INDEX_W-1:0] req_index = ifu_in.araddr[OFFSET_W+INDEX_W-1:OFFSET_W];
@@ -28,11 +28,12 @@ module ysyx_23060203_ICache_new (
   wire [TAG_W-1:0] tag = ifu_in.arvalid ? req_tag : tag_reg;
   wire [INDEX_W-1:0] index = ifu_in.arvalid ? req_index : index_reg;
   wire [(OFFSET_W-2)-1:0] off = ifu_in.arvalid ? req_off : off_reg;
+  wire [(OFFSET_W-2)-1:0] off_next = off + 1;
   wire [31:0] addr = {tag, index, off, 2'b0};
 
   wire enable = addr[31:28] >= 4'h3; // 覆盖flash和sdram，排除很快的sram TEMP: 还没启用
   wire cache_hit = line_valid[index] & (line_tag[index] == tag);
-  wire [BLOCK_W-1:0] cache_out = line_data[index][word_off];
+  wire [31:0] cache_out = line_data[index][off];
   reg cache_out_valid;
 
   // read burst
@@ -41,11 +42,11 @@ module ysyx_23060203_ICache_new (
   assign ram_out.arburst = (BLOCK_SZ == 1) ? 2'b00 : 2'b10; // wrap burst
 
   assign ram_out.arvalid = ~cache_hit & ifu_in.arvalid;
-  assign ram_out.araddr = {tag, index, off + 1, 2'b00};
+  assign ram_out.araddr = {tag, index, off_next, 2'b00};
 
   assign ram_out.rready = 1;
-  assign ifu_in.rvalid = cache_resp_valid | (ram_out.rvalid & ram_out.rlast);
-  assign ifu_in.rdata = cache_resp_valid ? {2{cache_out}} : ram_out.rdata;
+  assign ifu_in.rvalid = cache_out_valid | (ram_out.rvalid & ram_out.rlast);
+  assign ifu_in.rdata = cache_out_valid ? {2{cache_out}} : ram_out.rdata;
 
   integer i;
   always @(posedge clk) if (~rstn) begin
@@ -66,12 +67,12 @@ module ysyx_23060203_ICache_new (
         line_valid[index] <= 1;
         line_tag[index] <= tag;
       end
-      line_data[index][off + 1] <= ~off[0] ? ram_out.rdata[63:32] : ram_out.rdata[31:0];
+      line_data[index][off_next] <= ~off[0] ? ram_out.rdata[63:32] : ram_out.rdata[31:0];
       off_reg <= off_reg + 1;
     end
     if (ifu_in.rvalid & ifu_in.rready) begin
-      if (cache_resp_valid) begin
-        cache_resp_valid <= 0;
+      if (cache_out_valid) begin
+        cache_out_valid <= 0;
 `ifndef SYNTHESIS
         perf_event(PERF_ICACHE_HIT);
 `endif
@@ -85,7 +86,7 @@ module ysyx_23060203_ICache_new (
 
 endmodule
 
-module ysyx_23060203_ICache (
+module ysyx_23060203_ICache_old (
   input rstn, clk,
 
   axi_if.slave ifu_in,
