@@ -24,6 +24,7 @@ module npc_RAM (
   reg [7:0] arlen;
   reg [2:0] arsize;
   reg [1:0] arburst;
+  reg [7:0] burst_cnt;
 
   reg [2:0] len_w;
   always_comb begin
@@ -36,9 +37,7 @@ module npc_RAM (
     endcase
   end
   wire [31:0] wrap_mask = (32'h1 << (arsize + len_w)) - 32'h1;
-
   wire [31:0] araddr_incr_next = araddr + (32'h1 << arsize);
-
   reg [31:0] araddr_next;
   always_comb begin
     case (arburst)
@@ -56,6 +55,7 @@ module npc_RAM (
       arlen <= in.arlen;
       arsize <= in.arsize;
       arburst <= in.arburst;
+      burst_cnt <= in.arlen;
 
       in.rvalid <= 1;
       in.rdata <= {2{pmem_read(in.araddr)}};
@@ -68,10 +68,10 @@ module npc_RAM (
         in.rvalid <= 0;
         in.rlast <= 0;
       end else begin
-        arlen <= arlen - 1;
+        burst_cnt <= burst_cnt - 1;
         araddr <= araddr_next;
         in.rdata <= {2{pmem_read(araddr_next)}};
-        in.rlast <= (arlen == 8'h0);
+        in.rlast <= (burst_cnt == 8'h0);
       end
     end
   end
