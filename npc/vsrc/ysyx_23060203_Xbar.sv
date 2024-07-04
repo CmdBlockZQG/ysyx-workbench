@@ -14,12 +14,8 @@ module ysyx_23060203_Xbar (
 
   // -------------------- Read --------------------
 
-  // TEMP: 这里假设上游都是这样设置的了
-  assign clint_r.arlen = 0;
-  assign clint_r.arburst = 0;
+  // TEMP: 不支持乱序读
   assign clint_r.arid = 0;
-  assign soc_r.arlen = 0;
-  assign soc_r.arburst = 0;
   assign soc_r.arid = 0;
 
   // req
@@ -27,8 +23,12 @@ module ysyx_23060203_Xbar (
   wire rreq_soc = ~rreq_clint;
   assign soc_r.araddr = read.araddr;
   assign soc_r.arsize = read.arsize;
+  assign soc_r.arlen = read.arlen;
+  assign soc_r.arburst = read.arburst;
   assign clint_r.araddr = read.araddr;
   assign clint_r.arsize = read.arsize;
+  assign clint_r.arlen = read.arlen;
+  assign clint_r.arburst = read.arburst;
 
 `ifdef YSYXSOC
   wire rreq_clint = (read.araddr[31:16] == 16'h0200);
@@ -67,18 +67,21 @@ module ysyx_23060203_Xbar (
       read.rdata = soc_r.rdata;
       read.rresp = soc_r.rresp;
       read.rvalid = soc_r.rvalid;
+      read.rlast = soc_r.rlast;
     end else if (rres_clint) begin
       read.rdata = clint_r.rdata;
       read.rresp = clint_r.rresp;
       read.rvalid = clint_r.rvalid;
+      read.rlast = clint_r.rlast;
     end else begin
       read.rdata = 0;
       read.rresp = 0;
       read.rvalid = 0;
+      read.rlast = 0;
     end
   end
   always @(posedge clk) begin if (rstn) begin
-    if (read.rvalid & read.rready) begin
+    if (read.rvalid & read.rready & read.rlast) begin
       rreq_ready <= 1;
     end
   end end

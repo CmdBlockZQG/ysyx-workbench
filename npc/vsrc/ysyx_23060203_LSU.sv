@@ -23,6 +23,9 @@ module ysyx_23060203_LSU (
   `include "params/mem.sv"
 
   // -------------------- 读请求 --------------------
+  assign ram_r.arlen = 0;
+  assign ram_r.arburst = 2'b0;
+
   // 暂存寄存器
   reg [2:0] raddr_align_reg;
   reg [2:0] rfunc_reg;
