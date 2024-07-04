@@ -216,7 +216,6 @@ module ysyx_23060203_EXU (
         gpr_wen <= 1;
         gpr_waddr <= rd_reg;
         gpr_wdata <= mem_rdata;
-        id_in.ready <= 1;
         load_flag <= 0;
 `ifndef SYNTHESIS
         perf_event(PERF_EXU_READY);
@@ -236,6 +235,7 @@ module ysyx_23060203_EXU (
     // 因为不可能连续两个周期写，所以这个是对的
     if (gpr_wen & ~(id_in.ready & id_in.valid & id_gpr_wen & opcode != OP_LOAD) & ~((~id_in.ready | id_in.valid) & mem_r_res_hs)) begin
       gpr_wen <= 0;
+      if (~id_in.ready) id_in.ready <= 1;
     end
     // CSR同理
     if (csr_wen1) begin
