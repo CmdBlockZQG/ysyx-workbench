@@ -4,7 +4,6 @@ module ysyx_23060203_MemArb (
   axi_if.slave ifu_r,
   axi_if.slave lsu_r,
 
-  // axi_lite_r_if.master ram_r
   axi_if.master ram_r
 );
 
@@ -16,9 +15,7 @@ module ysyx_23060203_MemArb (
     end
   end
 
-  // TEMP: 这里假设IFU和LSU都是这样设置的了
-  assign ram_r.arlen = 0;
-  assign ram_r.arburst = 0;
+  // TEMP: 不支持乱序读
   assign ram_r.arid = 0;
 
   // req
@@ -40,6 +37,12 @@ module ysyx_23060203_MemArb (
   assign ram_r.arsize = tmp_flag ? tmp_rsize : (
     req_dev ? lsu_r.arsize : ifu_r.arsize
   );
+  assign ram_r.arlen = tmp_flag ? tmp_rlen : (
+    req_dev ? lsu_r.arlen : ifu_r.arlen
+  );
+  assign ram_r.arburst = tmp_flag ? tmp_rburst : (
+    req_dev ? lsu_r.arburst : ifu_r.arburst
+  );
 
   assign ifu_r.arready = req_ready & ram_r.arready;
   assign lsu_r.arready = req_ready & ram_r.arready;
@@ -48,6 +51,8 @@ module ysyx_23060203_MemArb (
   reg tmp_flag;
   reg [31:0] tmp_raddr;
   reg [2:0] tmp_rsize;
+  reg [7:0] tmp_rlen;
+  reg [1:0] tmp_rburst;
   always @(posedge clk) begin if (rstn) begin
     if (ram_r.arvalid & ram_r.arready) begin
       lst_dev <= req_dev;
@@ -56,6 +61,8 @@ module ysyx_23060203_MemArb (
         tmp_flag <= 1;
         tmp_raddr <= ifu_r.araddr;
         tmp_rsize <= ifu_r.arsize;
+        tmp_rlen <= ifu_r.arlen;
+        tmp_rburst <= ifu_r.arburst;
         req_ready <= 0;
       end else if (tmp_flag) begin // 暂存读
         tmp_flag <= 0;
@@ -74,7 +81,7 @@ module ysyx_23060203_MemArb (
   assign ram_r.rready = res_dev ? lsu_r.rready : ifu_r.rready;
 
   always @(posedge clk) begin if (rstn) begin
-    if (ram_r.rvalid & ram_r.rready) begin
+    if (ram_r.rvalid & ram_r.rready & ram_r.rlast) begin
       req_ready <= ~tmp_flag;
     end
   end end
