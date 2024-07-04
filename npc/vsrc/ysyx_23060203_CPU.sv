@@ -40,14 +40,14 @@ module ysyx_23060203_CPU (
     .rstn(rstn), .clk(clk),
     .npc(npc),
     .pc(pc), .inst(inst), .inst_out(inst_if),
-    .ram_r(ifu_mem_r)
+    .ram_r(ifu_icache_r)
   );
 
-  // ysyx_23060203_ICache ICache (
-  //   .rstn(rstn), .clk(clk),
-  //   .ifu_in(ifu_icache_r),
-  //   .ram_out(ifu_mem_r)
-  // );
+  ysyx_23060203_ICache ICache (
+    .rstn(rstn), .clk(clk),
+    .ifu_in(ifu_icache_r),
+    .ram_out(ifu_mem_r)
+  );
 
   // GPR
   wire [4:0] gpr_raddr1, gpr_raddr2;
