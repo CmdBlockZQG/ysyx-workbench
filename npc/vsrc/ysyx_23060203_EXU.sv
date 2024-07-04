@@ -216,7 +216,7 @@ module ysyx_23060203_EXU (
         gpr_wen <= 1;
         gpr_waddr <= rd_reg;
         gpr_wdata <= mem_rdata;
-        id_in.ready <= 1;
+        // id_in.ready <= 1;
         load_flag <= 0;
 `ifndef SYNTHESIS
         perf_event(PERF_EXU_READY);
@@ -237,6 +237,7 @@ module ysyx_23060203_EXU (
     if (gpr_wen & ~(id_in.ready & id_in.valid & id_gpr_wen & opcode != OP_LOAD) & ~((~id_in.ready | id_in.valid) & mem_r_res_hs)) begin
       gpr_wen <= 0;
     end
+    if (gpr_wen & ~id_in.ready) id_in.ready <= 1;
     // CSR同理
     if (csr_wen1) begin
       csr_wen1 <= 0;
