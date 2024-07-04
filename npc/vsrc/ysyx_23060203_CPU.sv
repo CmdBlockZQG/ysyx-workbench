@@ -34,7 +34,7 @@ module ysyx_23060203_CPU (
   wire [31:0] pc;
   wire [31:0] inst;
   decouple_if inst_if();
-`ifdef YSYXSOC
+
   axi_if ifu_icache_r();
   ysyx_23060203_IFU IFU (
     .rstn(rstn), .clk(clk),
@@ -48,14 +48,6 @@ module ysyx_23060203_CPU (
     .ifu_in(ifu_icache_r),
     .ram_out(ifu_mem_r)
   );
-`else
-  ysyx_23060203_IFU IFU (
-    .rstn(rstn), .clk(clk),
-    .npc(npc),
-    .pc(pc), .inst(inst), .inst_out(inst_if),
-    .ram_r(ifu_mem_r)
-  );
-`endif
 
   // GPR
   wire [4:0] gpr_raddr1, gpr_raddr2;
