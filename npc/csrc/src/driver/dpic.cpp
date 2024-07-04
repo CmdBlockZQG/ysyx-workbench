@@ -81,10 +81,9 @@ void mrom_read(int addr, int *data) {
 #else
 
 int pmem_read(int raddr) {
-  // raddr = raddr & ~0x3u;
-  // word_t rdata = addr_read((addr_t)raddr, 4);
-  // return *(int *)&rdata;
-  return 0;
+  raddr = raddr & ~0x3u;
+  word_t rdata = addr_read((addr_t)raddr, 4);
+  return *(int *)&rdata;
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
