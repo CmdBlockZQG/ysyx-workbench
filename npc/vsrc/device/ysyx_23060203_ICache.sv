@@ -95,4 +95,16 @@ module ysyx_23060203_ICache (
     end
   end
 
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  reg perf_reading;
+  always @(posedge clk) if (~rstn) begin
+    perf_reading <= 0;
+  end else begin
+    if (perf_reading) perf_event(PERF_ICACHE_WAIT_MEM);
+    if (ram_out.arvalid & ram_out.arready) perf_reading <= 1;
+    if (ram_out.rvalid & ram_out.rready & ram_out.rlast) perf_reading <= 0;
+  end
+`endif
+
 endmodule
