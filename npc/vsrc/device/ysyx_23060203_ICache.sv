@@ -62,9 +62,10 @@ module ysyx_23060203_ICache (
       tag_reg <= req_tag;
       index_reg <= req_index;
       off_reg <= req_off;
-      if (cache_hit) cache_out_valid <= 1;
-      else begin
-        ifu_in.arready <= 0;
+      ifu_in.arready <= 0;
+      if (cache_hit) begin
+        cache_out_valid <= 1;
+      end else begin
         valid_mask <= 0;
       end
     end
@@ -79,6 +80,7 @@ module ysyx_23060203_ICache (
       off_reg <= off_reg + 1;
     end
     if (ifu_in.rvalid & ifu_in.rready) begin
+      ifu_in.arready <= 1;
       if (cache_out_valid) begin
         cache_out_valid <= 0;
 `ifndef SYNTHESIS
