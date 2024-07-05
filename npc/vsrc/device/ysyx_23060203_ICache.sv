@@ -65,9 +65,10 @@ module ysyx_23060203_ICache (
       ifu_in.arready <= 0;
       if (cache_hit) begin
         cache_out_valid <= 1;
-      end else begin
-        valid_mask <= 0;
       end
+    end
+    if (ram_out.arvalid & ram_out.arready) begin
+      valid_mask <= 0;
     end
     if (ram_out.rvalid & ram_out.rready) begin
       if (ram_out.rlast) begin
