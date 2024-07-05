@@ -42,9 +42,7 @@ module ysyx_23060203_ICache (
   assign ram_out.arlen = BLOCK_SZ - 1; // burst length = BLOCK_SZ
   assign ram_out.arburst = (BLOCK_SZ == 1) ? 2'b00 : 2'b10; // wrap burst
 
-  reg valid_mask;
-
-  assign ram_out.arvalid = ~cache_hit & ifu_in.arvalid & valid_mask;
+  assign ram_out.arvalid = ~cache_hit & ifu_in.arvalid;
   assign ram_out.araddr = {tag, index, off_next, 2'b00};
 
   assign ram_out.rready = 1;
@@ -56,32 +54,24 @@ module ysyx_23060203_ICache (
     for (i = 0; i < SET_N; i = i + 1) line_valid[i] <= 0;
     ifu_in.arready <= 1;
     cache_out_valid <= 0;
-    valid_mask <= 1;
   end else begin
     if (ifu_in.arvalid & ifu_in.arready) begin
       tag_reg <= req_tag;
       index_reg <= req_index;
       off_reg <= req_off;
-      ifu_in.arready <= 0;
-      if (cache_hit) begin
-        cache_out_valid <= 1;
-      end
-    end
-    if (ram_out.arvalid & ram_out.arready) begin
-      valid_mask <= 0;
+      if (cache_hit) cache_out_valid <= 1;
+      else ifu_in.arready <= 0;
     end
     if (ram_out.rvalid & ram_out.rready) begin
       if (ram_out.rlast) begin
         ifu_in.arready <= 1;
         line_valid[index] <= 1;
         line_tag[index] <= tag;
-        valid_mask <= 1;
       end
       line_data[index][off_next] <= ~off[0] ? ram_out.rdata[63:32] : ram_out.rdata[31:0];
       off_reg <= off_reg + 1;
     end
     if (ifu_in.rvalid & ifu_in.rready) begin
-      ifu_in.arready <= 1;
       if (cache_out_valid) begin
         cache_out_valid <= 0;
 `ifndef SYNTHESIS

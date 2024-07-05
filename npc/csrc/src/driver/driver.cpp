@@ -51,7 +51,6 @@ bool wave_rec = false;
 static void driver_step() {
   top_module->eval();
   contextp->timeInc(1);
-
   if (trace_file && wave_rec) trace_file->dump(contextp->time());
 }
 
