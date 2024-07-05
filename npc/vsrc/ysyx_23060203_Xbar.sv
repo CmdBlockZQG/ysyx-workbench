@@ -30,13 +30,10 @@ module ysyx_23060203_Xbar (
   assign clint_r.arlen = read.arlen;
   assign clint_r.arburst = read.arburst;
 
-  reg [31:0] araddr_reg;
-  wire [31:0] araddr = read.arvalid ? read.araddr : araddr_reg;
-
 `ifdef YSYXSOC
-  wire rreq_clint = (araddr[31:16] == 16'h0200);
+  wire rreq_clint = (read.araddr[31:16] == 16'h0200);
 `else
-  wire rreq_clint = (araddr[31:4] == 28'ha000004);
+  wire rreq_clint = (read.araddr[31:4] == 28'ha000004);
 `endif
 
   always_comb begin
@@ -56,7 +53,6 @@ module ysyx_23060203_Xbar (
   end
   always @(posedge clk) begin if (rstn) begin
     if (read.arvalid & read.arready) begin
-      araddr_reg <= read.araddr;
       rres_soc <= rreq_soc;
       rres_clint <= rreq_clint;
       rreq_ready <= 0;
