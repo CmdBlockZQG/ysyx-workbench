@@ -187,7 +187,6 @@ module ysyx_23060203_EXU (
             mem_raddr <= alu_val;
             mem_rfunc <= funct;
             load_flag <= 1;
-            mem_rres.ready <= 1;
           end
         OP_STORE:
           if (~mem_wreq.valid & ~store_flag) begin
@@ -196,7 +195,6 @@ module ysyx_23060203_EXU (
             mem_waddr <= id_in.valid ? alu_val : alu_val_reg;
             mem_wdata <= id_in.valid ? src2 : src2_reg;
             store_flag <= 1;
-            mem_wres.ready <= 1;
           end
         default: ;
       endcase
@@ -204,10 +202,12 @@ module ysyx_23060203_EXU (
       // 确认lsu收到读内存请求
       if (mem_rreq.valid & mem_rreq.ready) begin
         mem_rreq.valid <= 0;
+        mem_rres.ready <= 1;
       end
       // 确认lsu收到写内存请求
       if (mem_wreq.valid & mem_wreq.ready) begin
         mem_wreq.valid <= 0;
+        mem_wres.ready <= 1;
       end
 
       // 访存请求回复

@@ -46,10 +46,12 @@ void finalize_driver() {
   delete contextp;
 }
 
+bool wave_rec = false;
+
 static void driver_step() {
   top_module->eval();
   contextp->timeInc(1);
-  if (trace_file) trace_file->dump(contextp->time());
+  if (trace_file && wave_rec) trace_file->dump(contextp->time());
 }
 
 void driver_cycle() {
