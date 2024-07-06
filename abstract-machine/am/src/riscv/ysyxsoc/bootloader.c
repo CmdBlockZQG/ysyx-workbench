@@ -4,6 +4,8 @@ void _ssbl() __attribute__ ((section ("ssbl")));
 void _fsbl() {
   extern char _ssbl_src, _ssbl_start, _ssbl_end;
   char *src = &_ssbl_src, *dst = &_ssbl_start;
+
+  asm volatile (".align 5");
   while (dst < &_ssbl_end) *dst++ = *src++;
 
   asm volatile("tail _ssbl");
@@ -12,10 +14,14 @@ void _fsbl() {
 void _ssbl() {
   extern char _text_src, _text_start, _text_end;
   char *src = &_text_src, *dst = &_text_start;
+
+  asm volatile (".align 5");
   while (dst < &_text_end) *dst++ = *src++;
 
   extern char _rodata_src, _rodata_start, _rodata_end;
   src = &_rodata_src; dst = &_rodata_start;
+
+  asm volatile (".align 5");
   while (dst < &_rodata_end) *dst++ = *src++;
 
   asm volatile("tail _start");
