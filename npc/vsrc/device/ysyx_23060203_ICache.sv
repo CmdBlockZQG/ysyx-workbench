@@ -82,6 +82,9 @@ module ysyx_23060203_ICache (
     end
     if (ifu_in.rvalid & ifu_in.rready) begin
       ifu_in.arready <= 1;
+      if (ifu_in.rdata == {32'h0000100f, 32'h0000100f}) begin // fence.i
+        for (i = 0; i < SET_N; i = i + 1) line_valid[i] <= 0;
+      end
       if (cache_out_valid) begin
         cache_out_valid <= 0;
 `ifndef SYNTHESIS
