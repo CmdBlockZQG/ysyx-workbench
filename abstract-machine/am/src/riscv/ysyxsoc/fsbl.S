@@ -7,6 +7,7 @@ _fsbl:
   la t1, _ssbl_start
   la t2, _ssbl_end
 
+  .align 5
 .L1:
   lbu a2, 0(t0)
   addi t0, t0, 1
