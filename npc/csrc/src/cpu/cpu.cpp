@@ -36,8 +36,8 @@ static void exec_once() {
   ++nr_inst;
 
   // 执行一定数量的指令后开始记录波形
-  extern bool wave_rec;
-  if (nr_inst > 160000) wave_rec = true;
+  // extern bool wave_rec;
+  // if (nr_inst > 160000) wave_rec = true;
 }
 
 static void wp_and_difftest() {
