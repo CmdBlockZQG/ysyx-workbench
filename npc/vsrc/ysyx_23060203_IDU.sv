@@ -105,12 +105,12 @@ module ysyx_23060203_IDU (
 
   always_comb begin // ALU B
     case (opcode)
-      OP_CALRR, OP_BRANCH        : alu_b = src2;
+      OP_CALRR, OP_BRANCH, OP_MISC_MEM : alu_b = src2;
       OP_LUI, OP_AUIPC, OP_LOAD,
-              OP_STORE, OP_CALRI : alu_b = imm;
-      OP_SYS                     : alu_b = funct[2] ? zimm : src1; // ecall全是0，src1读取x0也是0
-      // OP_JAL, OP_JALR         : alu_b = 32'd4;
-      default                    : alu_b = 32'd4; // 归并到default
+              OP_STORE, OP_CALRI       : alu_b = imm;
+      OP_SYS                           : alu_b = funct[2] ? zimm : src1; // ecall全是0，src1读取x0也是0
+      // OP_JAL, OP_JALR               : alu_b = 32'd4;
+      default                          : alu_b = 32'd4; // 归并到default
     endcase
   end
 
