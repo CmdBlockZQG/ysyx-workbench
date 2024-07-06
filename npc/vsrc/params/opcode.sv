@@ -9,3 +9,4 @@ parameter OP_STORE  = 5'b01000;
 parameter OP_CALRI  = 5'b00100;
 parameter OP_CALRR  = 5'b01100;
 parameter OP_SYS    = 5'b11100;
+parameter OP_MISC_MEM = 5'b00011;
