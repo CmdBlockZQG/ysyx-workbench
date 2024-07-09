@@ -1,5 +1,5 @@
 module ysyx_23060203_GPR #(NR_REG = 16) (
-  input rstn, clk,
+  input clock, reset,
 
   input wen, // 写入使能
   input [4:0] waddr, // 写入地址
@@ -10,24 +10,24 @@ module ysyx_23060203_GPR #(NR_REG = 16) (
   input [4:0] raddr2, // 读出地址
   output [31:0] rdata2 // 读出数据
 );
-  reg [31:0] rf [1:NR_REG-1]/*verilator public*/;
+  // -------------------- WRITE --------------------
+  reg [31:0] r [1:NR_REG-1]/*verilator public*/;
+  reg [31:0] r_next [1:NR_REG-1];
 
-  // 读逻辑
-  assign rdata1 = raddr1 == 5'b0 ? 0 : rf[raddr1];
-  assign rdata2 = raddr2 == 5'b0 ? 0 : rf[raddr2];
-
-  // 写逻辑
   integer i;
-  always @(posedge clk) begin
-    if (rstn) begin
-      if (wen && waddr != 5'b0) begin // $0不可写
-        rf[waddr] <= wdata;
-      end
-    end else begin
-      // 复位
-      for (i = 1; i < NR_REG; i = i + 1) begin
-        rf[i] <= 0;
-      end
+  always @(posedge clock) begin
+    for (i = 1; i < NR_REG; i = i + 1) begin
+      r[i] <= reset ? 32'h0 : r_next;
     end
   end
+
+  always_comb begin
+    for (i = 1; i < NR_REG; i = i + 1) begin
+      r_next[i] = (i == waddr) ? wdata : r[i];
+    end
+  end
+
+  // -------------------- READ --------------------
+  assign rdata1 = raddr1 == 5'b0 ? 0 : r[raddr1];
+  assign rdata2 = raddr2 == 5'b0 ? 0 : r[raddr2];
 endmodule
