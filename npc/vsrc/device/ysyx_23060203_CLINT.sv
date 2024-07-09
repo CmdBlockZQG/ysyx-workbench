@@ -6,7 +6,7 @@ module ysyx_23060203_CLINT (
 
   reg [63:0] uptime, uptime_next;
 
-  always @(posedge clk) begin
+  always @(posedge clock) begin
     if (reset) begin
       uptime <= 0;
     end else begin

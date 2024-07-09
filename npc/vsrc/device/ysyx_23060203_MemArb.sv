@@ -90,7 +90,7 @@ module ysyx_23060203_MemArb (
     ram_r.arvalid = 0;
     ram_r.araddr = 32'b0;
     ram_r.arid = 4'b0;
-    ram_r.arlen = 3'b0;
+    ram_r.arlen = 8'b0;
     ram_r.arsize = 3'b0;
     ram_r.arburst = 2'b0;
     case (state)
@@ -115,8 +115,8 @@ module ysyx_23060203_MemArb (
         ram_r.araddr = tmp_raddr;
         // TEMP: 假设IFU请求的参数固定
         ram_r.arid = 4'b0;
-        ram_r.arlen = 3'b010;
-        ram_r.arsize = 3'b0;
+        ram_r.arlen = 8'b0;
+        ram_r.arsize = 3'b010;
         ram_r.arburst = 2'b0;
       end
       default: ;

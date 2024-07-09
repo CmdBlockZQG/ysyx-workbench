@@ -6,7 +6,7 @@ module ysyx_23060203_IFU (
   output [31:0] out_pc,
   output [31:0] out_inst,
 
-  axi_if.out ram_r
+  axi_if.out mem_r
 );
 
   // TODO: 状态机IFU,需要流水化
@@ -45,14 +45,14 @@ module ysyx_23060203_IFU (
     inst_next = inst;
     case (state)
       ST_REQ: begin
-        if (ram_r.arready & ram_r.arvalid) begin
+        if (mem_r.arready & mem_r.arvalid) begin
           state_next = ST_RESP;
         end
       end
       ST_RESP: begin
-        if (ram_r.rready & ram_r.rvalid) begin
+        if (mem_r.rready & mem_r.rvalid) begin
           state_next = ST_HOLD;
-          inst_next = ram_r.raddr;
+          inst_next = pc[2] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
         end
       end
       ST_HOLD: begin
@@ -69,11 +69,11 @@ module ysyx_23060203_IFU (
   assign out_pc = pc;
   assign out_inst = inst;
 
-  assign ram_r.arvalid = ~reset & (state == ST_REQ);
-  assign ram_r.araddr = pc;
-  assign ram_r.arid = 4'b0;
-  assign ram_r.arlen = 3'b010; // 4B
-  assign ram_r.arsize = 3'b0; // no burst
-  assign ram_r.arburst = 2'b0;
-  assign ram_r.rready = (state == ST_RESP);
+  assign mem_r.arvalid = ~reset & (state == ST_REQ);
+  assign mem_r.araddr = pc;
+  assign mem_r.arid = 4'b0;
+  assign mem_r.arlen = 8'b0; // no burst
+  assign mem_r.arsize = 3'b010; // 4B
+  assign mem_r.arburst = 2'b0;
+  assign mem_r.rready = (state == ST_RESP);
 endmodule

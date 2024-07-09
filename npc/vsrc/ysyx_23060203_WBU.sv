@@ -7,9 +7,9 @@ module ysyx_23060203_WBU (
   output [31:0] gpr_wdata, // 写入数据
 
   // CSR
-  input csr_wen, // 写入使能
-  input [11:0] csr_waddr, // 写入地址
-  input [31:0] csr_wdata, // 写入数据
+  output csr_wen, // 写入使能
+  output [11:0] csr_waddr, // 写入地址
+  output [31:0] csr_wdata, // 写入数据
 
   // 上游EXU输入
   output in_ready,
@@ -40,7 +40,7 @@ module ysyx_23060203_WBU (
 
   `ifndef SYNTHESIS
     reg db_valid;
-    reg [31:0] db_pc, dp_inst;
+    reg [31:0] db_pc, db_inst;
     always @(posedge clock) begin
       if (reset) begin
         db_valid <= 0;

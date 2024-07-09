@@ -1,11 +1,11 @@
 `ifndef YSYXSOC
 module npc_RAM (
-  input rstn, clk,
+  input clock, reset,
 
-  axi_if.slave in
+  axi_if.in in
 );
 
-  always @(posedge clk) if (~rstn) begin // 复位
+  always @(posedge clock) if (reset) begin // 复位
     in.arready <= 1;
     in.rvalid <= 0;
     in.rlast <= 0;
@@ -47,7 +47,7 @@ module npc_RAM (
     endcase
   end
 
-  always @(posedge clk) if (rstn) begin
+  always @(posedge clock) if (~reset) begin
     if (in.arvalid & in.arready) begin
       in.arready <= 0; // idle -> access
 
@@ -92,7 +92,7 @@ module npc_RAM (
 
   wire write_en = waddr_valid & wdata_valid;
 
-  always @(posedge clk) if (rstn) begin
+  always @(posedge clock) if (~reset) begin
     if (waddr_handshake) begin
       waddr_reg <= in.awaddr;
       if (~write_en) begin

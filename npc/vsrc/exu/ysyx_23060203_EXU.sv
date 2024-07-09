@@ -6,7 +6,8 @@ module ysyx_23060203_EXU (
   output [31:0] jump_dnpc,
 
   // 访存AXI接口
-  axi_if.out mem,
+  axi_if.out mem_r,
+  axi_if.out mem_w,
 
   // 上游IDU输入
   output in_ready,
@@ -120,6 +121,7 @@ module ysyx_23060203_EXU (
   assign in_ready = st_idle | (st_hold & out_ready);
 
   always_comb begin
+    state_next = state;
     pc_next = pc;
     val_a_next = val_a;
     val_b_next = val_b;
@@ -179,38 +181,38 @@ module ysyx_23060203_EXU (
       end
 
       ST_LOAD_REQ: begin
-        if (mem.arready) begin
+        if (mem_r.arready) begin
           state_next = ST_LOAD_RESP;
         end
       end
       ST_LOAD_RESP: begin
-        if (mem.rvalid) begin
+        if (mem_r.rvalid) begin
           load_val_next = mem_rdata;
           state_next = ST_HOLD;
         end
       end
 
       ST_STORE_REQ: begin
-        if (mem.awready & mem.wready) begin
+        if (mem_w.awready & mem_w.wready) begin
           state_next = ST_STORE_RESP;
-        end else if (mem.awready) begin
+        end else if (mem_w.awready) begin
           state_next = ST_STORE_DATA;
-        end else if (mem.wready) begin
+        end else if (mem_w.wready) begin
           state_next = ST_STORE_ADDR;
         end
       end
       ST_STORE_ADDR: begin
-        if (mem.awready) begin
+        if (mem_w.awready) begin
           state_next = ST_STORE_RESP;
         end
       end
       ST_STORE_DATA: begin
-        if (mem.wready) begin
+        if (mem_w.wready) begin
           state_next = ST_STORE_RESP;
         end
       end
       ST_STORE_RESP: begin
-        if (mem.bvalid) begin
+        if (mem_w.bvalid) begin
           state_next = ST_HOLD;
         end
       end
@@ -237,15 +239,15 @@ module ysyx_23060203_EXU (
   );
 
   // -------------------- LOAD --------------------
-  assign mem.arvalid = state == ST_LOAD_REQ;
-  assign mem.araddr = alu_val;
-  assign mem.arid = 4'b0;
-  assign mem.arlen = 8'b0;
-  assign mem.arsize = {1'b0, ls[1:0]};
-  assign mem.arburst = 2'b0;
-  assign mem.rready = state == ST_LOAD_RESP;
+  assign mem_r.arvalid = state == ST_LOAD_REQ;
+  assign mem_r.araddr = alu_val;
+  assign mem_r.arid = 4'b0;
+  assign mem_r.arlen = 8'b0;
+  assign mem_r.arsize = {1'b0, ls[1:0]};
+  assign mem_r.arburst = 2'b0;
+  assign mem_r.rready = state == ST_LOAD_RESP;
 
-  wire [63:0] mem_rdata_raw = mem.rdata >> {alu_val[2:0], 3'b0};
+  wire [63:0] mem_rdata_raw = mem_r.rdata >> {alu_val[2:0], 3'b0};
   reg [31:0] mem_rdata;
   always_comb begin
     case (ls[1:0])
@@ -260,15 +262,15 @@ module ysyx_23060203_EXU (
   wire st_store_addr = state == ST_STORE_ADDR;
   wire st_store_data = state == ST_STORE_DATA;
 
-  assign mem.awvalid = st_store_req | st_store_addr;
-  assign mem.awaddr = alu_val;
-  assign mem.awid = 4'b0;
-  assign mem.awlen = 8'b0;
-  assign mem.awsize = {1'b0, ls[1:0]};
-  assign mem.awburst = 2'b0;
+  assign mem_w.awvalid = st_store_req | st_store_addr;
+  assign mem_w.awaddr = alu_val;
+  assign mem_w.awid = 4'b0;
+  assign mem_w.awlen = 8'b0;
+  assign mem_w.awsize = {1'b0, ls[1:0]};
+  assign mem_w.awburst = 2'b0;
 
   wire [63:0] mem_wdata = {32'b0, val_c} << {alu_val[2:0], 3'b0};
-  reg [4:0] mem_wstrb_raw;
+  reg [3:0] mem_wstrb_raw;
   always_comb begin
     case (ls[1:0])
       2'b00: mem_wstrb_raw = 4'b0001;
@@ -279,12 +281,12 @@ module ysyx_23060203_EXU (
   end
   wire [7:0] mem_wstrb = {4'b0, mem_wstrb_raw} << alu_val[2:0];
 
-  assign mem.wvalid = st_store_req | st_store_data;
-  assign mem.wdata = mem_wdata;
-  assign mem.wstrb = mem_wstrb;
-  assign mem.wlast = 1'b1;
+  assign mem_w.wvalid = st_store_req | st_store_data;
+  assign mem_w.wdata = mem_wdata;
+  assign mem_w.wstrb = mem_wstrb;
+  assign mem_w.wlast = 1'b1;
 
-  assign mem.bready = state == ST_STORE_RESP;
+  assign mem_w.bready = state == ST_STORE_RESP;
 
   // -------------------- 跳转 --------------------
   wire alu_val_any = |alu_val;
@@ -309,7 +311,7 @@ module ysyx_23060203_EXU (
       default : dnpc_b = val_c;
     endcase
   end
-  wire [31:0] dnpc = dnpc_a + dnpc_b;
+  wire [31:0] dnpc_c = dnpc_a + dnpc_b;
 
   assign jump_dnpc = {dnpc_c[31:1], 1'b0};
 

@@ -8,7 +8,7 @@ module ysyx_23060203_ALU (
   output reg [31:0] val
 );
 
-  `include "def/alu.sv"
+  // `include "def/alu.sv"
 
   // 是否做减法
   // 是减法需要将alu_b取反，在加法器输入进位

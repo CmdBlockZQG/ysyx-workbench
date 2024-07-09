@@ -14,13 +14,13 @@ module ysyx_23060203_IDU (
   // 上游IFU输入
   output in_ready,
   input in_valid,
-  input in_pc,
-  input in_inst,
+  input [31:0] in_pc,
+  input [31:0] in_inst,
 
   // 下游EXU输出
   input out_ready,
   output out_valid,
-  output [31:0] out_pc,
+  output     [31:0] out_pc,
   output reg [31:0] out_val_a,
   output reg [31:0] out_val_b,
   output reg [31:0] out_val_c,
@@ -42,6 +42,7 @@ module ysyx_23060203_IDU (
   `include "def/opcode.sv"
   `include "def/csr.sv"
   `include "def/alu.sv"
+  `include "def/branch.sv"
 
   typedef enum {
     ST_IDLE,
@@ -147,10 +148,10 @@ module ysyx_23060203_IDU (
 
   reg [2:0] sys_alu_funct;
   always_comb begin
-    case (funct)
-      CSRF_RS, CSRF_RSI: csr_alu_funct = ALU_OR;
-      CSRF_RC, CSRF_RCI: csr_alu_funct = ALU_AND;
-      default          : csr_alu_funct = ALU_ADD;
+    case (funct3)
+      CSRF_RS, CSRF_RSI: sys_alu_funct = ALU_OR;
+      CSRF_RC, CSRF_RCI: sys_alu_funct = ALU_AND;
+      default          : sys_alu_funct = ALU_ADD;
     endcase
   end
 
@@ -158,7 +159,7 @@ module ysyx_23060203_IDU (
   reg [2:0] branch_alu_funct;
   // 分支指令时alu的功能选择，在opcode不为OP_BRANCH时无效
   always_comb begin
-    case (funct)
+    case (funct3)
       BR_BLT, BR_BGE   : branch_alu_funct = ALU_LTS;
       BR_BLTU, BR_BGEU : branch_alu_funct = ALU_LTU;
       BR_BEQ, BR_BNE   : branch_alu_funct = ALU_XOR;

@@ -12,18 +12,17 @@ module ysyx_23060203_GPR #(NR_REG = 16) (
 );
   // -------------------- WRITE --------------------
   reg [31:0] r [1:NR_REG-1]/*verilator public*/;
-  reg [31:0] r_next [1:NR_REG-1];
 
   integer i;
   always @(posedge clock) begin
-    for (i = 1; i < NR_REG; i = i + 1) begin
-      r[i] <= reset ? 32'h0 : r_next;
-    end
-  end
-
-  always_comb begin
-    for (i = 1; i < NR_REG; i = i + 1) begin
-      r_next[i] = (i == waddr) ? wdata : r[i];
+    if (reset) begin
+      for (i = 1; i < NR_REG; i = i + 1) begin
+        r[i] <= 0;
+      end
+    end else begin
+      if (wen & (|waddr)) begin
+        r[waddr] <= wdata;
+      end
     end
   end
 

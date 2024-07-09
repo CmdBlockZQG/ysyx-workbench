@@ -34,9 +34,9 @@ module ysyx_23060203_CSR (
     mepc_next = mepc;
     if (wen) begin
       case (waddr)
-        CSR_MSTATUS : mstatus_next = wdata1;
-        CSR_MTVEC   : mtvec_next   = wdata1;
-        CSR_MEPC    : mepc_next    = wdata1;
+        CSR_MSTATUS : mstatus_next = wdata;
+        CSR_MTVEC   : mtvec_next   = wdata;
+        CSR_MEPC    : mepc_next    = wdata;
         default: ;
       endcase
     end
