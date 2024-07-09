@@ -32,6 +32,11 @@ module ysyx_23060203_IDU (
   output reg [3:0]  out_ls,
   output reg [2:0]  out_goto,
   output reg [1:0]  out_csrw
+
+  `ifndef SYNTHESIS
+    ,
+    output reg [31:0] out_inst
+  `endif
 );
 
   `include "def/opcode.sv"
@@ -94,6 +99,9 @@ module ysyx_23060203_IDU (
   assign out_valid = st_hold;
 
   assign out_pc = pc;
+  `ifndef SYNTHESIS
+    assign out_inst = inst;
+  `endif
 
   // -------------------- 指令 --------------------
   wire [4:0] opcode = inst[6:2];

@@ -3,8 +3,8 @@ module ysyx_23060203_IFU (
 
   input out_ready,
   output out_valid,
-  output [31:0] pc_out,
-  output [31:0] inst_out,
+  output [31:0] out_pc,
+  output [31:0] out_inst,
 
   axi_if.out ram_r
 );
@@ -66,8 +66,8 @@ module ysyx_23060203_IFU (
   end
 
   assign out_valid = (state == ST_HOLD);
-  assign pc_out = pc;
-  assign inst_out = inst;
+  assign out_pc = pc;
+  assign out_inst = inst;
 
   assign ram_r.arvalid = ~reset & (state == ST_REQ);
   assign ram_r.araddr = pc;

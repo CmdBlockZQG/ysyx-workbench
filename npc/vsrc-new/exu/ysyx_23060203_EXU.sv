@@ -27,13 +27,19 @@ module ysyx_23060203_EXU (
   // 下游WBU输出
   input out_ready,
   output out_valid,
-  output [31:0] out_pc,
   output out_gpr_wen,
   output [4:0] out_gpr_waddr,
   output [31:0] out_gpr_wdata,
   output out_csr_wen,
   output [11:0] out_csr_waddr,
   output [31:0] out_csr_wdata
+
+  `ifndef SYNTHESIS
+    ,
+    output [31:0] out_pc,
+    input [31:0] in_inst,
+    output [31:0] out_inst
+  `endif
 );
 
   typedef enum {
@@ -65,6 +71,9 @@ module ysyx_23060203_EXU (
   reg [3:0]  ls, ls_next;
   reg [2:0]  goto, goto_next;
   reg [1:0]  csrw, csrw_next;
+  `ifndef SYNTHESIS
+    reg [31:0] inst, inst_next;
+  `endif
 
   reg [31:0] load_val, load_val_next;
 
@@ -84,6 +93,9 @@ module ysyx_23060203_EXU (
       goto <= 0;
       csrw <= 0;
       load_val <= 0;
+      `ifndef SYNTHESIS
+        inst <= 0;
+      `endif
     end else begin
       state <= state_next;
       pc <= pc_next;
@@ -99,6 +111,9 @@ module ysyx_23060203_EXU (
       goto <= goto_next;
       csrw <= csrw_next;
       load_val <= load_val_next;
+      `ifndef SYNTHESIS
+        inst <= inst_next;
+      `endif
     end
   end
 
@@ -118,6 +133,9 @@ module ysyx_23060203_EXU (
     goto_next = goto;
     csrw_next = csrw;
     load_val_next = load_val;
+    `ifndef SYNTHESIS
+      inst_next = inst;
+    `endif
 
     if (in_valid & in_ready) begin // input
       pc_next = in_pc;
@@ -132,6 +150,9 @@ module ysyx_23060203_EXU (
       ls_next = in_ls;
       goto_next = in_goto;
       csrw_next = in_csrw;
+      `ifndef SYNTHESIS
+        inst_next = in_inst;
+      `endif
       if (|in_ls) begin // 有内存操作
         if (in_ls[3]) begin
           state_next = ST_LOAD_REQ;
@@ -199,7 +220,11 @@ module ysyx_23060203_EXU (
   end
 
   assign out_valid = st_hold;
-  assign out_pc = pc;
+
+  `ifndef SYNTHESIS
+    assign out_pc = pc;
+    assign out_inst = inst;
+  `endif
 
   // -------------------- ALU --------------------
   wire [31:0] alu_a = alu_src ? pc : val_a;
