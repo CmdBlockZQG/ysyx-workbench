@@ -61,24 +61,27 @@ module ysyx_23060203_IDU (
     end
   end
 
+  assign in_ready = st_idle | (st_hold & out_ready);
+
   always_comb begin
     state_next = state;
     pc_next = pc;
     inst_next = inst;
+
+    if (in_ready & in_valid) begin // input
+      state_next = ST_HOLD;
+      pc_next = in_pc;
+      inst_next = in_inst;
+    end
+
     case (state)
       ST_IDLE: begin
-        if (in_valid) begin
-          state_next = ST_HOLD;
-          pc_next = in_pc;
-          inst_next = in_inst;
-        end
+        if (in_valid) ; // input
       end
       ST_HOLD: begin
         if (out_ready) begin
           if (in_valid) begin
-            state_next = ST_HOLD;
-            pc_next = in_pc;
-            inst_next = in_inst;
+            ; // input
           end else begin
             state_next = ST_IDLE;
           end
@@ -88,7 +91,6 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign in_ready = st_idle | (st_hold & out_ready);
   assign out_valid = st_hold;
 
   assign out_pc = pc;

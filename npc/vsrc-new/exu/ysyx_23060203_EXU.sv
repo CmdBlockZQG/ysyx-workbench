@@ -1,0 +1,306 @@
+module ysyx_23060203_EXU (
+  input clock, reset,
+
+  // IFU跳转输出
+  output reg jump_en,
+  output [31:0] jump_dnpc,
+
+  // 访存AXI接口
+  axi_if.out mem,
+
+  // 上游IDU输入
+  output in_ready,
+  input in_valid,
+  input [31:0] in_pc,
+  input [31:0] in_val_a,
+  input [31:0] in_val_b,
+  input [31:0] in_val_c,
+  input        in_alu_src,
+  input [2:0]  in_alu_funct,
+  input        in_alu_sw,
+  input [4:0]  in_rd,
+  input        in_rd_src,
+  input [3:0]  in_ls,
+  input [2:0]  in_goto,
+  input [1:0]  in_csrw,
+
+  // 下游WBU输出
+  input out_ready,
+  output out_valid,
+  output [31:0] out_pc,
+  output out_gpr_wen,
+  output [4:0] out_gpr_waddr,
+  output [31:0] out_gpr_wdata,
+  output out_csr_wen,
+  output [11:0] out_csr_waddr,
+  output [31:0] out_csr_wdata
+);
+
+  typedef enum {
+    ST_IDLE,
+    ST_HOLD,
+
+    ST_LOAD_REQ,
+    ST_LOAD_RESP,
+
+    ST_STORE_REQ,
+    ST_STORE_ADDR,
+    ST_STORE_DATA,
+    ST_STORE_RESP
+  } state_t;
+
+  state_t state, state_next;
+  wire st_idle = state == ST_IDLE;
+  wire st_hold = state == ST_HOLD;
+
+  reg [31:0] pc, pc_next;
+  reg [31:0] val_a, val_a_next;
+  reg [31:0] val_b, val_b_next;
+  reg [31:0] val_c, val_c_next;
+  reg        alu_src, alu_src_next;
+  reg [2:0]  alu_funct, alu_funct_next;
+  reg        alu_sw, alu_sw_next;
+  reg [4:0]  rd, rd_next;
+  reg        rd_src, rd_src_next;
+  reg [3:0]  ls, ls_next;
+  reg [2:0]  goto, goto_next;
+  reg [1:0]  csrw, csrw_next;
+
+  reg [31:0] load_val, load_val_next;
+
+  always @(posedge clock) begin
+    if (reset) begin
+      state <= ST_IDLE;
+      pc <= 0;
+      val_a <= 0;
+      val_b <= 0;
+      val_c <= 0;
+      alu_src <= 0;
+      alu_funct <= 0;
+      alu_sw <= 0;
+      rd <= 0;
+      rd_src <= 0;
+      ls <= 0;
+      goto <= 0;
+      csrw <= 0;
+      load_val <= 0;
+    end else begin
+      state <= state_next;
+      pc <= pc_next;
+      val_a <= val_a_next;
+      val_b <= val_b_next;
+      val_c <= val_c_next;
+      alu_src <= alu_src_next;
+      alu_funct <= alu_funct_next;
+      alu_sw <= alu_sw_next;
+      rd <= rd_next;
+      rd_src <= rd_src_next;
+      ls <= ls_next;
+      goto <= goto_next;
+      csrw <= csrw_next;
+      load_val <= load_val_next;
+    end
+  end
+
+  assign in_ready = st_idle | (st_hold & out_ready);
+
+  always_comb begin
+    pc_next = pc;
+    val_a_next = val_a;
+    val_b_next = val_b;
+    val_c_next = val_c;
+    alu_src_next = alu_src;
+    alu_funct_next = alu_funct;
+    alu_sw_next = alu_sw;
+    rd_next = rd;
+    rd_src_next = rd_src;
+    ls_next = ls;
+    goto_next = goto;
+    csrw_next = csrw;
+    load_val_next = load_val;
+
+    if (in_valid & in_ready) begin // input
+      pc_next = in_pc;
+      val_a_next = in_val_a;
+      val_b_next = in_val_b;
+      val_c_next = in_val_c;
+      alu_src_next = in_alu_src;
+      alu_funct_next = in_alu_funct;
+      alu_sw_next = in_alu_sw;
+      rd_next = in_rd;
+      rd_src_next = in_rd_src;
+      ls_next = in_ls;
+      goto_next = in_goto;
+      csrw_next = in_csrw;
+      if (|in_ls) begin // 有内存操作
+        if (in_ls[3]) begin
+          state_next = ST_LOAD_REQ;
+        end else begin
+          state_next = ST_STORE_REQ;
+        end
+      end else begin
+        state_next = ST_HOLD;
+      end
+    end
+
+    case (state)
+      ST_IDLE: begin
+        if (in_valid) ; // input
+      end
+      ST_HOLD: begin
+        if (out_ready) begin
+          if (in_valid) begin
+            ; // input
+          end else begin
+            state_next = ST_IDLE;
+          end
+        end
+      end
+
+      ST_LOAD_REQ: begin
+        if (mem.arready) begin
+          state_next = ST_LOAD_RESP;
+        end
+      end
+      ST_LOAD_RESP: begin
+        if (mem.rvalid) begin
+          load_val_next = mem_rdata;
+          state_next = ST_HOLD;
+        end
+      end
+
+      ST_STORE_REQ: begin
+        if (mem.awready & mem.wready) begin
+          state_next = ST_STORE_RESP;
+        end else if (mem.awready) begin
+          state_next = ST_STORE_DATA;
+        end else if (mem.wready) begin
+          state_next = ST_STORE_ADDR;
+        end
+      end
+      ST_STORE_ADDR: begin
+        if (mem.awready) begin
+          state_next = ST_STORE_RESP;
+        end
+      end
+      ST_STORE_DATA: begin
+        if (mem.wready) begin
+          state_next = ST_STORE_RESP;
+        end
+      end
+      ST_STORE_RESP: begin
+        if (mem.bvalid) begin
+          state_next = ST_HOLD;
+        end
+      end
+
+      default: ;
+    endcase
+  end
+
+  assign out_valid = st_hold;
+  assign out_pc = pc;
+
+  // -------------------- ALU --------------------
+  wire [31:0] alu_a = alu_src ? pc : val_a;
+  wire [31:0] alu_b = val_b;
+  wire [31:0] alu_val;
+  ysyx_23060203_ALU alu (
+    .alu_a(alu_a), .alu_b(alu_b),
+    .funct(alu_funct), .sw(alu_sw),
+    .val(alu_val)
+  );
+
+  // -------------------- LOAD --------------------
+  assign mem.arvalid = state == ST_LOAD_REQ;
+  assign mem.araddr = alu_val;
+  assign mem.arid = 4'b0;
+  assign mem.arlen = 8'b0;
+  assign mem.arsize = {1'b0, ls[1:0]};
+  assign mem.arburst = 2'b0;
+  assign mem.rready = state == ST_LOAD_RESP;
+
+  wire [63:0] mem_rdata_raw = mem.rdata >> {alu_val[2:0], 3'b0};
+  reg [31:0] mem_rdata;
+  always_comb begin
+    case (ls[1:0])
+      2'b00: mem_rdata = {{24{mem_rdata_raw[7]  & ls[2]}}, mem_rdata_raw[7:0] };
+      2'b01: mem_rdata = {{16{mem_rdata_raw[15] & ls[2]}}, mem_rdata_raw[15:0]};
+      default: mem_rdata = mem_rdata_raw[31:0];
+    endcase
+  end
+
+  // -------------------- STORE --------------------
+  wire st_store_req = state == ST_STORE_REQ;
+  wire st_store_addr = state == ST_STORE_ADDR;
+  wire st_store_data = state == ST_STORE_DATA;
+
+  assign mem.awvalid = st_store_req | st_store_addr;
+  assign mem.awaddr = alu_val;
+  assign mem.awid = 4'b0;
+  assign mem.awlen = 8'b0;
+  assign mem.awsize = {1'b0, ls[1:0]};
+  assign mem.awburst = 2'b0;
+
+  wire [63:0] mem_wdata = {32'b0, val_c} << {alu_val[2:0], 3'b0};
+  reg [4:0] mem_wstrb_raw;
+  always_comb begin
+    case (ls[1:0])
+      2'b00: mem_wstrb_raw = 4'b0001;
+      2'b01: mem_wstrb_raw = 4'b0011;
+      2'b10: mem_wstrb_raw = 4'b1111;
+      default: mem_wstrb_raw = 4'b0000;
+    endcase
+  end
+  wire [7:0] mem_wstrb = {4'b0, mem_wstrb_raw} << alu_val[2:0];
+
+  assign mem.wvalid = st_store_req | st_store_data;
+  assign mem.wdata = mem_wdata;
+  assign mem.wstrb = mem_wstrb;
+  assign mem.wlast = 1'b1;
+
+  assign mem.bready = state == ST_STORE_RESP;
+
+  // -------------------- 跳转 --------------------
+  wire alu_val_any = |alu_val;
+  always_comb begin
+    case (goto)
+      3'b000 : jump_en = 0;
+      3'b100 : jump_en = alu_val_any;
+      3'b101 : jump_en = ~alu_val_any;
+      default: jump_en = 1;
+    endcase
+  end
+
+  reg [31:0] dnpc_a, dnpc_b;
+  always_comb begin
+    case (goto)
+      3'b010, 3'b011 : dnpc_a = val_a;
+      default        : dnpc_a = pc;
+    endcase
+
+    case (goto)
+      3'b011  : dnpc_b = 32'h0;
+      default : dnpc_b = val_c;
+    endcase
+  end
+  wire [31:0] dnpc = dnpc_a + dnpc_b;
+
+  assign jump_dnpc = {dnpc_c[31:1], 1'b0};
+
+  // -------------------- GPR写回 --------------------
+  assign out_gpr_wen = |rd;
+  assign out_gpr_waddr = rd;
+  assign out_gpr_wdata = ls[3] ? (
+    load_val
+  ) : (
+    rd_src ? val_a : alu_val
+  );
+
+  // -------------------- CSR写回 --------------------
+  assign out_csr_wen = |csrw;
+  assign out_csr_waddr = &csrw ? 12'h0 : val_c[11:0];
+  assign out_csr_wdata = csrw[1] ? val_b : alu_val;
+  // ebreak被标记为对0号CSR的有效写入操作
+
+endmodule
