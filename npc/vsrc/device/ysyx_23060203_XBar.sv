@@ -6,14 +6,14 @@ module ysyx_23060203_Xbar (
   axi_if.out clint_r
 );
 
-  typedef enum {
-    ST_IDLE,
-    ST_SOC,
-    ST_CLINT
+  typedef enum logic [2:0] {
+    ST_IDLE  = 3'b001,
+    ST_SOC   = 3'b010,
+    ST_CLINT = 3'b100
   } state_t;
-  wire st_idle = state == ST_IDLE;
-  wire st_soc = state == ST_SOC;
-  wire st_clint = state == ST_CLINT;
+  wire st_idle  = state[0];
+  wire st_soc   = state[1];
+  wire st_clint = state[2];
 
   state_t state, state_next;
 
@@ -34,23 +34,19 @@ module ysyx_23060203_Xbar (
 
   always_comb begin
     state_next = state;
-    case (state)
-      ST_IDLE: begin
-        if (read.arready & read.arvalid) begin
-          if (req_clint) begin
-            state_next = ST_CLINT;
-          end else begin
-            state_next = ST_SOC;
-          end
+    if (st_idle) begin
+      if (read.arready & read.arvalid) begin
+        if (req_clint) begin
+          state_next = ST_CLINT;
+        end else begin
+          state_next = ST_SOC;
         end
       end
-      ST_CLINT, ST_SOC: begin
-        if (read.rready & read.rvalid & read.rlast) begin
-          state_next = ST_IDLE;
-        end
+    end else begin
+      if (read.rready & read.rvalid & read.rlast) begin
+        state_next = ST_IDLE;
       end
-      default: ;
-    endcase
+    end
   end
 
   // ar channel

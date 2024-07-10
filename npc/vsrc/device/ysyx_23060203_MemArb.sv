@@ -9,7 +9,7 @@ module ysyx_23060203_MemArb (
 
   // 读仲裁器，LSU优先
 
-  typedef enum {
+  typedef enum logic [2:0] {
     ST_IDLE,
     ST_IFU,
     ST_LSU,
