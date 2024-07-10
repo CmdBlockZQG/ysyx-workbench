@@ -53,6 +53,7 @@ static void wp_and_difftest() {
 static void execute(uint64_t n) {
   bool print = n <= 24;
   while (n--) {
+    exec_once();
 
 #ifdef ITRACE
     extern word_t itrace_inst;
@@ -65,7 +66,6 @@ static void execute(uint64_t n) {
     ftrace(cpu_pc, cpu_module->npc);
 #endif
 
-    exec_once();
     wp_and_difftest();
     if (nr_cycle >= MAX_CYCLE) {
       Log("Cycle limit exceed, abort");
