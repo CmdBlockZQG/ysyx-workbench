@@ -43,7 +43,8 @@ module ysyx_23060203_EXU (
     ,
     output [31:0] out_pc,
     input [31:0] in_inst,
-    output [31:0] out_inst
+    output [31:0] out_inst,
+    output [31:0] out_dnpc
   `endif
 );
 
@@ -321,6 +322,10 @@ module ysyx_23060203_EXU (
   assign jump_flush = jump_en & st_hold; // TEMP: 当前分支预测是均不跳转
   assign jump_dnpc = {dnpc_c[31:1], 1'b0};
 
+  `ifndef SYNTHESIS
+    assign out_dnpc = jump_en ? jump_dnpc : pc + 32'h4;
+  `endif
+
   // -------------------- GPR写回 --------------------
   assign out_gpr_wen = |rd;
   assign out_gpr_waddr = rd;
@@ -339,5 +344,17 @@ module ysyx_23060203_EXU (
   // ebreak被标记为对0号CSR的有效写入操作
 
   assign exu_csr_waddr = out_csr_waddr & {12{~st_idle & out_csr_wen}};
+
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  always @(posedge clock) if (~reset) begin
+    if (mem_r.rready & mem_r.rvalid) begin
+      event_mem_read(alu_val, {29'b0, mem_r.arsize}, mem_rdata);
+    end
+    if (mem_w.awready & mem_w.awvalid) begin
+      event_mem_write(alu_val, {29'b0, mem_w.awsize}, val_c);
+    end
+  end
+`endif
 
 endmodule

@@ -24,7 +24,8 @@ module ysyx_23060203_WBU (
   `ifndef SYNTHESIS
     ,
     input [31:0] in_pc,
-    input [31:0] in_inst
+    input [31:0] in_inst,
+    input [31:0] in_dnpc
   `endif
 );
 
@@ -41,7 +42,7 @@ module ysyx_23060203_WBU (
   `ifndef SYNTHESIS
     always @(posedge clock) begin
       if (in_valid) begin
-        inst_complete(in_pc, in_inst);
+        inst_complete(in_dnpc, in_inst);
         if (csr_wen & ~(|csr_waddr)) halt(); // ebreak
       end
     end

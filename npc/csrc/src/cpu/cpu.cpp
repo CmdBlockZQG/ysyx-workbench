@@ -102,4 +102,5 @@ void cpu_exec(uint64_t n) {
 
 void init_cpu() {
   reset_top();
+  cpu_pc = MUXDEF(YSYXSOC, FLASH_BASE, MEM_BASE);
 }
