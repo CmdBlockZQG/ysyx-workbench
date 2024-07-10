@@ -11,8 +11,8 @@ module ysyx_23060203_IDU (
   output [11:0] csr_raddr,
   input [31:0] csr_rdata,
 
-  // 冲刷信号
-  input flush,
+  input flush, // 冲刷信号
+  input [4:0] exu_rd, // EXU将要写入但还没写入的寄存器
 
   // 上游IFU输入
   output in_ready,
@@ -88,7 +88,7 @@ module ysyx_23060203_IDU (
         if (in_valid) ; // input
       end
       ST_HOLD: begin
-        if (out_ready | flush) begin
+        if ((out_valid & out_ready) | flush) begin
           if (in_valid) begin
             ; // input
           end else begin
@@ -99,8 +99,6 @@ module ysyx_23060203_IDU (
       default: ;
     endcase
   end
-
-  assign out_valid = st_hold & ~flush;
 
   assign out_pc = pc;
   `ifndef SYNTHESIS
@@ -128,6 +126,24 @@ module ysyx_23060203_IDU (
   assign gpr_raddr2 = rs2;
   wire [31:0] src1 = gpr_rdata1;
   wire [31:0] src2 = gpr_rdata2;
+
+  reg need_rs1, need_rs2;
+  always_comb begin
+    case (opcode)
+      OP_JALR, OP_BRANCH, OP_LOAD, OP_STORE, OP_RI, OP_RR: need_rs1 = 1;
+      OP_SYS: need_rs1 = zicsr & ~funct3[2];
+      default: need_rs1 = 0;
+    endcase
+  end
+
+  always_comb begin
+    case (opcode)
+      OP_BRANCH, OP_STORE, OP_RR: need_rs2 = 1;
+      default: need_rs2 = 0;
+    endcase
+  end
+
+  wire gpr_raw = (need_rs1 & (|rs1) & (rs1 == exu_rd)) | (need_rs2 & (|rs2) & (rs2 == exu_rd));
 
   // -------------------- SYS --------------------
   // TEMP: 除了zicsr外，只支持ecall mret ebreak
@@ -201,6 +217,8 @@ module ysyx_23060203_IDU (
   end
 
   // -------------------- 控制信号 --------------------
+
+  assign out_valid = st_hold & ~flush & ~gpr_raw;
 
   // alu_src ALU的两个运算数
   // 0: val_a, val_b
