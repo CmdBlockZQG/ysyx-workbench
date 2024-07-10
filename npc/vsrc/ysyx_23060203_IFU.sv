@@ -13,7 +13,7 @@ module ysyx_23060203_IFU (
 );
 
   // TODO: 状态机IFU,需要流水化
-`ifdef YSYXSOC
+`ifndef YSYXSOC
   typedef enum {
     ST_REQ,  // 发出请求，等待ar通道握手
     ST_RESP, // 等待数据，等待r通道握手
