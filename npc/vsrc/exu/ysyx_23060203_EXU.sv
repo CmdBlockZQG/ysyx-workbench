@@ -11,6 +11,7 @@ module ysyx_23060203_EXU (
 
   // 将要修改的寄存器地址
   output [4:0] exu_rd,
+  output [11:0] exu_csr_waddr,
 
   // 上游IDU输入
   output in_ready,
@@ -336,5 +337,7 @@ module ysyx_23060203_EXU (
   assign out_csr_waddr = &csrw ? 12'h0 : val_c[11:0];
   assign out_csr_wdata = csrw[1] ? val_b : alu_val;
   // ebreak被标记为对0号CSR的有效写入操作
+
+  assign exu_csr_waddr = out_csr_waddr & {12{~st_idle & out_csr_wen}};
 
 endmodule

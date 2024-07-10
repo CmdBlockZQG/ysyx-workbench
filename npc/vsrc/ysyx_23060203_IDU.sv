@@ -13,6 +13,7 @@ module ysyx_23060203_IDU (
 
   input flush, // 冲刷信号
   input [4:0] exu_rd, // EXU将要写入但还没写入的寄存器
+  input [11:0] exu_csr_waddr,
 
   // 上游IFU输入
   output in_ready,
@@ -175,6 +176,9 @@ module ysyx_23060203_IDU (
     endcase
   end
 
+  wire need_csr = (opcode == OP_SYS) & ~ebreak;
+  wire csr_raw = need_csr & (csr_raddr == exu_csr_waddr);
+
   // -------------------- 分支 --------------------
   reg [2:0] branch_alu_funct;
   // 分支指令时alu的功能选择，在opcode不为OP_BRANCH时无效
@@ -218,7 +222,7 @@ module ysyx_23060203_IDU (
 
   // -------------------- 控制信号 --------------------
 
-  assign out_valid = st_hold & ~flush & ~gpr_raw;
+  assign out_valid = st_hold & ~flush & ~gpr_raw & ~csr_raw;
 
   // alu_src ALU的两个运算数
   // 0: val_a, val_b
