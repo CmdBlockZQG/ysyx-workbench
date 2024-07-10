@@ -70,7 +70,7 @@ module ysyx_23060203_Xbar (
 
   // r channel
   assign clint_r.rready = st_clint & read.rready;
-  assign soc_r.rready = st_clint & read.rready;
+  assign soc_r.rready = st_soc & read.rready;
   assign read.rvalid = (st_clint & clint_r.rvalid) | (st_soc & soc_r.rvalid);
   always_comb begin
     if (st_clint) begin
