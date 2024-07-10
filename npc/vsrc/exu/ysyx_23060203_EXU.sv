@@ -9,6 +9,9 @@ module ysyx_23060203_EXU (
   axi_if.out mem_r,
   axi_if.out mem_w,
 
+  // 将要修改的寄存器地址
+  output [4:0] exu_rd,
+
   // 上游IDU输入
   output in_ready,
   input in_valid,
@@ -325,6 +328,8 @@ module ysyx_23060203_EXU (
   ) : (
     rd_src ? val_a : alu_val
   );
+
+  assign exu_rd = rd & {5{~st_idle}};
 
   // -------------------- CSR写回 --------------------
   assign out_csr_wen = |csrw;
