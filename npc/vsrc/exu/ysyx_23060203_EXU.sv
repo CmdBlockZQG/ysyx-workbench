@@ -345,4 +345,16 @@ module ysyx_23060203_EXU (
 
   assign exu_csr_waddr = out_csr_waddr & {12{~st_idle & out_csr_wen}};
 
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  always @(posedge clock) if (~reset) begin
+    if (mem_r.rready & mem_r.rvalid) begin
+      event_mem_read(alu_val, {29'b0, mem_r.arsize}, mem_rdata);
+    end
+    if (mem_w.awready & mem_w.awvalid) begin
+      event_mem_write(alu_val, {29'b0, mem_w.awsize}, val_c);
+    end
+  end
+`endif
+
 endmodule
