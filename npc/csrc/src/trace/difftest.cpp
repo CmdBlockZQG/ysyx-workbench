@@ -77,7 +77,7 @@ static bool checkregs(diff_context_t *ref) {
   for (int i = 0; i < NR_GPR; ++i) {
     if (ref->gpr[i] != gpr(i)) return false;
   }
-  return ref->pc == cpu_pc + 4;
+  return ref->pc == cpu_pc;
 }
 
 static void display_ref(diff_context_t *ref) {

@@ -43,7 +43,8 @@ module ysyx_23060203_EXU (
     ,
     output [31:0] out_pc,
     input [31:0] in_inst,
-    output [31:0] out_inst
+    output [31:0] out_inst,
+    output [31:0] out_dnpc
   `endif
 );
 
@@ -320,6 +321,10 @@ module ysyx_23060203_EXU (
 
   assign jump_flush = jump_en & st_hold; // TEMP: 当前分支预测是均不跳转
   assign jump_dnpc = {dnpc_c[31:1], 1'b0};
+
+  `ifndef SYNTHESIS
+    assign out_dnpc = jump_en ? jump_dnpc : pc + 32'h4;
+  `endif
 
   // -------------------- GPR写回 --------------------
   assign out_gpr_wen = |rd;

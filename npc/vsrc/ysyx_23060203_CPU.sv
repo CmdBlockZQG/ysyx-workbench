@@ -108,6 +108,7 @@ module ysyx_23060203_CPU (
   `ifndef SYNTHESIS
     wire [31:0] exu_out_pc;
     wire [31:0] exu_out_inst;
+    wire [31:0] exu_out_dnpc;
   `endif
   ysyx_23060203_EXU EXU (
     .clock(clock), .reset(reset),
@@ -145,7 +146,8 @@ module ysyx_23060203_CPU (
       ,
       .in_inst(idu_out_inst),
       .out_pc(exu_out_pc),
-      .out_inst(exu_out_inst)
+      .out_inst(exu_out_inst),
+      .out_dnpc(exu_out_dnpc)
     `endif
   );
 
@@ -174,7 +176,8 @@ module ysyx_23060203_CPU (
     `ifndef SYNTHESIS
       ,
       .in_pc(exu_out_pc),
-      .in_inst(exu_out_inst)
+      .in_inst(exu_out_inst),
+      .in_dnpc(exu_out_dnpc)
     `endif
   );
 
