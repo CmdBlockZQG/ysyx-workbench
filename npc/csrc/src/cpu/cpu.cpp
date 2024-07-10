@@ -67,7 +67,7 @@ static void execute(uint64_t n) {
 
     exec_once();
     wp_and_difftest();
-    if (nr_inst >= MAX_CYCLE) {
+    if (nr_cycle >= MAX_CYCLE) {
       Log("Cycle limit exceed, abort");
       npc_state.state = NPC_ABORT;
       break;
