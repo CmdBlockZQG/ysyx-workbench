@@ -48,7 +48,7 @@ module ysyx_23060203_EXU (
   `endif
 );
 
-  typedef enum {
+  typedef enum logic [2:0] {
     ST_IDLE,
     ST_HOLD,
 

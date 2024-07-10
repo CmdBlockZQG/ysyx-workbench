@@ -48,7 +48,7 @@ module ysyx_23060203_IDU (
   `include "def/alu.sv"
   `include "def/branch.sv"
 
-  typedef enum {
+  typedef enum logic {
     ST_IDLE,
     ST_HOLD
   } state_t;
