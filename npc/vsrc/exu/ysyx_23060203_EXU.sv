@@ -1,8 +1,8 @@
 module ysyx_23060203_EXU (
   input clock, reset,
 
-  // IFU跳转输出
-  output reg jump_en,
+  // 跳转输出
+  output reg jump_flush, // 分支预测错误，需要冲刷流水线
   output [31:0] jump_dnpc,
 
   // 访存AXI接口
@@ -290,6 +290,7 @@ module ysyx_23060203_EXU (
 
   // -------------------- 跳转 --------------------
   wire alu_val_any = |alu_val;
+  reg jump_en;
   always_comb begin
     case (goto)
       3'b000 : jump_en = 0;
@@ -313,6 +314,7 @@ module ysyx_23060203_EXU (
   end
   wire [31:0] dnpc_c = dnpc_a + dnpc_b;
 
+  assign jump_flush = jump_en & st_hold; // TEMP: 当前分支预测是均不跳转
   assign jump_dnpc = {dnpc_c[31:1], 1'b0};
 
   // -------------------- GPR写回 --------------------

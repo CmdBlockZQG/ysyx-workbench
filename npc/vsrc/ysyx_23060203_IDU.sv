@@ -11,6 +11,9 @@ module ysyx_23060203_IDU (
   output [11:0] csr_raddr,
   input [31:0] csr_rdata,
 
+  // 冲刷信号
+  input flush,
+
   // 上游IFU输入
   output in_ready,
   input in_valid,
@@ -67,7 +70,7 @@ module ysyx_23060203_IDU (
     end
   end
 
-  assign in_ready = st_idle | (st_hold & out_ready);
+  assign in_ready = st_idle | (st_hold & (out_ready | flush));
 
   always_comb begin
     state_next = state;
@@ -85,7 +88,7 @@ module ysyx_23060203_IDU (
         if (in_valid) ; // input
       end
       ST_HOLD: begin
-        if (out_ready) begin
+        if (out_ready | flush) begin
           if (in_valid) begin
             ; // input
           end else begin
@@ -97,7 +100,7 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign out_valid = st_hold;
+  assign out_valid = st_hold & ~flush;
 
   assign out_pc = pc;
   `ifndef SYNTHESIS

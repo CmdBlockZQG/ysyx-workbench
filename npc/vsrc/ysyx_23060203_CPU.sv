@@ -29,6 +29,8 @@ module ysyx_23060203_CPU (
 
     .mem_r(ifu_mem_r),
 
+    .flush(jump_flush), .dnpc(jump_dnpc),
+
     .out_ready(idu_in_ready),
     .out_valid(ifu_out_valid),
     .out_pc(ifu_out_pc),
@@ -56,6 +58,8 @@ module ysyx_23060203_CPU (
   `endif
   ysyx_23060203_IDU IDU (
     .clock(clock), .reset(reset),
+
+    .flush(jump_flush),
 
     .gpr_raddr1(gpr_raddr1), .gpr_rdata1(gpr_rdata1),
     .gpr_raddr2(gpr_raddr2), .gpr_rdata2(gpr_rdata2),
@@ -87,7 +91,7 @@ module ysyx_23060203_CPU (
     `endif
   );
 
-  wire jump_en;
+  wire jump_flush;
   wire [31:0] jump_dnpc;
   wire exu_in_ready;
   axi_if lsu_mem_r();
@@ -105,7 +109,7 @@ module ysyx_23060203_CPU (
   ysyx_23060203_EXU EXU (
     .clock(clock), .reset(reset),
 
-    .jump_en(jump_en), .jump_dnpc(jump_dnpc),
+    .jump_flush(jump_flush), .jump_dnpc(jump_dnpc),
 
     .mem_r(lsu_mem_r),
     .mem_w(io_out),
