@@ -133,6 +133,7 @@ module ysyx_23060203_IDU (
   // TEMP: 除了zicsr外，只支持ecall mret ebreak
 
   wire zicsr = |funct3; // SYS指令中，仅zicsr指令d funct3不为0
+  wire ebreak = funct12[1:0] == 2'b01;
 
   // zicsr指令读取的csr由指令csr字段指示
   wire [11:0] csr = inst[31:20];
@@ -274,7 +275,7 @@ module ysyx_23060203_IDU (
     case (opcode)
       OP_JAL    : out_goto = 3'b001;
       OP_JALR   : out_goto = 3'b010;
-      OP_SYS    : out_goto = zicsr ? 3'b000 : 3'b011;
+      OP_SYS    : out_goto = (zicsr | ebreak) ? 3'b000 : 3'b011;
       OP_BRANCH : out_goto = {2'b10, (funct3[0] & funct3[2]) | ~(|funct3)};
       default   : out_goto = 3'b000;
     endcase
