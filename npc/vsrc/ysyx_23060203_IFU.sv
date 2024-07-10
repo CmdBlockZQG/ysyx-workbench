@@ -1,6 +1,9 @@
 module ysyx_23060203_IFU (
   input clock, reset,
 
+  input flush,
+  input [31:0] dnpc,
+
   input out_ready,
   output out_valid,
   output [31:0] out_pc,
@@ -21,10 +24,14 @@ module ysyx_23060203_IFU (
   reg [31:0] pc, pc_next;
   reg [31:0] inst, inst_next;
 
+  // 请求中途收到flush指令，需要总线事务完成后丢弃读取结果
+  reg flush_rdata, flush_rdata_next;
+
   always @(posedge clock) begin
     if (reset) begin
       state <= ST_REQ;
       inst <= 32'h00000013; // nop
+      flush_rdata <= 0;
       `ifdef YSYXSOC
         // soc中从flash开始取指
         pc <= 32'h30000000;
@@ -36,6 +43,7 @@ module ysyx_23060203_IFU (
       state <= state_next;
       pc <= pc_next;
       inst <= inst_next;
+      flush_rdata <= flush_rdata_next;
     end
   end
 
@@ -43,20 +51,41 @@ module ysyx_23060203_IFU (
     state_next = state;
     pc_next = pc;
     inst_next = inst;
+    flush_rdata_next = flush_rdata;
     case (state)
       ST_REQ: begin
         if (mem_r.arready & mem_r.arvalid) begin
           state_next = ST_RESP;
+          if (flush) begin // 请求已经发出，只能等待取出后丢弃
+            flush_rdata_next = 1;
+            pc_next = dnpc;
+          end
+        end else if (flush) begin // 当前请求还没有握手，修正请求地址
+          pc_next = dnpc;
         end
       end
       ST_RESP: begin
         if (mem_r.rready & mem_r.rvalid) begin
-          state_next = ST_HOLD;
-          inst_next = pc[2] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
+          if (flush) begin
+            state_next = ST_REQ;
+            pc_next = dnpc;
+          end else if (flush_rdata) begin
+            state_next = ST_REQ;
+            flush_rdata_next = 0;
+          end else begin
+            state_next = ST_HOLD;
+            inst_next = pc[2] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
+          end
+        end else if (flush) begin
+          flush_rdata_next = 1;
+          pc_next = dnpc;
         end
       end
       ST_HOLD: begin
-        if (out_ready & out_valid) begin
+        if (flush) begin
+          state_next = ST_REQ;
+          pc_next = dnpc;
+        end else if (out_ready & out_valid) begin
           state_next = ST_REQ;
           pc_next = pc + 32'h4;
         end
@@ -65,7 +94,7 @@ module ysyx_23060203_IFU (
     endcase
   end
 
-  assign out_valid = (state == ST_HOLD);
+  assign out_valid = (state == ST_HOLD) & ~flush;
   assign out_pc = pc;
   assign out_inst = inst;
 
@@ -83,13 +112,16 @@ module ysyx_23060203_IFU (
       pc <= 32'h80000000;
       inst <= pmem_read(32'h80000000);
     end else begin
-      if (out_ready) begin
+      if (flush) begin
+        pc <= dnpc;
+        inst <= pmem_read(dnpc);
+      end else if (out_ready) begin
         pc <= pc + 4;
         inst <= pmem_read(pc + 4);
       end
     end
   end
-  assign out_valid = ~reset;
+  assign out_valid = ~reset & ~flush;
   assign out_pc = pc;
   assign out_inst = inst;
 `endif

@@ -11,6 +11,9 @@ module ysyx_23060203_IDU (
   output [11:0] csr_raddr,
   input [31:0] csr_rdata,
 
+  // 冲刷信号
+  input flush,
+
   // 上游IFU输入
   output in_ready,
   input in_valid,
@@ -67,7 +70,7 @@ module ysyx_23060203_IDU (
     end
   end
 
-  assign in_ready = st_idle | (st_hold & out_ready);
+  assign in_ready = st_idle | (st_hold & (out_ready | flush));
 
   always_comb begin
     state_next = state;
@@ -85,7 +88,7 @@ module ysyx_23060203_IDU (
         if (in_valid) ; // input
       end
       ST_HOLD: begin
-        if (out_ready) begin
+        if (out_ready | flush) begin
           if (in_valid) begin
             ; // input
           end else begin
@@ -97,7 +100,7 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign out_valid = st_hold;
+  assign out_valid = st_hold & ~flush;
 
   assign out_pc = pc;
   `ifndef SYNTHESIS
@@ -130,6 +133,7 @@ module ysyx_23060203_IDU (
   // TEMP: 除了zicsr外，只支持ecall mret ebreak
 
   wire zicsr = |funct3; // SYS指令中，仅zicsr指令d funct3不为0
+  wire ebreak = funct12[1:0] == 2'b01;
 
   // zicsr指令读取的csr由指令csr字段指示
   wire [11:0] csr = inst[31:20];
@@ -271,7 +275,7 @@ module ysyx_23060203_IDU (
     case (opcode)
       OP_JAL    : out_goto = 3'b001;
       OP_JALR   : out_goto = 3'b010;
-      OP_SYS    : out_goto = zicsr ? 3'b000 : 3'b011;
+      OP_SYS    : out_goto = (zicsr | ebreak) ? 3'b000 : 3'b011;
       OP_BRANCH : out_goto = {2'b10, (funct3[0] & funct3[2]) | ~(|funct3)};
       default   : out_goto = 3'b000;
     endcase
