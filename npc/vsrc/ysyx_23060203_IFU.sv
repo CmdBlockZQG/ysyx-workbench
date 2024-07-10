@@ -10,7 +10,7 @@ module ysyx_23060203_IFU (
 );
 
   // TODO: 状态机IFU,需要流水化
-
+`ifdef YSYXSOC
   typedef enum {
     ST_REQ,  // 发出请求，等待ar通道握手
     ST_RESP, // 等待数据，等待r通道握手
@@ -76,4 +76,21 @@ module ysyx_23060203_IFU (
   assign mem_r.arsize = 3'b010; // 4B
   assign mem_r.arburst = 2'b0;
   assign mem_r.rready = (state == ST_RESP);
+`else
+  reg [31:0] pc, inst;
+  always @(posedge clock) begin
+    if (reset) begin
+      pc <= 32'h80000000;
+      inst <= pmem_read(32'h80000000);
+    end else begin
+      if (out_ready) begin
+        pc <= pc + 4;
+        inst <= pmem_read(pc + 4);
+      end
+    end
+  end
+  assign out_valid = ~reset;
+  assign out_pc = pc;
+  assign out_inst = inst;
+`endif
 endmodule

@@ -135,7 +135,7 @@ module ysyx_23060203_MemArb (
       end
       ST_IFU, ST_TMP_RESP: begin
         ram_r.rready = ifu_r.rready;
-        lsu_r.rvalid = ram_r.rvalid;
+        ifu_r.rvalid = ram_r.rvalid;
       end
       default: ;
     endcase

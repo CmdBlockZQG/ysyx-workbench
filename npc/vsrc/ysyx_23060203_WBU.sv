@@ -39,21 +39,11 @@ module ysyx_23060203_WBU (
   assign csr_wdata = in_csr_wdata;
 
   `ifndef SYNTHESIS
-    reg db_valid;
-    reg [31:0] db_pc, db_inst;
     always @(posedge clock) begin
-      if (reset) begin
-        db_valid <= 0;
-      end else begin
-        db_valid <= in_valid;
-        db_pc <= in_pc;
-        db_inst <= in_inst;
-        if (csr_wen & ~(|csr_waddr)) begin // ebreak
-          halt();
-        end
+      if (in_valid) begin
+        inst_complete(in_pc, in_inst);
+        if (csr_wen & ~(|csr_waddr)) halt(); // ebreak
       end
-
-      if (db_valid) inst_complete(db_pc, db_inst);
     end
   `endif
 endmodule
