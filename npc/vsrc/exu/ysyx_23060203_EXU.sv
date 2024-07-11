@@ -321,7 +321,7 @@ module ysyx_23060203_EXU (
   end
   wire [31:0] dnpc_c = dnpc_a + (jump_en ? dnpc_b : 32'h4);
 
-  // TEMP: 当前分支预测是btfnt，故跳转且不是分支后向时预测错误
+  // TEMP: 当前分支预测是btfnt(仅branch指令)
   assign jump_flush = st_hold & (jump_en ^ (goto[2] & val_c[31]));
   assign jump_dnpc = {dnpc_c[31:1], 1'b0};
 
