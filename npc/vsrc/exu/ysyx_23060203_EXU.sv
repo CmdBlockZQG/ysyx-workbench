@@ -319,13 +319,14 @@ module ysyx_23060203_EXU (
       default : dnpc_b = val_c;
     endcase
   end
-  wire [31:0] dnpc_c = dnpc_a + dnpc_b;
+  wire [31:0] dnpc_c = dnpc_a + (jump_en ? dnpc_b : 32'h4);
 
-  assign jump_flush = jump_en & st_hold; // TEMP: 当前分支预测是均不跳转
+  // TEMP: 当前分支预测是btfnt(仅branch指令)
+  assign jump_flush = st_hold & (jump_en ^ (goto[2] & val_c[31]));
   assign jump_dnpc = {dnpc_c[31:1], 1'b0};
 
   `ifndef SYNTHESIS
-    assign out_dnpc = jump_en ? jump_dnpc : pc + 32'h4;
+    assign out_dnpc = jump_dnpc;
   `endif
 
   // -------------------- GPR写回 --------------------
