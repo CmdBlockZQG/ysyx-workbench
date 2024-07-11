@@ -11,8 +11,14 @@ module ysyx_23060203_IDU (
   output [11:0] csr_raddr,
   input [31:0] csr_rdata,
 
-  input flush, // 冲刷信号
-  input [4:0] exu_rd, // EXU将要写入但还没写入的寄存器
+  // 冲刷信号
+  input flush,
+
+  // GPR旁路
+  input [4:0] exu_rd,
+  input [31:0] exu_gpr_wdata,
+
+  // EXU将要写入但还没写入的CSR
   input [11:0] exu_csr_waddr,
 
   // 上游IFU输入
@@ -125,26 +131,8 @@ module ysyx_23060203_IDU (
   wire [4:0] rd = inst[11:7], rs1 = inst[19:15], rs2 = inst[24:20];
   assign gpr_raddr1 = rs1;
   assign gpr_raddr2 = rs2;
-  wire [31:0] src1 = gpr_rdata1;
-  wire [31:0] src2 = gpr_rdata2;
-
-  reg need_rs1, need_rs2;
-  always_comb begin
-    case (opcode)
-      OP_JALR, OP_BRANCH, OP_LOAD, OP_STORE, OP_RI, OP_RR: need_rs1 = 1;
-      OP_SYS: need_rs1 = zicsr & ~funct3[2];
-      default: need_rs1 = 0;
-    endcase
-  end
-
-  always_comb begin
-    case (opcode)
-      OP_BRANCH, OP_STORE, OP_RR: need_rs2 = 1;
-      default: need_rs2 = 0;
-    endcase
-  end
-
-  wire gpr_raw = (need_rs1 & (|rs1) & (rs1 == exu_rd)) | (need_rs2 & (|rs2) & (rs2 == exu_rd));
+  wire [31:0] src1 = ((exu_rd == rs1) & (|rs1)) ? exu_gpr_wdata : gpr_rdata1;
+  wire [31:0] src2 = ((exu_rd == rs2) & (|rs2)) ? exu_gpr_wdata : gpr_rdata2;
 
   // -------------------- SYS --------------------
   // TEMP: 除了zicsr外，只支持ecall mret ebreak
@@ -222,7 +210,7 @@ module ysyx_23060203_IDU (
 
   // -------------------- 控制信号 --------------------
 
-  assign out_valid = st_hold & ~flush & ~gpr_raw & ~csr_raw;
+  assign out_valid = st_hold & ~flush & ~csr_raw;
 
   // alu_src ALU的两个运算数
   // 0: val_a, val_b

@@ -9,8 +9,10 @@ module ysyx_23060203_EXU (
   axi_if.out mem_r,
   axi_if.out mem_w,
 
-  // 将要修改的寄存器地址
+  // GPR forwarding
   output [4:0] exu_rd,
+  output [31:0] exu_gpr_wdata,
+  // 将要修改的CSR地址
   output [11:0] exu_csr_waddr,
 
   // 上游IDU输入
@@ -336,6 +338,7 @@ module ysyx_23060203_EXU (
   );
 
   assign exu_rd = rd & {5{~st_idle}};
+  assign exu_gpr_wdata = out_gpr_wdata;
 
   // -------------------- CSR写回 --------------------
   assign out_csr_wen = |csrw;
