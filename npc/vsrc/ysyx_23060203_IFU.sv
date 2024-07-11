@@ -107,6 +107,9 @@ module ysyx_23060203_IFU (
   assign mem_r.rready = (state == ST_RESP);
 `else
   reg [31:0] pc, inst;
+
+  wire [31:0] imm_b = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
+
   always @(posedge clock) begin
     if (reset) begin
       pc <= 32'h80000000;
@@ -116,8 +119,13 @@ module ysyx_23060203_IFU (
         pc <= dnpc;
         inst <= pmem_read(dnpc);
       end else if (out_ready) begin
-        pc <= pc + 4;
-        inst <= pmem_read(pc + 4);
+        if ((inst[6:2] == 5'b11000) & inst[31]) begin // 分支，并且后向
+          pc <= pc + imm_b;
+          inst <= pmem_read(pc + imm_b);
+        end else begin
+          pc <= pc + 4;
+          inst <= pmem_read(pc + 4);
+        end
       end
     end
   end
