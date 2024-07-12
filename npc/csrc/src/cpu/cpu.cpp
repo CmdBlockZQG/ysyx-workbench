@@ -53,17 +53,19 @@ static void wp_and_difftest() {
 static void execute(uint64_t n) {
   bool print = n <= 24;
   while (n--) {
+    addr_t trace_pc = cpu_pc;
+
     exec_once();
 
 #ifdef ITRACE
     extern word_t itrace_inst;
-    itrace(cpu_pc, itrace_inst, print);
+    itrace(trace_pc, itrace_inst, print);
 #endif
 #ifdef PCTRACE
-    pctrace(cpu_pc);
+    pctrace(trace_pc);
 #endif
 #ifdef FTRACE
-    ftrace(cpu_pc, cpu_module->npc);
+    ftrace(trace_pc, cpu_pc);
 #endif
 
     wp_and_difftest();
