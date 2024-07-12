@@ -7,161 +7,101 @@ module ysyx_23060203_MemArb (
   axi_if.out ram_r
 );
 
-  // 读仲裁器，LSU优先
-
   typedef enum logic [2:0] {
-    ST_IDLE,
-    ST_IFU,
-    ST_LSU,
-    ST_TMP_REQ,
-    ST_TMP_RESP
+    ST_IDLE = 3'b001,
+    ST_IFU  = 3'b010,
+    ST_LSU  = 3'b100
   } state_t;
-  wire st_idle = state == ST_IDLE;
+  wire st_idle = state[0];
+  wire st_ifu = state[1];
+  wire st_lsu = state[2];
 
   state_t state, state_next;
-  reg tmp, tmp_next; // 是否有暂存的ifu请求
-  reg [31:0] tmp_raddr, tmp_raddr_next; // 暂存的ifu请求地址
-  reg [7:0] tmp_arlen, tmp_arlen_next;
-  reg [2:0] tmp_arsize, tmp_arsize_next;
-  reg [1:0] tmp_arburst, tmp_arburst_next;
-
   always @(posedge clock) begin
     if (reset) begin
       state <= ST_IDLE;
-      tmp <= 0;
-      tmp_raddr <= 0;
-      tmp_arlen <= 0;
-      tmp_arsize <= 0;
-      tmp_arburst <= 0;
     end else begin
       state <= state_next;
-      tmp <= tmp_next;
-      tmp_raddr <= tmp_raddr_next;
-      tmp_arlen <= tmp_arlen_next;
-      tmp_arsize <= tmp_arsize_next;
-      tmp_arburst <= tmp_arburst_next;
     end
   end
 
   wire rhs = ram_r.rready & ram_r.rvalid & ram_r.rlast;
+
   always_comb begin
     state_next = state;
-    tmp_next = tmp;
-    tmp_raddr_next = tmp_raddr;
-    tmp_arlen_next = tmp_arlen;
-    tmp_arsize_next = tmp_arsize;
-    tmp_arburst_next = tmp_arburst;
-    case (state)
-      ST_IDLE: begin
-        if (ram_r.arready) begin
-          if (ifu_r.arvalid & lsu_r.arvalid) begin // 同时握手
-            state_next = ST_LSU;
-            tmp_next = 1;
-            tmp_raddr_next = ifu_r.araddr;
-            tmp_arlen_next = ifu_r.arlen;
-            tmp_arsize_next = ifu_r.arsize;
-            tmp_arburst_next = ifu_r.arburst;
-          end else if (ifu_r.arvalid) begin // ifu握手
-            state_next = ST_IFU;
-          end else if (lsu_r.arvalid) begin // lsu握手
-            state_next = ST_LSU;
-          end
-        end
+    if (st_idle) begin
+      if (ifu_r.arvalid) begin
+        state_next = ST_IFU;
+      end else if (lsu_r.arvalid) begin
+        state_next = ST_LSU;
       end
-      ST_IFU: begin
-        if (rhs) begin
-          state_next = ST_IDLE;
-        end
+    end else begin
+      if (rhs) begin
+        state_next = ST_IDLE;
       end
-      ST_LSU: begin
-        if (rhs) begin
-          if (tmp) begin
-            state_next = ST_TMP_REQ;
-          end else begin
-            state_next = ST_IDLE;
-          end
-        end
-      end
-      ST_TMP_REQ: begin
-        tmp_next = 0;
-        if (ram_r.arready) begin
-          state_next = ST_TMP_RESP;
-        end
-      end
-      ST_TMP_RESP: begin
-        if (rhs) begin
-          state_next = ST_IDLE;
-        end
-      end
-      default: ;
-    endcase
+    end
   end
-
-  // ar channel
-  assign ifu_r.arready = st_idle & ram_r.arready;
-  assign lsu_r.arready = st_idle & ram_r.arready;
 
   always_comb begin
-    ram_r.arvalid = 0;
-    ram_r.araddr = 32'b0;
-    ram_r.arid = 4'b0;
-    ram_r.arlen = 8'b0;
-    ram_r.arsize = 3'b0;
-    ram_r.arburst = 2'b0;
-    case (state)
-      ST_IDLE: begin
-        ram_r.arvalid = ifu_r.arvalid | lsu_r.arvalid;
-        if (lsu_r.arvalid) begin
-          ram_r.araddr = lsu_r.araddr;
-          ram_r.arid = lsu_r.arid;
-          ram_r.arlen = lsu_r.arlen;
-          ram_r.arsize = lsu_r.arsize;
-          ram_r.arburst = lsu_r.arburst;
-        end else if (ifu_r.arvalid) begin
-          ram_r.araddr = ifu_r.araddr;
-          ram_r.arid = ifu_r.arid;
-          ram_r.arlen = ifu_r.arlen;
-          ram_r.arsize = ifu_r.arsize;
-          ram_r.arburst = ifu_r.arburst;
-        end
-      end
-      ST_TMP_REQ: begin
-        ram_r.arvalid = 1;
-        ram_r.araddr = tmp_raddr;
-        ram_r.arid = 4'b0; // TEMP: 不支持乱序读
-        ram_r.arlen = tmp_arlen;
-        ram_r.arsize = tmp_arsize;
-        ram_r.arburst = tmp_arburst;
-      end
-      default: ;
-    endcase
+    if (st_ifu) begin
+      ram_r.arvalid = ifu_r.arvalid;
+      ram_r.araddr = ifu_r.araddr;
+      ram_r.arid = ifu_r.arid;
+      ram_r.arlen = ifu_r.arlen;
+      ram_r.arsize = ifu_r.arsize;
+      ram_r.arburst = ifu_r.arburst;
+      ram_r.rready = ifu_r.rready;
+    end else if (st_lsu) begin
+      ram_r.arvalid = lsu_r.arvalid;
+      ram_r.araddr = lsu_r.araddr;
+      ram_r.arid = lsu_r.arid;
+      ram_r.arlen = lsu_r.arlen;
+      ram_r.arsize = lsu_r.arsize;
+      ram_r.arburst = lsu_r.arburst;
+      ram_r.rready = lsu_r.rready;
+    end else begin
+      ram_r.arvalid = 0;
+      ram_r.araddr = 0;
+      ram_r.arid = 0;
+      ram_r.arlen = 0;
+      ram_r.arsize = 0;
+      ram_r.arburst = 0;
+      ram_r.rready = 0;
+    end
   end
 
-  // r channel
   always_comb begin
-    ram_r.rready = 0;
-    lsu_r.rvalid = 0;
-    ifu_r.rvalid = 0;
-    case (state)
-      ST_LSU: begin
-        ram_r.rready = lsu_r.rready;
-        lsu_r.rvalid = ram_r.rvalid;
-      end
-      ST_IFU, ST_TMP_RESP: begin
-        ram_r.rready = ifu_r.rready;
-        ifu_r.rvalid = ram_r.rvalid;
-      end
-      default: ;
-    endcase
-  end
+    if (st_ifu) begin
+      ifu_r.arready = ram_r.arready;
+      ifu_r.rvalid = ram_r.rvalid;
+      ifu_r.rresp = ram_r.rresp;
+      ifu_r.rdata = ram_r.rdata;
+      ifu_r.rlast = ram_r.rlast;
+      ifu_r.rid = ram_r.rid;
+    end else begin
+      ifu_r.arready = 0;
+      ifu_r.rvalid = 0;
+      ifu_r.rresp = 0;
+      ifu_r.rdata = 0;
+      ifu_r.rlast = 0;
+      ifu_r.rid = 0;
+    end
 
-  assign lsu_r.rresp = ram_r.rresp;
-  assign lsu_r.rdata = ram_r.rdata;
-  assign lsu_r.rlast = ram_r.rlast;
-  assign lsu_r.rid = ram_r.rid;
-  assign ifu_r.rresp = ram_r.rresp;
-  assign ifu_r.rdata = ram_r.rdata;
-  assign ifu_r.rlast = ram_r.rlast;
-  assign ifu_r.rid = ram_r.rid;
+    if (st_lsu) begin
+      lsu_r.arready = ram_r.arready;
+      lsu_r.rvalid = ram_r.rvalid;
+      lsu_r.rresp = ram_r.rresp;
+      lsu_r.rdata = ram_r.rdata;
+      lsu_r.rlast = ram_r.rlast;
+      lsu_r.rid = ram_r.rid;
+    end else begin
+      lsu_r.arready = 0;
+      lsu_r.rvalid = 0;
+      lsu_r.rresp = 0;
+      lsu_r.rdata = 0;
+      lsu_r.rlast = 0;
+      lsu_r.rid = 0;
+    end
+  end
 
 endmodule
