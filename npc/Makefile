@@ -95,7 +95,7 @@ run: $(BIN)
 
 sta:
 	make -C /home/cmdblock/ysyx/yosys-sta/ sta
-	tail -n4 /home/cmdblock/ysyx/yosys-sta/result/ysyx_23060203-500MHz/synth_stat.txt
+	tail -n4 /home/cmdblock/ysyx/yosys-sta/result/ysyx_23060203-200MHz/synth_stat.txt
 
 .PHONY: default all clean sim run sta
 
