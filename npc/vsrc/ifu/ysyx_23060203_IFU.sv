@@ -89,7 +89,7 @@ module ysyx_23060203_IFU (
   end
 
   assign cache_addr = st_hold ? pc_next : pc;
-  assign out_valid = st_hold & ~flush;
+  assign out_valid = st_hold & ~flush & ~flush_r;
   assign out_pc = pc;
   assign out_inst = inst;
 
