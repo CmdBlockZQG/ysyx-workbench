@@ -1,4 +1,4 @@
-module ysyx_23060203_Xbar (
+module ysyx_23060203_XBar (
   input clock, reset,
 
   axi_if.in read,

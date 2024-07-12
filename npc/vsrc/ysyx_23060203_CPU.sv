@@ -193,7 +193,7 @@ module ysyx_23060203_CPU (
   );
 
   axi_if clint_r();
-  ysyx_23060203_Xbar Xbar (
+  ysyx_23060203_XBar Xbar (
     .clock(clock), .reset(reset),
     .read(mem_r),
     .soc_r(io_out), .clint_r(clint_r)

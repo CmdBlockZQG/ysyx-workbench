@@ -21,16 +21,25 @@ module ysyx_23060203_MemArb (
   state_t state, state_next;
   reg tmp, tmp_next; // 是否有暂存的ifu请求
   reg [31:0] tmp_raddr, tmp_raddr_next; // 暂存的ifu请求地址
+  reg [7:0] tmp_arlen, tmp_arlen_next;
+  reg [2:0] tmp_arsize, tmp_arsize_next;
+  reg [1:0] tmp_arburst, tmp_arburst_next;
 
   always @(posedge clock) begin
     if (reset) begin
       state <= ST_IDLE;
       tmp <= 0;
       tmp_raddr <= 0;
+      tmp_arlen <= 0;
+      tmp_arsize <= 0;
+      tmp_arburst <= 0;
     end else begin
       state <= state_next;
       tmp <= tmp_next;
       tmp_raddr <= tmp_raddr_next;
+      tmp_arlen <= tmp_arlen_next;
+      tmp_arsize <= tmp_arsize_next;
+      tmp_arburst <= tmp_arburst_next;
     end
   end
 
@@ -39,6 +48,9 @@ module ysyx_23060203_MemArb (
     state_next = state;
     tmp_next = tmp;
     tmp_raddr_next = tmp_raddr;
+    tmp_arlen_next = tmp_arlen;
+    tmp_arsize_next = tmp_arsize;
+    tmp_arburst_next = tmp_arburst;
     case (state)
       ST_IDLE: begin
         if (ram_r.arready) begin
@@ -46,6 +58,9 @@ module ysyx_23060203_MemArb (
             state_next = ST_LSU;
             tmp_next = 1;
             tmp_raddr_next = ifu_r.araddr;
+            tmp_arlen_next = ifu_r.arlen;
+            tmp_arsize_next = ifu_r.arsize;
+            tmp_arburst_next = ifu_r.arburst;
           end else if (ifu_r.arvalid) begin // ifu握手
             state_next = ST_IFU;
           end else if (lsu_r.arvalid) begin // lsu握手
@@ -113,11 +128,10 @@ module ysyx_23060203_MemArb (
       ST_TMP_REQ: begin
         ram_r.arvalid = 1;
         ram_r.araddr = tmp_raddr;
-        // TEMP: 假设IFU请求的参数固定
-        ram_r.arid = 4'b0;
-        ram_r.arlen = 8'b0;
-        ram_r.arsize = 3'b010;
-        ram_r.arburst = 2'b0;
+        ram_r.arid = 4'b0; // TEMP: 不支持乱序读
+        ram_r.arlen = tmp_arlen;
+        ram_r.arsize = tmp_arsize;
+        ram_r.arburst = tmp_arburst;
       end
       default: ;
     endcase
