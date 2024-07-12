@@ -53,6 +53,7 @@ module ysyx_23060203_IFU (
       pc <= pc_next;
       inst <= inst_next;
       flush_r <= flush_r_next;
+      dnpc_r <= dnpc_r_next;
     end
   end
 
