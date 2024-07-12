@@ -96,9 +96,9 @@ module ysyx_23060203_ICache (
   end
 
   always @(posedge clock) begin
-    if (mem_r.arready & mem_r.arvalid) begin
-      line_valid[index] <= 0;
-    end
+    // if (mem_r.arready & mem_r.arvalid) begin
+    //   line_valid[index] <= 0;
+    // end
     if (mem_r.rready & mem_r.rvalid) begin
       line_data[index][off_r] <= off_r[0] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
       if (mem_r.rlast) begin
