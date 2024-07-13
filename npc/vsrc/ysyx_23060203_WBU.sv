@@ -14,7 +14,6 @@ module ysyx_23060203_WBU (
   // 上游EXU输入
   output in_ready,
   input in_valid,
-  input in_gpr_wen,
   input [4:0] in_gpr_waddr,
   input [31:0] in_gpr_wdata,
   input in_csr_wen,
@@ -31,7 +30,7 @@ module ysyx_23060203_WBU (
 
   assign in_ready = 1;
 
-  assign gpr_wen = in_valid & in_gpr_wen;
+  assign gpr_wen = in_valid;
   assign gpr_waddr = in_gpr_waddr;
   assign gpr_wdata = in_gpr_wdata;
 

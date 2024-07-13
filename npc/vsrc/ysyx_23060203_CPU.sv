@@ -101,7 +101,6 @@ module ysyx_23060203_CPU (
   wire exu_in_ready;
   axi_if lsu_mem_r();
   wire exu_out_valid;
-  wire exu_out_gpr_wen;
   wire [4:0] exu_out_gpr_waddr;
   wire [31:0] exu_out_gpr_wdata;
   wire exu_out_csr_wen;
@@ -140,7 +139,6 @@ module ysyx_23060203_CPU (
 
     .out_ready(wbu_in_ready),
     .out_valid(exu_out_valid),
-    .out_gpr_wen(exu_out_gpr_wen),
     .out_gpr_waddr(exu_out_gpr_waddr),
     .out_gpr_wdata(exu_out_gpr_wdata),
     .out_csr_wen(exu_out_csr_wen),
@@ -170,7 +168,6 @@ module ysyx_23060203_CPU (
 
     .in_ready(wbu_in_ready),
     .in_valid(exu_out_valid),
-    .in_gpr_wen(exu_out_gpr_wen),
     .in_gpr_waddr(exu_out_gpr_waddr),
     .in_gpr_wdata(exu_out_gpr_wdata),
     .in_csr_wen(exu_out_csr_wen),
@@ -203,9 +200,6 @@ module ysyx_23060203_CPU (
     .clock(clock), .reset(reset),
     .read(clint_r)
   );
-
-  assign io_out.arid = 0;
-  assign io_out.awid = 0;
 
 `ifdef YSYXSOC `ifndef SYNTHESIS
   // SoC Access Fault 检查

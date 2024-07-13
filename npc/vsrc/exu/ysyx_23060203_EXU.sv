@@ -34,7 +34,6 @@ module ysyx_23060203_EXU (
   // 下游WBU输出
   input out_ready,
   output out_valid,
-  output out_gpr_wen,
   output [4:0] out_gpr_waddr,
   output [31:0] out_gpr_wdata,
   output out_csr_wen,
@@ -314,7 +313,6 @@ module ysyx_23060203_EXU (
   `endif
 
   // -------------------- GPR写回 --------------------
-  assign out_gpr_wen = |rd;
   assign out_gpr_waddr = rd;
   assign out_gpr_wdata = ls[3] ? (
     load_val

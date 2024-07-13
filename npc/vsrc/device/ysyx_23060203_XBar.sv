@@ -53,11 +53,13 @@ module ysyx_23060203_XBar (
   assign read.arready = st_idle & (req_clint ? clint_r.arready : soc_r.arready);
   assign clint_r.arvalid = st_idle & req_clint & read.arvalid;
   assign clint_r.araddr = read.araddr;
+  assign clint_r.arid = read.arid;
   assign clint_r.arlen = read.arlen;
   assign clint_r.arsize = read.arsize;
   assign clint_r.arburst = read.arburst;
   assign soc_r.arvalid = st_idle & ~req_clint & read.arvalid;
   assign soc_r.araddr = read.araddr;
+  assign soc_r.arid = read.arid;
   assign soc_r.arlen = read.arlen;
   assign soc_r.arsize = read.arsize;
   assign soc_r.arburst = read.arburst;
@@ -71,10 +73,12 @@ module ysyx_23060203_XBar (
       read.rresp = clint_r.rresp;
       read.rdata = clint_r.rdata;
       read.rlast = clint_r.rlast;
+      read.rid = clint_r.rid;
     end else begin
       read.rresp = soc_r.rresp;
       read.rdata = soc_r.rdata;
       read.rlast = soc_r.rlast;
+      read.rid = soc_r.rid;
     end
   end
 
