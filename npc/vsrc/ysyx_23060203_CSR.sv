@@ -19,8 +19,6 @@ module ysyx_23060203_CSR (
   always @(posedge clock) begin
     if (reset) begin
       mstatus <= 32'h1800;
-      mtvec   <= 32'h0;
-      mepc    <= 32'h0;
     end else begin
       mstatus <= mstatus_next;
       mtvec <= mtvec_next;
