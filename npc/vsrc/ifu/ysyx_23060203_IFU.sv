@@ -46,7 +46,6 @@ module ysyx_23060203_IFU (
         // 仿真从0x80000000开始取指
         pc <= 32'h80000000;
       `endif
-      inst <= 32'h00000013;
       flush_r <= 0;
     end else begin
       state <= state_next;

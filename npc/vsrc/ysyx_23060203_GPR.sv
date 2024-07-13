@@ -15,14 +15,8 @@ module ysyx_23060203_GPR #(NR_REG = 16) (
 
   integer i;
   always @(posedge clock) begin
-    if (reset) begin
-      for (i = 1; i < NR_REG; i = i + 1) begin
-        r[i] <= 0;
-      end
-    end else begin
-      if (wen & (|waddr)) begin
-        r[waddr] <= wdata;
-      end
+    if (~reset & wen & (|waddr)) begin
+      r[waddr] <= wdata;
     end
   end
 
