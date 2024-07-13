@@ -7,8 +7,8 @@ module ysyx_23060203_ICache (
 
   axi_if.out mem_r
 );
-  parameter OFFSET_W = 3; // 块内地址宽度，块大小=2^x字节
-  parameter INDEX_W  = 3; // 组地址宽度，组数=2^x
+  parameter OFFSET_W = 2; // 块内地址宽度，块大小=2^x字节
+  parameter INDEX_W  = 4; // 组地址宽度，组数=2^x
   parameter TAG_W    = 32 - OFFSET_W - INDEX_W; // 标记字宽度
 
   parameter SET_N = 1 << INDEX_W; // 组数
@@ -18,15 +18,13 @@ module ysyx_23060203_ICache (
   // TEMP: 直接映射实现
   reg line_valid [SET_N];
   reg [TAG_W-1:0] line_tag [SET_N];
-  reg [31:0] line_data [SET_N][BLOCK_SZ];
+  reg [31:0] line_data [SET_N];
 
   wire [TAG_W-1:0] tag = addr[31:OFFSET_W+INDEX_W];
   wire [INDEX_W-1:0] index = addr[OFFSET_W+INDEX_W-1:OFFSET_W];
-  wire [(OFFSET_W-2)-1:0] off = addr[OFFSET_W-1:2];
-  wire [(OFFSET_W-2)-1:0] off_next = off + 1;
 
   assign hit = line_valid[index] & (line_tag[index] == tag);
-  assign inst = line_data[index][off];
+  assign inst = line_data[index];
 
   // -------------------- 访存状态机 --------------------
 
@@ -67,37 +65,17 @@ module ysyx_23060203_ICache (
   end
 
   assign mem_r.arvalid = st_req;
-  assign mem_r.araddr = {tag, index, off_next, 2'b00};
+  assign mem_r.araddr = {tag, index, 2'b00};
   assign mem_r.arid = 0;
-  assign mem_r.arlen = BLOCK_SZ - 1;
+  assign mem_r.arlen = 0;
   assign mem_r.arsize = 3'b010;
-  assign mem_r.arburst = (BLOCK_SZ == 1) ? 2'b00 : 2'b10;
+  assign mem_r.arburst = 2'b00;
   assign mem_r.rready = st_resp;
 
   //  -------------------- 缓存更新 --------------------
-  reg [(OFFSET_W-2)-1:0] off_r, off_r_next;
-
-  always @(posedge clock) begin
-    if (reset) begin
-      off_r <= 0;
-    end else begin
-      off_r <= off_r_next;
-    end
-  end
-
-  always_comb begin
-    off_r_next = off_r;
-    if (mem_r.arready & mem_r.arvalid) begin
-      off_r_next = off_next;
-    end
-    if (mem_r.rready & mem_r.rvalid) begin
-      off_r_next = off_r + 1;
-    end
-  end
-
   always @(posedge clock) begin
     if (mem_r.rready & mem_r.rvalid) begin
-      line_data[index][off_r] <= off_r[0] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
+      line_data[index] <= index[0] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
       if (mem_r.rlast) begin
         line_valid[index] <= 1;
         line_tag[index] <= tag;
