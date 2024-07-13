@@ -67,7 +67,7 @@ module ysyx_23060203 (
 `ifdef YSYXSOC
 
   axi_if io_master();
-  axi_if io_slave();
+  // axi_if io_slave();
 
   // master input
   assign io_master.awready = io_master_awready;
@@ -114,36 +114,36 @@ module ysyx_23060203 (
   assign io_slave_rlast   = 0; // io_slave.rlast;
   assign io_slave_rid     = 0; // io_slave.rid;
   // slave input
-  assign io_slave.awvalid = io_slave_awvalid;
-  assign io_slave.awaddr  = io_slave_awaddr;
-  assign io_slave.awid    = io_slave_awid;
-  assign io_slave.awlen   = io_slave_awlen;
-  assign io_slave.awsize  = io_slave_awsize;
-  assign io_slave.awburst = io_slave_awburst;
-  assign io_slave.wvalid  = io_slave_wvalid;
-  assign io_slave.wdata   = io_slave_wdata;
-  assign io_slave.wstrb   = io_slave_wstrb;
-  assign io_slave.wlast   = io_slave_wlast;
-  assign io_slave.bready  = io_slave_bready;
-  assign io_slave.arvalid = io_slave_arvalid;
-  assign io_slave.araddr  = io_slave_araddr;
-  assign io_slave.arid    = io_slave_arid;
-  assign io_slave.arlen   = io_slave_arlen;
-  assign io_slave.arsize  = io_slave_arsize;
-  assign io_slave.arburst = io_slave_arburst;
-  assign io_slave.rready  = io_slave_rready;
+  // assign io_slave.awvalid = io_slave_awvalid;
+  // assign io_slave.awaddr  = io_slave_awaddr;
+  // assign io_slave.awid    = io_slave_awid;
+  // assign io_slave.awlen   = io_slave_awlen;
+  // assign io_slave.awsize  = io_slave_awsize;
+  // assign io_slave.awburst = io_slave_awburst;
+  // assign io_slave.wvalid  = io_slave_wvalid;
+  // assign io_slave.wdata   = io_slave_wdata;
+  // assign io_slave.wstrb   = io_slave_wstrb;
+  // assign io_slave.wlast   = io_slave_wlast;
+  // assign io_slave.bready  = io_slave_bready;
+  // assign io_slave.arvalid = io_slave_arvalid;
+  // assign io_slave.araddr  = io_slave_araddr;
+  // assign io_slave.arid    = io_slave_arid;
+  // assign io_slave.arlen   = io_slave_arlen;
+  // assign io_slave.arsize  = io_slave_arsize;
+  // assign io_slave.arburst = io_slave_arburst;
+  // assign io_slave.rready  = io_slave_rready;
 
   ysyx_23060203_CPU NPC_CPU (
     .clock(clock), .reset(reset),
     // .io_interrupt(io_interrupt),
-    .io_in(io_slave),
+    // .io_in(io_slave),
     .io_out(io_master)
   );
 
 `else
 
   axi_if io_master();
-  axi_if io_slave();
+  // axi_if io_slave();
 
   npc_RAM NPC_RAM (
     .clock(clock), .reset(reset),
@@ -153,7 +153,7 @@ module ysyx_23060203 (
   ysyx_23060203_CPU NPC_CPU (
     .clock(clock), .reset(reset),
     // .io_interrupt(io_interrupt),
-    .io_in(io_slave),
+    // .io_in(io_slave),
     .io_out(io_master)
   );
 

@@ -1,7 +1,7 @@
 module ysyx_23060203_CPU (
   input clock, reset,
 
-  axi_if.in io_in,
+  // axi_if.in io_in,
   axi_if.out io_out
 );
 
@@ -203,6 +203,9 @@ module ysyx_23060203_CPU (
     .clock(clock), .reset(reset),
     .read(clint_r)
   );
+
+  assign io_out.arid = 0;
+  assign io_out.awid = 0;
 
 `ifdef YSYXSOC `ifndef SYNTHESIS
   // SoC Access Fault 检查
