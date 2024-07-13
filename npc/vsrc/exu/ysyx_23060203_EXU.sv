@@ -88,22 +88,6 @@ module ysyx_23060203_EXU (
   always @(posedge clock) begin
     if (reset) begin
       state <= ST_IDLE;
-      pc <= 0;
-      val_a <= 0;
-      val_b <= 0;
-      val_c <= 0;
-      alu_src <= 0;
-      alu_funct <= 0;
-      alu_sw <= 0;
-      rd <= 0;
-      rd_src <= 0;
-      ls <= 0;
-      goto <= 0;
-      csrw <= 0;
-      load_val <= 0;
-      `ifndef SYNTHESIS
-        inst <= 0;
-      `endif
     end else begin
       state <= state_next;
       pc <= pc_next;
