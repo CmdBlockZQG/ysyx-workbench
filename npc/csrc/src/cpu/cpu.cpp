@@ -60,6 +60,7 @@ static void execute(uint64_t n) {
 #ifdef ITRACE
     extern word_t itrace_inst;
     itrace(trace_pc, itrace_inst, print);
+    Assert((itrace_inst & 0b11) == 0b11, "Illegal instruction fetched!");
 #endif
 #ifdef PCTRACE
     pctrace(trace_pc);
