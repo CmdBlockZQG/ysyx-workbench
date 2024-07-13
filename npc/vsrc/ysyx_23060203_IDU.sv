@@ -68,8 +68,6 @@ module ysyx_23060203_IDU (
   always @(posedge clock) begin
     if (reset) begin
       state <= ST_IDLE;
-      pc <= 32'h0;
-      inst <= 32'h00000013;
     end else begin
       state <= state_next;
       pc <= pc_next;
