@@ -46,7 +46,6 @@ module ysyx_23060203_MemArb (
     if (st_ifu) begin
       ram_r.arvalid = ifu_r.arvalid;
       ram_r.araddr = ifu_r.araddr;
-      ram_r.arid = ifu_r.arid;
       ram_r.arlen = ifu_r.arlen;
       ram_r.arsize = ifu_r.arsize;
       ram_r.arburst = ifu_r.arburst;
@@ -54,7 +53,6 @@ module ysyx_23060203_MemArb (
     end else if (st_lsu) begin
       ram_r.arvalid = lsu_r.arvalid;
       ram_r.araddr = lsu_r.araddr;
-      ram_r.arid = lsu_r.arid;
       ram_r.arlen = lsu_r.arlen;
       ram_r.arsize = lsu_r.arsize;
       ram_r.arburst = lsu_r.arburst;
@@ -62,7 +60,6 @@ module ysyx_23060203_MemArb (
     end else begin
       ram_r.arvalid = 0;
       ram_r.araddr = 0;
-      ram_r.arid = 0;
       ram_r.arlen = 0;
       ram_r.arsize = 0;
       ram_r.arburst = 0;
@@ -77,14 +74,12 @@ module ysyx_23060203_MemArb (
       ifu_r.rresp = ram_r.rresp;
       ifu_r.rdata = ram_r.rdata;
       ifu_r.rlast = ram_r.rlast;
-      ifu_r.rid = ram_r.rid;
     end else begin
       ifu_r.arready = 0;
       ifu_r.rvalid = 0;
       ifu_r.rresp = 0;
       ifu_r.rdata = 0;
       ifu_r.rlast = 0;
-      ifu_r.rid = 0;
     end
 
     if (st_lsu) begin
@@ -93,14 +88,12 @@ module ysyx_23060203_MemArb (
       lsu_r.rresp = ram_r.rresp;
       lsu_r.rdata = ram_r.rdata;
       lsu_r.rlast = ram_r.rlast;
-      lsu_r.rid = ram_r.rid;
     end else begin
       lsu_r.arready = 0;
       lsu_r.rvalid = 0;
       lsu_r.rresp = 0;
       lsu_r.rdata = 0;
       lsu_r.rlast = 0;
-      lsu_r.rid = 0;
     end
   end
 
