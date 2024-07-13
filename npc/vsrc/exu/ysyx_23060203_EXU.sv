@@ -352,6 +352,20 @@ module ysyx_23060203_EXU (
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS
   always @(posedge clock) if (~reset) begin
+    if (out_ready & out_valid) begin
+      perf_event(PERF_EXU_INST);
+    end
+    if (jump_flush) begin
+      perf_event(PERF_EXU_FLUSH);
+    end
+    case (state)
+      ST_IDLE: perf_event(PERF_EXU_IDLE);
+      ST_LOAD_REQ, ST_LOAD_RESP:
+               perf_event(PERF_EXU_MEMR);
+      ST_STORE_REQ, ST_STORE_ADDR, ST_STORE_DATA, ST_STORE_RESP:
+               perf_event(PERF_EXU_MEMW);
+      default: ;
+    endcase
     if (mem_r.rready & mem_r.rvalid) begin
       event_mem_read(alu_val, {29'b0, mem_r.arsize}, mem_rdata);
     end
