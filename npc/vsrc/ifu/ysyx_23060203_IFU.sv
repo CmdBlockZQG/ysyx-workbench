@@ -93,4 +93,19 @@ module ysyx_23060203_IFU (
   assign out_pc = pc;
   assign out_inst = inst;
 
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  always @(posedge clock) if (~reset) begin
+    if (st_hold) begin
+      perf_event(PERF_IFU_HOLD);
+    end
+    if (st_wait) begin
+      perf_event(PERF_IFU_WAIT);
+    end
+    if (out_valid & out_ready) begin
+      perf_event(PERF_IFU_INST);
+    end
+  end
+`endif
+
 endmodule

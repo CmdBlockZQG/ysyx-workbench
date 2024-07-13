@@ -311,4 +311,24 @@ module ysyx_23060203_IDU (
     endcase
   end
 
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  always @(posedge clock) if (~reset) begin
+    if (st_idle) begin
+      perf_event(PERF_IDU_IDLE);
+    end
+    if (st_hold) begin
+      perf_event(PERF_IDU_HOLD);
+    end
+    if (out_ready & out_valid) begin
+      perf_event(PERF_IDU_INST);
+      if (opcode == OP_LOAD) perf_event(PERF_IDU_LOAD);
+      if (opcode == OP_STORE) perf_event(PERF_IDU_STORE);
+      if (opcode == OP_BRANCH) perf_event(PERF_IDU_BRANCH);
+      if (opcode == OP_JAL) perf_event(PERF_IDU_JAL);
+      if (opcode == OP_JALR) perf_event(PERF_IDU_JALR);
+    end
+  end
+`endif
+
 endmodule

@@ -105,4 +105,16 @@ module ysyx_23060203_ICache (
     end
   end
 
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  always @(posedge clock) if (~reset) begin
+    if (~st_idle) begin
+      perf_event(PERF_ICACHE_MEM);
+    end
+    if (mem_r.arready & mem_r.arvalid) begin
+      perf_event(PERF_ICACHE_MISS);
+    end
+  end
+`endif
+
 endmodule

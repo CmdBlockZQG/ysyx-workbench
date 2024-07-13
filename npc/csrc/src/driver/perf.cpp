@@ -7,15 +7,11 @@
 #include "Vysyx_23060203__Dpi.h"
 #endif
 
-// READY : 单元完成当前任务，发出ready信号请求上游供给
-// CPLT  : 完成 complete 的缩写
-
 static const char *perfcnt_name[] = {
   "IFU_WAIT", // IFU等待指令读取周期数
   "IFU_INST", // IFU提供指令次数
   "IFU_HOLD", // IFU提供指令周期数
 
-  "ICACHE_HIT",  // ICache命中次数
   "ICACHE_MISS", // ICache缺失次数
   "ICACHE_MEM",  // ICache等待存储器周期数
 
@@ -28,7 +24,6 @@ static const char *perfcnt_name[] = {
   "IDU_BRANCH", // IDU译码BRANCH指令
   "IDU_JAL",    // IDU译码JAL指令
   "IDU_JALR",   // IDU译码JALR指令
-
 
   "EXU_IDLE",  // EXU空闲周期数
   "EXU_INST",  // EXU执行指令数量
