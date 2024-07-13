@@ -11,38 +11,27 @@
 // CPLT  : 完成 complete 的缩写
 
 static const char *perfcnt_name[] = {
-  "IFU_FETCH",       // IFU取到指令
-  "IFU_WAIT_MEM",    // IFU因访存延迟等待
-  "IFU_WAIT_EXU",    // IFU因指令执行等待
+  "IFU_WAIT",
+  "IFU_INST",
+  "IFU_HOLD",
 
-  "IDU_UPIMM",       // 译码 LUI AUIPC
-  "IDU_JUMP",        // 译码无条件跳转 JAL JALR
-  "IDU_BRANCH",      // 译码分支 BXX
-  "IDU_LOAD",        // 译码加载 LXX
-  "IDU_STORE",       // 译码储存 SXX
-  "IDU_CALRI",       // 译码 寄存器-立即数 整数计算 XXI
-  "IDU_CALRR",       // 译码 寄存器-寄存器 整数计算 XXX
-  "IDU_SYS",        // 译码SYS指令 ECALL EBREAK
-  "IDU_CSR",        // 译码CSR指令 CSRXX
+  "ICACHE_HIT",
+  "ICACHE_MISS",
+  "ICACHE_MEM",
 
-  "EXU_UPIMM",      // 执行 LUI AUIPC
-  "EXU_JUMP",       // 执行无条件跳转 JAL JALR
-  "EXU_BRANCH",     // 执行分支 BXX
-  "EXU_LOAD",       // 执行加载 LXX
-  "EXU_STORE",      // 执行储存 SXX
-  "EXU_CALRI",      // 执行 寄存器-立即数 整数计算 XXI
-  "EXU_CALRR",      // 执行 寄存器-寄存器 整数计算 XXX
-  "EXU_SYS",        // 执行SYS指令 ECALL EBREAK
-  "EXU_CSR",        // 执行CSR指令 CSRXX
-  "EXU_READY",      // EXU完成计算
+  "IDU_IDLE",
+  "IDU_INST",
+  "IDU_HOLD",
 
-  "LSU_LOAD",       // LSU取数据ing
-  "LSU_LOAD_RESP",  // LSU取到数据
-  "LSU_STORE",      // LSU存数据ing
+  "EXU_IDLE",
+  "EXU_INST",
+  "EXU_HOLD",
+  "EXU_FLUSH",
+  "EXU_MEMR",
+  "EXU_MEMW",
 
-  "ICACHE_HIT",     // 指令缓存命中
-  "ICACHE_MISS",    // 指令缓存缺失
-  "ICACHE_WAIT_MEM" // 指令缓存缺失，等待存储器
+  "WBU_IDLE",
+  "WBU_INST"
 };
 
 const int perfcnt_num = ARRLEN(perfcnt_name);
