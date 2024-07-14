@@ -41,7 +41,8 @@ module ysyx_23060203_IDU (
   output reg        out_rd_src,
   output reg [3:0]  out_ls,
   output reg [2:0]  out_goto,
-  output reg [1:0]  out_csrw
+  output reg [1:0]  out_csrw,
+  output out_fencei
 
   `ifndef SYNTHESIS
     ,
@@ -209,6 +210,7 @@ module ysyx_23060203_IDU (
   // -------------------- 控制信号 --------------------
 
   assign out_valid = st_hold & ~flush & ~csr_raw;
+  assign out_fencei = opcode == OP_FENCEI;
 
   // alu_src ALU的两个运算数
   // 0: val_a, val_b
@@ -247,7 +249,7 @@ module ysyx_23060203_IDU (
     case (opcode)
       OP_BRANCH, OP_STORE : out_rd = 5'b0;
       default             : out_rd = rd;
-      // ecall, mret, ebreak也不写入寄存器，但它们的rd字段都是0
+      // ecall, mret, ebreak, fence.i也不写入寄存器，但它们的rd字段都是0
     endcase
   end
 

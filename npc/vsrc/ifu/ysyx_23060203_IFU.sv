@@ -3,6 +3,7 @@ module ysyx_23060203_IFU (
 
   input flush,
   input [31:0] dnpc,
+  input fencei,
 
   input out_ready,
   output out_valid,
