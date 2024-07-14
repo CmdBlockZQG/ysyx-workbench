@@ -17,6 +17,7 @@ module ysyx_23060203_IFU (
   wire [31:0] cache_addr, cache_inst;
   ysyx_23060203_ICache ICache (
     .clock(clock), .reset(reset),
+    .fencei(fencei),
     .addr(cache_addr), .hit(hit), .inst(cache_inst),
     .mem_r(mem_r)
   );

@@ -29,7 +29,7 @@ module ysyx_23060203_CPU (
 
     .mem_r(ifu_mem_r),
 
-    .flush(jump_flush), .dnpc(jump_dnpc),
+    .flush(jump_flush | fencei), .dnpc(jump_dnpc),
     .fencei(fencei),
 
     .out_ready(idu_in_ready),
