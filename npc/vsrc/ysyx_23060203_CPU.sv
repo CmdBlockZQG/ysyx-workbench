@@ -29,7 +29,8 @@ module ysyx_23060203_CPU (
 
     .mem_r(ifu_mem_r),
 
-    .flush(jump_flush), .dnpc(jump_dnpc),
+    .flush(jump_flush | fencei), .dnpc(jump_dnpc),
+    .fencei(fencei),
 
     .out_ready(idu_in_ready),
     .out_valid(ifu_out_valid),
@@ -53,13 +54,14 @@ module ysyx_23060203_CPU (
   wire [3:0]  idu_out_ls;
   wire [2:0]  idu_out_goto;
   wire [1:0]  idu_out_csrw;
+  wire idu_out_fencei;
   `ifndef SYNTHESIS
     wire [31:0] idu_out_inst;
   `endif
   ysyx_23060203_IDU IDU (
     .clock(clock), .reset(reset),
 
-    .flush(jump_flush),
+    .flush(jump_flush | fencei),
     .exu_rd(exu_rd), .exu_gpr_wdata(exu_gpr_wdata),
     .exu_csr_waddr(exu_csr_waddr),
 
@@ -86,7 +88,8 @@ module ysyx_23060203_CPU (
     .out_rd_src(idu_out_rd_src),
     .out_ls(idu_out_ls),
     .out_goto(idu_out_goto),
-    .out_csrw(idu_out_csrw)
+    .out_csrw(idu_out_csrw),
+    .out_fencei(idu_out_fencei)
     `ifndef SYNTHESIS
       ,
       .out_inst(idu_out_inst)
@@ -95,6 +98,7 @@ module ysyx_23060203_CPU (
 
   wire jump_flush;
   wire [31:0] jump_dnpc;
+  wire fencei;
   wire [4:0] exu_rd;
   wire [31:0] exu_gpr_wdata;
   wire [11:0] exu_csr_waddr;
@@ -115,6 +119,7 @@ module ysyx_23060203_CPU (
     .clock(clock), .reset(reset),
 
     .jump_flush(jump_flush), .jump_dnpc(jump_dnpc),
+    .fencei(fencei),
 
     .exu_rd(exu_rd), .exu_gpr_wdata(exu_gpr_wdata),
     .exu_csr_waddr(exu_csr_waddr),
@@ -136,6 +141,7 @@ module ysyx_23060203_CPU (
     .in_ls(idu_out_ls),
     .in_goto(idu_out_goto),
     .in_csrw(idu_out_csrw),
+    .in_fencei(idu_out_fencei),
 
     .out_ready(wbu_in_ready),
     .out_valid(exu_out_valid),

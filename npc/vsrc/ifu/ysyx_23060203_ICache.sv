@@ -1,6 +1,8 @@
 module ysyx_23060203_ICache (
   input clock, reset,
 
+  input fencei,
+
   input [31:0] addr,
   output hit,
   output [31:0] inst,
@@ -95,7 +97,14 @@ module ysyx_23060203_ICache (
     end
   end
 
+  integer i;
   always @(posedge clock) begin
+    if (fencei) begin
+      for (i = 0; i < SET_N; i = i + 1) begin
+        if (mem_r.rready & mem_r.rvalid & mem_r.rlast & (i[INDEX_W-1:0] == index)) ;
+        else line_valid[i] <= 0;
+      end
+    end
     if (mem_r.rready & mem_r.rvalid) begin
       line_data[index][off_r] <= off_r[0] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
       if (mem_r.rlast) begin

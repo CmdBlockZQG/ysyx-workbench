@@ -5,6 +5,9 @@ module ysyx_23060203_EXU (
   output reg jump_flush, // 分支预测错误，需要冲刷流水线
   output [31:0] jump_dnpc,
 
+  // fence.i
+  output fencei,
+
   // 访存AXI接口
   axi_if.out mem_r,
   axi_if.out mem_w,
@@ -30,6 +33,7 @@ module ysyx_23060203_EXU (
   input [3:0]  in_ls,
   input [2:0]  in_goto,
   input [1:0]  in_csrw,
+  input        in_fencei,
 
   // 下游WBU输出
   input out_ready,
@@ -217,6 +221,9 @@ module ysyx_23060203_EXU (
     assign out_pc = pc;
     assign out_inst = inst;
   `endif
+
+  // -------------------- fence.i --------------------
+  assign fencei = st_hold & in_fencei;
 
   // -------------------- ALU --------------------
   wire [31:0] alu_a = alu_src ? pc : val_a;
