@@ -29,8 +29,8 @@ static const char *perfcnt_name[] = {
   "EXU_INST",  // EXU执行指令数量
   "EXU_FLUSH", // EXU冲刷上游流水级次数
 
-  "LSU_MEMR",  // EXU读内存周期数
-  "LSU_MEMW",  // EXU写内存周期数
+  "LSU_MEMR",  // LSU读内存周期数
+  "LSU_MEMW",  // LSU写内存周期数
 };
 
 const int perfcnt_num = ARRLEN(perfcnt_name);
