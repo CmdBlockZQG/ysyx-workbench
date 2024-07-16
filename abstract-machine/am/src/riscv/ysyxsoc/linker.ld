@@ -16,38 +16,38 @@ MEMORY {
 }
 
 SECTIONS {
-  fsbl : {
+  fsbl : ALIGN(0x8) {
     *(fsbl)
   } >flash AT>flash : fsbl
 
-  ssbl : {
+  ssbl : ALIGN(0x8) {
     _ssbl_start = .;
     *(ssbl)
     _ssbl_end = .;
   } >sram AT>flash : ssbl
 
-  .text : {
+  .text : ALIGN(0x8) {
     _text_start = .;
     *(entry)
     *(.text*)
     _text_end = .;
   } >sdram AT>flash : text
 
-  .rodata : {
+  .rodata : ALIGN(0x8) {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
     _rodata_end = .;
   } >sdram AT>flash : rodata
   
-  .data : {
+  .data : ALIGN(0x8) {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
   } >sdram AT>flash : data
 
-  .bss (NOLOAD) : {
+  .bss (NOLOAD) : ALIGN(0x8) {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
