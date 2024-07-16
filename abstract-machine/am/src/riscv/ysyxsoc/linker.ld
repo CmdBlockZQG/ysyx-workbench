@@ -30,8 +30,7 @@ SECTIONS {
     _text_start = .;
     *(entry)
     *(.text*)
-    . = ALIGN(0x8);
-    _text_end = .;
+    _text_end = ALIGN(0x8);
   } >sdram AT>flash : text =0x0
 
   .rodata : ALIGN(0x8) {
