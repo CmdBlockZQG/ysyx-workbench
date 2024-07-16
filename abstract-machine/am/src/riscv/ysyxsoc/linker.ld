@@ -23,8 +23,7 @@ SECTIONS {
   ssbl : ALIGN(0x8) {
     _ssbl_start = .;
     *(ssbl)
-    . = ALIGN(0x8);
-    _ssbl_end = .;
+    _ssbl_end = ALIGN(0x8);
   } >sram AT>flash : ssbl =0x0
 
   .text : ALIGN(0x8) {
