@@ -15,6 +15,6 @@ typedef enum {
   PERF_EXU_IDLE,
   PERF_EXU_INST,
   PERF_EXU_FLUSH,
-  PERF_EXU_MEMR,
-  PERF_EXU_MEMW
+  PERF_LSU_MEMR,
+  PERF_LSU_MEMW
 } perf_cnt_t;
