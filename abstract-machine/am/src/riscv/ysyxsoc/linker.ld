@@ -20,38 +20,43 @@ SECTIONS {
     *(fsbl)
   } >flash AT>flash : fsbl
 
-  ssbl : {
+  ssbl : ALIGN(0x8) {
     _ssbl_start = .;
     *(ssbl)
+    . = ALIGN(0x8);
     _ssbl_end = .;
-  } >sram AT>flash : ssbl
+  } >sram AT>flash : ssbl =0x0
 
-  .text : {
+  .text : ALIGN(0x8) {
     _text_start = .;
     *(entry)
     *(.text*)
+    . = ALIGN(0x8);
     _text_end = .;
-  } >sdram AT>flash : text
+  } >sdram AT>flash : text =0x0
 
-  .rodata : {
+  .rodata : ALIGN(0x8) {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
+    . = ALIGN(0x8);
     _rodata_end = .;
-  } >sdram AT>flash : rodata
+  } >sdram AT>flash : rodata =0x0
   
-  .data : {
+  .data : ALIGN(0x8) {
     _data_start = .;
     *(.data*)
     *(.sdata*)
+    . = ALIGN(0x8);
     _data_end = .;
-  } >sdram AT>flash : data
+  } >sdram AT>flash : data =0x0
 
-  .bss (NOLOAD) : {
+  .bss (NOLOAD) : ALIGN(0x8) {
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+    . = ALIGN(0x8);
     _bss_end = .;
   } >sdram
 
