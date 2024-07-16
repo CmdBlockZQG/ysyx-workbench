@@ -121,7 +121,7 @@ module ysyx_23060203_EXU (
   );
 
   // -------------------- LSU --------------------
-  wire lsu_in_valid = in_valid & (|ls);
+  wire lsu_in_valid = in_valid & (|in_ls);
   wire lsu_in_ready, lsu_out_valid;
   wire [31:0] lsu_out_rdata;
   ysyx_23060203_LSU LSU (
