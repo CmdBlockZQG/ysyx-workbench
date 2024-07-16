@@ -16,7 +16,7 @@ MEMORY {
 }
 
 SECTIONS {
-  fsbl : ALIGN(0x8) {
+  fsbl : {
     *(fsbl)
   } >flash AT>flash : fsbl
 
