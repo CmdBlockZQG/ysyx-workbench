@@ -23,21 +23,24 @@ SECTIONS {
   ssbl : ALIGN(0x8) {
     _ssbl_start = .;
     *(ssbl)
-    _ssbl_end = ALIGN(0x8);
+    . = ALIGN(0x8);
+    _ssbl_end = .;
   } >sram AT>flash : ssbl =0x0
 
   .text : ALIGN(0x8) {
     _text_start = .;
     *(entry)
     *(.text*)
-    _text_end = ALIGN(0x8);
+    . = ALIGN(0x8);
+    _text_end = .;
   } >sdram AT>flash : text =0x0
 
   .rodata : ALIGN(0x8) {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
-    _rodata_end = ALIGN(0x8);
+    . = ALIGN(0x8);
+    _rodata_end = .;
   } >sdram AT>flash : rodata =0x0
   
   .data : ALIGN(0x8) {
