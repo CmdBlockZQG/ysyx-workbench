@@ -37,8 +37,7 @@ SECTIONS {
     _rodata_start = .;
     *(.srodata*)
     *(.rodata*)
-    . = ALIGN(0x8);
-    _rodata_end = .;
+    _rodata_end = ALIGN(0x8);
   } >sdram AT>flash : rodata =0x0
   
   .data : ALIGN(0x8) {
