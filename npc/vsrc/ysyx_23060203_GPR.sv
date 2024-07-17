@@ -1,4 +1,4 @@
-module ysyx_23060203_GPR #(NR_REG = 16) (
+module ysyx_23060203_GPR #(NR_REG = 32) (
   input clock, reset,
 
   input wen, // 写入使能
