@@ -54,7 +54,6 @@ module ysyx_23060203_EXU (
   `endif
 );
 
-  reg exec;
   reg valid;
   reg [31:0] pc;
   reg [31:0] val_a, val_b, val_c;
@@ -79,7 +78,6 @@ module ysyx_23060203_EXU (
   reg fencei_r;
 
   always @(posedge clock) if (reset) begin
-    exec <= 0;
     valid <= 0;
   end else begin
     if (in_valid & in_ready) begin
@@ -104,15 +102,6 @@ module ysyx_23060203_EXU (
     end else if (out_ready & out_valid) begin
       valid <= 0;
     end
-
-    if (in_valid & in_ready) begin
-      if (lsu_in_en | mul_in_en | div_in_en) begin
-        exec <= 1;
-      end
-    end
-    if (out_ready & out_valid) begin
-      exec <= 0;
-    end
   end
 
   // 对于不需要功能单元的指令，EXU只需要一周期，而且WBU从不阻塞
@@ -126,7 +115,7 @@ module ysyx_23060203_EXU (
     else if (mul) exec_out_valid = alu_funct[2] ? div_out_valid : mul_out_valid;
   end
 
-  wire exec_in_en = in_valid & ~exec;
+  wire exec_in_en = in_valid & in_ready;
 
   // -------------------- ALU --------------------
   wire [31:0] alu_a = alu_src ? pc : val_a;
