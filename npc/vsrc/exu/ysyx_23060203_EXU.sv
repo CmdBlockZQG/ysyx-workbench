@@ -145,7 +145,6 @@ module ysyx_23060203_EXU (
   wire [1:0] mul_in_sign = {^in_alu_funct[1:0], ~in_alu_funct[1] & in_alu_funct[0]};
   wire mul_in_ready, mul_out_valid;
   wire [63:0] mul_out_prod;
-  // 假设了乘法器并非组合逻辑，一定会有起码一个周期的延迟
   wire [31:0] mul_val = (|alu_funct[1:0]) ? mul_out_prod[63:32] : mul_out_prod[31:0];
   ysyx_23060203_MUL_radix_4 MUL (
     .clock(clock), .reset(reset), .flush(0),
@@ -160,7 +159,6 @@ module ysyx_23060203_EXU (
   wire div_in_sign = ~in_alu_funct[0];
   wire div_in_ready, div_out_valid;
   wire [31:0] div_out_quot, div_out_rem;
-  // 假设了除法器并非组合逻辑，一定会有起码一个周期的延迟
   wire [31:0] div_val = alu_funct[1] ? div_out_rem : div_out_quot;
   ysyx_23060203_DIV DIV (
     .clock(clock), .reset(reset), .flush(0),
@@ -209,10 +207,12 @@ module ysyx_23060203_EXU (
 
   // -------------------- GPR写回 --------------------
   assign out_gpr_waddr = rd;
-  assign out_gpr_wdata = ls[3] ? (
-    lsu_out_rdata
-  ) : (
-    rd_src ? val_a : alu_val
+  assign out_gpr_wdata = ls[3] ? lsu_out_rdata : (
+    rd_src ? val_a : (
+      mul ? (
+        alu_funct[2] ? div_val : mul_val
+      ) : alu_val
+    )
   );
 
   assign exu_rd = rd & {5{valid}};
