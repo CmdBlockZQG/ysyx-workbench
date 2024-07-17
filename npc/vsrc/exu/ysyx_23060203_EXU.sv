@@ -150,7 +150,7 @@ module ysyx_23060203_EXU (
   ysyx_23060203_MUL_radix_4 MUL (
     .clock(clock), .reset(reset), .flush(0),
     .in_ready(mul_in_ready), .in_valid(exec_in_en & mul_in_en),
-    .in_sign(mul_in_sign), .in_a(alu_a), .in_b(alu_b),
+    .in_sign(mul_in_sign), .in_a(in_val_a), .in_b(in_val_b),
     .out_ready(out_ready), .out_valid(mul_out_valid),
     .out_prod(mul_out_prod)
   );
@@ -165,7 +165,7 @@ module ysyx_23060203_EXU (
   ysyx_23060203_DIV DIV (
     .clock(clock), .reset(reset), .flush(0),
     .in_ready(div_in_ready), .in_valid(exec_in_en & div_in_en),
-    .in_sign(div_in_sign), .in_a(alu_a), .in_b(alu_b),
+    .in_sign(div_in_sign), .in_a(in_val_a), .in_b(in_val_b),
     .out_ready(out_ready), .out_valid(div_out_valid),
     .out_quot(div_out_quot), .out_rem(div_out_rem)
   );
