@@ -37,6 +37,7 @@ module ysyx_23060203_IDU (
   output reg        out_alu_src,
   output reg [2:0]  out_alu_funct,
   output reg        out_alu_sw,
+  output reg        out_mul,
   output reg [4:0]  out_rd,
   output reg        out_rd_src,
   output reg [3:0]  out_ls,
@@ -243,6 +244,12 @@ module ysyx_23060203_IDU (
     endcase
   end
 
+  // mul 是否为乘除法指令
+  // 若是，则alu_funct传递乘除法模式
+  always_comb begin
+    out_mul = (opcode == OP_RR) & funct7[0];
+  end
+
   // rd 目标寄存器
   // 0表示不写入寄存器
   always_comb begin
@@ -257,6 +264,7 @@ module ysyx_23060203_IDU (
   // 0: ALU
   // 1: val_a 用于支持zicsr指令
   // 当执行LOAD指令时（可从ls得知），该值无效，寄存器写入内存读取结果
+  // 当执行乘除法指令时（可从mul得知），该值无效，寄存器写入乘除法结果
   always_comb begin
     out_rd_src = (opcode == OP_SYS);
   end
