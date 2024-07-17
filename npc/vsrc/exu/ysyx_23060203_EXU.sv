@@ -28,6 +28,7 @@ module ysyx_23060203_EXU (
   input        in_alu_src,
   input [2:0]  in_alu_funct,
   input        in_alu_sw,
+  input        in_mul,
   input [4:0]  in_rd,
   input        in_rd_src,
   input [3:0]  in_ls,
@@ -59,6 +60,7 @@ module ysyx_23060203_EXU (
   reg        alu_src;
   reg [2:0]  alu_funct;
   reg        alu_sw;
+  reg        mul;
   reg [4:0]  rd;
   reg        rd_src;
   reg [3:0]  ls;
@@ -87,6 +89,7 @@ module ysyx_23060203_EXU (
       alu_src <= in_alu_src;
       alu_funct <= in_alu_funct;
       alu_sw <= in_alu_sw;
+      mul <= in_mul;
       rd <= in_rd;
       rd_src <= in_rd_src;
       ls <= in_ls;
@@ -101,13 +104,15 @@ module ysyx_23060203_EXU (
     end
   end
 
-  assign in_ready = lsu_in_ready;
+  // 对于不需要功能单元的指令，EXU只需要一周期，而且WBU从不阻塞
+  assign in_ready = lsu_in_ready & mul_in_ready & div_in_ready;
   assign out_valid = valid & exe_done;
 
   reg exe_done;
   always_comb begin
     exe_done = 1;
     if (ls[3]) exe_done = lsu_out_valid;
+    else if (mul) exe_done = alu_funct[2] ? div_out_valid : mul_out_valid;
   end
 
   // -------------------- ALU --------------------
@@ -131,6 +136,36 @@ module ysyx_23060203_EXU (
     .in_ls(in_ls), .ls(ls), .alu_val(alu_val), .val_c(val_c),
     .out_ready(out_ready), .out_valid(lsu_out_valid),
     .out_rdata(lsu_out_rdata)
+  );
+
+  // -------------------- MUL --------------------
+  wire mul_in_valid = in_valid & in_mul & ~in_alu_funct[2];
+  wire [1:0] mul_in_sign = {^in_alu_funct[1:0], ~in_alu_funct[1] & in_alu_funct[0]};
+  wire mul_in_ready, mul_out_valid;
+  wire [63:0] mul_out_prod;
+  // 假设了乘法器并非组合逻辑，一定会有起码一个周期的延迟
+  wire [31:0] mul_val = (|alu_funct[1:0]) ? mul_out_prod[63:32] : mul_out_prod[31:0];
+  ysyx_23060203_MUL_radix_4 MUL (
+    .clock(clock), .reset(reset), .flush(0),
+    .in_ready(mul_in_ready), .in_valid(mul_in_valid),
+    .in_sign(mul_in_sign), .in_a(alu_a), .in_b(alu_b),
+    .out_ready(out_ready), .out_valid(mul_out_valid),
+    .out_prod(mul_out_prod)
+  );
+
+  // -------------------- DIV --------------------
+  wire div_in_valid = in_valid & in_mul & in_alu_funct[2];
+  wire div_in_sign = ~in_alu_funct[0];
+  wire div_in_ready, div_out_valid;
+  wire [31:0] div_out_quot, div_out_rem;
+  // 假设了除法器并非组合逻辑，一定会有起码一个周期的延迟
+  wire [31:0] div_val = alu_funct[1] ? div_out_rem : div_out_quot;
+  ysyx_23060203_DIV DIV (
+    .clock(clock), .reset(reset), .flush(0),
+    .in_ready(div_in_ready), .in_valid(div_in_valid),
+    .in_sign(div_in_sign), .in_a(alu_a), .in_b(alu_b),
+    .out_ready(out_ready), .out_valid(div_out_valid),
+    .out_quot(div_out_quot), .out_rem(div_out_rem)
   );
 
   // -------------------- 跳转 --------------------
