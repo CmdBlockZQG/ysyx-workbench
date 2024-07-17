@@ -26,9 +26,51 @@ module ysyx_23060203_DIV_test (
   wire [31:0] q = a / b;
   wire [31:0] r = a - (q * b);
 
-  assign out_quot = ({32{qs}} ^ q) + {31'b0, qs};
-  assign out_rem  = ({32{rs}} ^ r) + {31'b0, rs};
+  typedef enum logic {
+    ST_IDLE,
+    ST_HOLD
+  } state_t;
+  wire st_idle = state == ST_IDLE;
+  wire st_hold = state == ST_HOLD;
 
-  assign in_ready = 1;
-  assign out_valid = in_valid & ~flush;
+  state_t state, state_next;
+  reg [31:0] quot, quot_next;
+  reg [31:0] rem, rem_next;
+
+  always @(posedge clock) begin
+    if (reset) begin
+      state <= ST_IDLE;
+    end else begin
+      state <= state_next;
+      quot <= quot_next;
+      rem <= rem_next;
+    end
+  end
+
+  assign in_ready = st_idle | (out_ready & out_valid) | flush;
+
+  always_comb begin
+    state_next = state;
+    quot_next = quot;
+    rem_next = rem;
+
+    if (in_valid & in_valid) begin
+      state_next = ST_HOLD;
+      quot_next = ({32{qs}} ^ q) + {31'b0, qs};
+      rem_next = ({32{rs}} ^ r) + {31'b0, rs};
+    end
+
+    if (st_hold) begin
+      if ((out_valid & out_ready) | flush) begin
+        if (~in_valid) begin
+          state_next = ST_IDLE;
+        end
+      end
+    end
+  end
+
+  assign out_valid = st_hold & ~flush;
+  assign out_quot = quot;
+  assign out_rem = rem;
+
 endmodule
