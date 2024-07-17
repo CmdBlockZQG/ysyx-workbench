@@ -54,6 +54,7 @@ module ysyx_23060203_EXU (
   `endif
 );
 
+  reg exec;
   reg valid;
   reg [31:0] pc;
   reg [31:0] val_a, val_b, val_c;
@@ -78,6 +79,7 @@ module ysyx_23060203_EXU (
   reg fencei_r;
 
   always @(posedge clock) if (reset) begin
+    exec <= 0;
     valid <= 0;
   end else begin
     if (in_valid & in_ready) begin
@@ -102,18 +104,29 @@ module ysyx_23060203_EXU (
     end else if (out_ready & out_valid) begin
       valid <= 0;
     end
+
+    if (in_valid & in_ready) begin
+      if (lsu_in_en | mul_in_en | div_in_en) begin
+        exec <= 1;
+      end
+    end
+    if (out_ready & out_valid) begin
+      exec <= 0;
+    end
   end
 
   // 对于不需要功能单元的指令，EXU只需要一周期，而且WBU从不阻塞
   assign in_ready = lsu_in_ready & mul_in_ready & div_in_ready;
-  assign out_valid = valid & exe_done;
+  assign out_valid = valid & exec_out_valid;
 
-  reg exe_done;
+  reg exec_out_valid;
   always_comb begin
-    exe_done = 1;
-    if (ls[3]) exe_done = lsu_out_valid;
-    else if (mul) exe_done = alu_funct[2] ? div_out_valid : mul_out_valid;
+    exec_out_valid = 1;
+    if (ls[3]) exec_out_valid = lsu_out_valid;
+    else if (mul) exec_out_valid = alu_funct[2] ? div_out_valid : mul_out_valid;
   end
+
+  wire exec_in_en = in_valid & ~exec;
 
   // -------------------- ALU --------------------
   wire [31:0] alu_a = alu_src ? pc : val_a;
@@ -126,20 +139,20 @@ module ysyx_23060203_EXU (
   );
 
   // -------------------- LSU --------------------
-  wire lsu_in_valid = in_valid & (|in_ls);
+  wire lsu_in_en = |in_ls;
   wire lsu_in_ready, lsu_out_valid;
   wire [31:0] lsu_out_rdata;
   ysyx_23060203_LSU LSU (
     .clock(clock), .reset(reset),
     .mem_r(mem_r), .mem_w(mem_w),
-    .in_ready(lsu_in_ready), .in_valid(lsu_in_valid),
+    .in_ready(lsu_in_ready), .in_valid(exec_in_en & lsu_in_en),
     .in_ls(in_ls), .ls(ls), .alu_val(alu_val), .val_c(val_c),
     .out_ready(out_ready), .out_valid(lsu_out_valid),
     .out_rdata(lsu_out_rdata)
   );
 
   // -------------------- MUL --------------------
-  wire mul_in_valid = in_valid & in_mul & ~in_alu_funct[2];
+  wire mul_in_en = in_mul & ~in_alu_funct[2];
   wire [1:0] mul_in_sign = {^in_alu_funct[1:0], ~in_alu_funct[1] & in_alu_funct[0]};
   wire mul_in_ready, mul_out_valid;
   wire [63:0] mul_out_prod;
@@ -147,14 +160,14 @@ module ysyx_23060203_EXU (
   wire [31:0] mul_val = (|alu_funct[1:0]) ? mul_out_prod[63:32] : mul_out_prod[31:0];
   ysyx_23060203_MUL_radix_4 MUL (
     .clock(clock), .reset(reset), .flush(0),
-    .in_ready(mul_in_ready), .in_valid(mul_in_valid),
+    .in_ready(mul_in_ready), .in_valid(exec_in_en & mul_in_en),
     .in_sign(mul_in_sign), .in_a(alu_a), .in_b(alu_b),
     .out_ready(out_ready), .out_valid(mul_out_valid),
     .out_prod(mul_out_prod)
   );
 
   // -------------------- DIV --------------------
-  wire div_in_valid = in_valid & in_mul & in_alu_funct[2];
+  wire div_in_en = in_mul & in_alu_funct[2];
   wire div_in_sign = ~in_alu_funct[0];
   wire div_in_ready, div_out_valid;
   wire [31:0] div_out_quot, div_out_rem;
@@ -162,7 +175,7 @@ module ysyx_23060203_EXU (
   wire [31:0] div_val = alu_funct[1] ? div_out_rem : div_out_quot;
   ysyx_23060203_DIV DIV (
     .clock(clock), .reset(reset), .flush(0),
-    .in_ready(div_in_ready), .in_valid(div_in_valid),
+    .in_ready(div_in_ready), .in_valid(exec_in_en & div_in_en),
     .in_sign(div_in_sign), .in_a(alu_a), .in_b(alu_b),
     .out_ready(out_ready), .out_valid(div_out_valid),
     .out_quot(div_out_quot), .out_rem(div_out_rem)
