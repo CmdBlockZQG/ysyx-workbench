@@ -49,7 +49,7 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
   for (size_t i = 0; i < res; ++i) {
     *(char *)buf++ = str[i];
   }
-  return 0;
+  return res;
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
