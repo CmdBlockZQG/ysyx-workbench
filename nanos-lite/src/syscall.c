@@ -9,6 +9,8 @@ void do_syscall(Context *c) {
 
   Log("[STRACE] %u %u %u %u", a[0], a[1], a[2], a[3]);
 
+  int i;
+
   switch (a[0]) {
     case SYS_exit:
       halt(a[1]);
@@ -16,6 +18,13 @@ void do_syscall(Context *c) {
     case SYS_yield:
       yield();
       c->GPRx = 0;
+    break;
+    case SYS_write:
+      i = 0;
+      if (a[1] == 1 || a[1] == 2) {
+        for (i = 0; i < a[3]; ++i) putch(*(char *)a[2]++);
+      }
+      c->GPRx = i;
     break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
