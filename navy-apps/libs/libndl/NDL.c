@@ -21,7 +21,7 @@ int NDL_PollEvent(char *buf, int len) {
   int fd = open("/dev/events", O_RDONLY);
   int res = read(fd, buf, len);
   close(fd);
-  return res;
+  return res && buf[0] == 'k';
 }
 
 void NDL_OpenCanvas(int *w, int *h) {
