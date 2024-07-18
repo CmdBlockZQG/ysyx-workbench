@@ -26,11 +26,11 @@ void do_syscall(Context *c) {
       c->GPRx = fs_open((const char *)a[1], a[2], a[3]);
     break;
     case SYS_read:
-      Log("[STRACE] read %s %u %u", fs_get_filename(a[1]), a[2], a[3]);
+      Log("[STRACE] read %s %p %u", fs_get_filename(a[1]), a[2], a[3]);
       c->GPRx = fs_read(a[1], (void *)a[2], a[3]);
     break;
     case SYS_write:
-      Log("[STRACE] write %s %u %u", fs_get_filename(a[1]), a[2], a[3]);
+      Log("[STRACE] write %s %p %u", fs_get_filename(a[1]), a[2], a[3]);
       c->GPRx = fs_write(a[1], (const void *)a[2], a[3]);
     break;
     case SYS_close:
@@ -42,7 +42,7 @@ void do_syscall(Context *c) {
       c->GPRx = fs_lseek(a[1], a[2], a[3]);
     break;
     case SYS_brk:
-      Log("[STRACE] brk %u", a[1]);
+      Log("[STRACE] brk %p", a[1]);
       c->GPRx = 0;
     break;
     default: panic("Unhandled syscall ID = %d", a[0]);
