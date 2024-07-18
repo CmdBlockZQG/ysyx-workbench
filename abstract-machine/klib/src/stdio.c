@@ -133,15 +133,8 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           default: panic("not implemented"); break;
         }
         int base = *fmt == 'u' ? 10 : 16;
-        res = buf + 1;
-        if (*fmt == 'p') {
-          field_width = 8;
-          res[0] = '0';
-          res[1] = 'x';
-          p = res + 2;
-        } else {
-          p = res;
-        }
+        p = buf + 1;
+        res = p;
         if (ux == 0) {
           *p++ = '0';
           *p = '\0';
@@ -153,6 +146,12 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           }
           *p = '\0';
           reverse(buf + 1, p - buf - 1);
+        }
+        if (*fmt == 'p') {
+          write_char(&out, '0');
+          write_char(&out, 'x');
+          pad = '0';
+          field_width = 8;
         }
         break;
       default:
