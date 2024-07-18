@@ -21,15 +21,44 @@ size_t serial_write(const void *buf, size_t offset, size_t len) {
 }
 
 size_t events_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_INPUT_KEYBRD_T kbd;
+  ioe_read(AM_INPUT_KEYBRD, &kbd);
+  if (!kbd.keycode) return 0;
+
+  char str[20];
+  const char *e_name = keyname[kbd.keycode];
+  sprintf(str, "k%c %s\n", kbd.keydown ? 'd' : 'u', e_name);
+  size_t e_len = strlen(e_name) + 4; // \n结尾，不包含\0
+
+  size_t res = MIN(len, e_len);
+  for (size_t i = 0; i < res; ++i) {
+    *(char *)buf++ = str[i];
+  }
+  
+  return res;
 }
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_GPU_CONFIG_T cfg;
+  ioe_read(AM_GPU_CONFIG, &cfg);
+  char str[64];
+  sprintf(str, "WIDTH:%d\nHEIGHT:%d", cfg.width, cfg.height);
+  size_t f_len = strlen(str) + 1; // 包含结尾的\0
+  
+  size_t res = MIN(len, f_len);
+  for (size_t i = 0; i < res; ++i) {
+    *(char *)buf++ = str[i];
+  }
+  return res;
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_GPU_MEMCPY_T ctl;
+  ctl.size = len;
+  ctl.dest = offset;
+  ctl.src = (void *)buf;
+  ioe_write(AM_GPU_MEMCPY, &ctl);
+  return len;
 }
 
 void init_device() {
