@@ -12,6 +12,8 @@ void do_syscall(Context *c) {
   a[2] = c->GPR3;
   a[3] = c->GPR4;
 
+  struct timeval *tv;
+
   switch (a[0]) {
     case SYS_exit:
       Log("[STRACE] exit %u", a[1]);
@@ -48,7 +50,7 @@ void do_syscall(Context *c) {
     break;
     case SYS_gettimeofday:
       // Log("[STRACE] gettimeofday %p %p", a[1], a[2]);
-      struct timeval *tv = (void *)a[1];
+      tv = (void *)a[1];
       if (tv) {
         AM_TIMER_UPTIME_T uptime;
         ioe_read(AM_TIMER_UPTIME, &uptime);
