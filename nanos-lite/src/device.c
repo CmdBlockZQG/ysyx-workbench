@@ -28,18 +28,27 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   char str[20];
   const char *e_name = keyname[kbd.keycode];
   sprintf(str, "k%c %s\n", kbd.keydown ? 'd' : 'u', e_name);
-  size_t e_len = strlen(e_name) + 4;
+  size_t e_len = strlen(e_name) + 4; // \n结尾，不包含\0
 
   size_t res = MIN(len, e_len);
   for (size_t i = 0; i < res; ++i) {
     *(char *)buf++ = str[i];
   }
-  Log("%s", str);
   
   return res;
 }
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
+  AM_GPU_CONFIG_T cfg;
+  ioe_read(AM_GPU_CONFIG, &cfg);
+  char str[64];
+  sprintf(str, "WIDTH:%d\nHEIGHT:%d", cfg.width, cfg.height);
+  size_t f_len = strlen(str) + 1; // 包含结尾的\0
+  
+  size_t res = MIN(len, f_len);
+  for (size_t i = 0; i < res; ++i) {
+    *(char *)buf++ = str[i];
+  }
   return 0;
 }
 
