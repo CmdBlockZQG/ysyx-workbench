@@ -1,17 +1,17 @@
 #include <stdio.h>
-#include <sys/time.h>
-#include <assert.h>
+#include <stdint.h>
+#include <NDL.h>
 
 int main() {
+  NDL_Init(0);
   int cnt = 0;
-  long lstu = 0;
+  long lst = 0;
   
   while (1) {
-    struct timeval tv;
-    assert(gettimeofday(&tv, NULL) == 0);
-    if (tv.tv_usec - lstu >= 500000) {
+    uint32_t tick = NDL_GetTicks();
+    if (tick - lst >= 500) {
       printf("-0.5s x%d\n", ++cnt);
-      lstu = tv.tv_usec;
+      lst = tick;
     }
   }
 
