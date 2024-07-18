@@ -27,6 +27,7 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   char str[20];
   const char *e_name = keyname[kbd.keycode];
   sprintf(str, "k%c %s\n", kbd.keydown ? 'd' : 'u', e_name);
+  printf("%s", str);
   size_t e_len = strlen(e_name) + 4;
 
   size_t res = MIN(len, e_len);
