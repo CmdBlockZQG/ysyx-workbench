@@ -49,7 +49,7 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
     break;
     case SYS_gettimeofday:
-      Log("[STRACE] gettimeofday %p %p", a[1], a[2]);
+      // Log("[STRACE] gettimeofday %p %p", a[1], a[2]);
       tv = (void *)a[1];
       if (tv) {
         AM_TIMER_UPTIME_T uptime;
