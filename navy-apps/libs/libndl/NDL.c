@@ -70,7 +70,8 @@ int NDL_Init(uint32_t flags) {
   int fd = open("/proc/dispinfo", O_RDONLY);
   int res = read(fd, buf, sizeof(buf));
   close(fd);
-  // buf[res + 1] = '\0';
+  printf(">>%d\n", res);
+  buf[res + 1] = '\0';
 
   char *p = strstr(buf, "WIDTH");
   p = strchr(p, ':');
