@@ -7,6 +7,8 @@ void do_syscall(Context *c) {
   a[2] = c->GPR2;
   a[3] = c->GPR2;
 
+  Log("[STRACE] %u %u %u %u", a[0], a[1], a[2], a[3]);
+
   switch (a[0]) {
     case SYS_exit:
       halt(a[1]);
