@@ -70,6 +70,7 @@ int NDL_Init(uint32_t flags) {
   int fd = open("/proc/dispinfo", O_RDONLY);
   int res = read(fd, buf, sizeof(buf));
   close(fd);
+  buf[res + 1] = '\0';
 
   char *p = strstr(buf, "WIDTH");
   p = strchr(p, ':');
@@ -78,8 +79,6 @@ int NDL_Init(uint32_t flags) {
   p = strstr(buf, "HEIGHT");
   p = strchr(p, ':');
   sscanf(p + 1, "%d", &screen_h);
-
-  printf("screen w%d h%d\n", screen_w, screen_h);
 
   return 0;
 }
