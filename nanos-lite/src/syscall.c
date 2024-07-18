@@ -13,7 +13,7 @@ void do_syscall(Context *c) {
 
   switch (a[0]) {
     case SYS_exit:
-      Log("[STRACE] exit %u %u %u", a[1]);
+      Log("[STRACE] exit %u", a[1]);
       halt(a[1]);
     break;
     case SYS_yield:
