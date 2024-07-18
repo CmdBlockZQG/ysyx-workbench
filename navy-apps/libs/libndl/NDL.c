@@ -71,6 +71,8 @@ int NDL_Init(uint32_t flags) {
   int res = read(fd, buf, sizeof(buf));
   close(fd);
 
+  printf("%s\n", buf);
+
   sscanf(strstr(buf, "WIDTH") + 5, "%d", &screen_w);
   sscanf(strstr(buf, "HEIGHT") + 6, "%d", &screen_h);
 
