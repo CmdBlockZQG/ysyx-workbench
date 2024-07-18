@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,9 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
+  int fd = open("/dev/events", O_RDONLY);
+  read(fd, buf, len);
+  close(fd);
   return 0;
 }
 
