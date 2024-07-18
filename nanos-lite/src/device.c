@@ -44,8 +44,6 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
   char str[64];
   sprintf(str, "WIDTH:%d\nHEIGHT:%d", cfg.width, cfg.height);
   size_t f_len = strlen(str) + 1; // 包含结尾的\0
-
-  printf("%s\n", str);
   
   size_t res = MIN(len, f_len);
   for (size_t i = 0; i < res; ++i) {
