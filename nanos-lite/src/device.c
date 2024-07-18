@@ -34,6 +34,7 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   for (size_t i = 0; i < res; ++i) {
     *(char *)buf++ = str[i];
   }
+  Log("%s", str);
   
   return res;
 }
