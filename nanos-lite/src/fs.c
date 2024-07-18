@@ -78,6 +78,10 @@ size_t fs_read(int fd, void *buf, size_t len) {
 
 size_t fs_write(int fd, const void *buf, size_t len) {
   assert(0 <= fd && fd < LENGTH(file_table));
+  if (fd == FD_STDOUT || fd == FD_STDERR) {
+    for (int i = 0; i < len; ++i) putch(((const char *)buf)[i]);
+    return len;
+  }
   if (len == 0 || file_table[fd].open_offset >= file_table[fd].size) {
     return 0;
   }
