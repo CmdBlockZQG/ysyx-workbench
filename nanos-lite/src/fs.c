@@ -31,13 +31,17 @@ static Finfo file_table[] __attribute__((used)) = {
   [FD_STDIN]  = {"stdin", 0, 0, invalid_read, invalid_write},
   [FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
   [FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
+  [FD_FB] = {"/dev/fb", 0, 0, invalid_read, fb_write},
   {"/dev/events", 0, 0, events_read, invalid_write},
   {"/proc/dispinfo", 0, 0, dispinfo_read, invalid_write},
 #include "files.h"
 };
 
 void init_fs() {
-  // TODO: initialize the size of /dev/fb
+  // initialize the size of /dev/fb
+  AM_GPU_CONFIG_T cfg;
+  ioe_read(AM_GPU_CONFIG, &cfg);
+  file_table[FD_FB].size = cfg.vmemsz;
 }
 
 const char *fs_get_filename(int fd) {
@@ -73,15 +77,19 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
 
 size_t fs_read(int fd, void *buf, size_t len) {
   assert(0 <= fd && fd < LENGTH(file_table));
-  size_t res;
+  size_t bytes_left = file_table[fd].size - file_table[fd].open_offset;
+  size_t res = MIN(bytes_left, len);
+
   if (file_table[fd].read) {
-    res = file_table[fd].read(buf, file_table[fd].open_offset, len);
+    if (file_table[fd].size) { // virtual file with actual size
+      res = file_table[fd].read(buf, file_table[fd].open_offset, res);
+    } else {
+      res = file_table[fd].read(buf, file_table[fd].open_offset, len);
+    }
   } else {
     if (len == 0 || file_table[fd].open_offset >= file_table[fd].size) {
       res = 0;
     } else {
-      size_t bytes_left = file_table[fd].size - file_table[fd].open_offset;
-      res = MIN(bytes_left, len);
       ramdisk_read(buf, file_table[fd].disk_offset + file_table[fd].open_offset, res);
     }
   }
@@ -91,15 +99,19 @@ size_t fs_read(int fd, void *buf, size_t len) {
 
 size_t fs_write(int fd, const void *buf, size_t len) {
   assert(0 <= fd && fd < LENGTH(file_table));
-  size_t res = 0;
+  size_t bytes_left = file_table[fd].size - file_table[fd].open_offset;
+  size_t res = MIN(bytes_left, len);
+  
   if (file_table[fd].write) {
-    res = file_table[fd].write(buf, file_table[fd].open_offset, len);
+    if (file_table[fd].size) {
+      res = file_table[fd].write(buf, file_table[fd].open_offset, res);
+    } else {
+      res = file_table[fd].write(buf, file_table[fd].open_offset, len);
+    }
   } else {
     if (len == 0 || file_table[fd].open_offset >= file_table[fd].size) {
       res = 0;
     } else {
-      size_t bytes_left = file_table[fd].size - file_table[fd].open_offset;
-      res = MIN(bytes_left, len);
       ramdisk_write(buf, file_table[fd].disk_offset + file_table[fd].open_offset, res);
     }
   }

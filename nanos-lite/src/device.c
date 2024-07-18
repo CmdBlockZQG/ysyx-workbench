@@ -53,7 +53,12 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_GPU_MEMCPY_T ctl;
+  ctl.size = len;
+  ctl.dest = offset;
+  ctl.src = (void *)buf;
+  ioe_write(AM_GPU_MEMCPY, &ctl);
+  return len;
 }
 
 void init_device() {

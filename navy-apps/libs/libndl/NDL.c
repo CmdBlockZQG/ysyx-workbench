@@ -41,10 +41,32 @@ void NDL_OpenCanvas(int *w, int *h) {
       if (strcmp(buf, "mmap ok") == 0) break;
     }
     close(fbctl);
+  } else {
+    char buf[64];
+    int fd = open("/proc/dispinfo", O_RDONLY);
+    int res = read(fd, buf, sizeof(buf));
+    close(fd);
+    buf[res + 1] = '\0';
+
+    char *p = strstr(buf, "WIDTH");
+    p = strchr(p, ':');
+    sscanf(p + 1, "%d", &screen_w);
+    
+    p = strstr(buf, "HEIGHT");
+    p = strchr(p, ':');
+    sscanf(p + 1, "%d", &screen_h);
+
+    assert(*w <= screen_w && *h <= screen_h);
   }
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
+  int fd = open("/dev/fb", O_WRONLY | O_CREAT | O_TRUNC);
+  for (int i = 0; i < h; ++i) {
+    lseek(fd, ((y + i) * screen_w + x) * 4, SEEK_SET);
+    write(fd, pixels + w * i, w * 4);
+  }
+  close(fd);
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
@@ -65,22 +87,6 @@ int NDL_Init(uint32_t flags) {
   if (getenv("NWM_APP")) {
     evtdev = 3;
   }
-
-  char buf[64];
-  int fd = open("/proc/dispinfo", O_RDONLY);
-  int res = read(fd, buf, sizeof(buf));
-  close(fd);
-  printf(">>%d\n", res);
-  buf[res + 1] = '\0';
-
-  char *p = strstr(buf, "WIDTH");
-  p = strchr(p, ':');
-  sscanf(p + 1, "%d", &screen_w);
-  
-  p = strstr(buf, "HEIGHT");
-  p = strchr(p, ':');
-  sscanf(p + 1, "%d", &screen_h);
-
   return 0;
 }
 
