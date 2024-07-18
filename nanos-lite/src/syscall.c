@@ -1,5 +1,6 @@
 #include <common.h>
 #include <fs.h>
+#include <sys/time.h>
 #include "syscall.h"
 
 const char *fs_get_filename(int fd);
@@ -43,6 +44,17 @@ void do_syscall(Context *c) {
     break;
     case SYS_brk:
       Log("[STRACE] brk %p", a[1]);
+      c->GPRx = 0;
+    break;
+    case SYS_gettimeofday:
+      Log("[STRACE] gettimeofday %p %p", a[1], a[2]);
+      struct timeval *tv = (void *)a[1];
+      if (tv) {
+        AM_TIMER_UPTIME_T uptime;
+        ioe_read(AM_TIMER_UPTIME, &uptime);
+        tv->tv_sec = uptime.us / 1000000;
+        tv->tv_usec = uptime.us;
+      }
       c->GPRx = 0;
     break;
     default: panic("Unhandled syscall ID = %d", a[0]);
