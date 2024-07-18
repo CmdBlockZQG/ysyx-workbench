@@ -25,11 +25,11 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
     break;
     case SYS_open:
-      // Log("[STRACE] open %s %u %u", (const char *)a[1], a[2], a[3]);
+      Log("[STRACE] open %s %u %u", (const char *)a[1], a[2], a[3]);
       c->GPRx = fs_open((const char *)a[1], a[2], a[3]);
     break;
     case SYS_read:
-      // Log("[STRACE] read %s %p %u", fs_get_filename(a[1]), a[2], a[3]);
+      Log("[STRACE] read %s %p %u", fs_get_filename(a[1]), a[2], a[3]);
       c->GPRx = fs_read(a[1], (void *)a[2], a[3]);
     break;
     case SYS_write:
@@ -41,7 +41,7 @@ void do_syscall(Context *c) {
       c->GPRx = fs_close(a[1]);
     break;
     case SYS_lseek:
-      Log("[STRACE] lseek %s %u %u", fs_get_filename(a[1]), a[2], a[3]);
+      // Log("[STRACE] lseek %s %u %u", fs_get_filename(a[1]), a[2], a[3]);
       c->GPRx = fs_lseek(a[1], a[2], a[3]);
     break;
     case SYS_brk:
