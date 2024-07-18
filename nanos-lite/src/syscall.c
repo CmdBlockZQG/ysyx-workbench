@@ -8,6 +8,9 @@ void do_syscall(Context *c) {
   a[3] = c->GPR2;
 
   switch (a[0]) {
+    case SYS_exit:
+      halt(a[1]);
+    break;
     case SYS_yield:
       yield();
       c->GPRx = 0;
