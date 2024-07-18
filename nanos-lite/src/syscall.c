@@ -1,3 +1,4 @@
+#include <common.h>
 #include "syscall.h"
 
 void do_syscall(Context *c) {

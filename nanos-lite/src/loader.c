@@ -1,6 +1,7 @@
 #include <proc.h>
 #include <elf.h>
 #include <ramdisk.h>
+#include <fs.h>
 
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
@@ -19,9 +20,12 @@
 #endif
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
+  // open file
+  int fd = fs_open(filename, 0, 0);
+
   // read ELF header
   Elf_Ehdr ehdr;
-  ramdisk_read(&ehdr, 0, sizeof(ehdr));
+  assert(fs_read(fd, &ehdr, sizeof(ehdr)) == sizeof(ehdr));
 
   // check magic number
   assert(ehdr.e_ident[EI_MAG0] == ELFMAG0 &&
@@ -48,20 +52,24 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   if (phnum == PN_XNUM) {
     Elf_Shdr shdr;
     assert(ehdr.e_shoff);
-    ramdisk_read(&shdr, ehdr.e_shoff, sizeof(shdr));
+    fs_lseek(fd, ehdr.e_shoff, SEEK_SET);
+    assert(fs_read(fd, &shdr, sizeof(shdr)) == sizeof(shdr));
     phnum = shdr.sh_info;
   }
   assert(phnum);
 
   Elf_Phdr phdr;
   for (size_t i = 0; i < phnum; ++i) {
-    ramdisk_read(&phdr, phoff + i * phentsize, sizeof(phdr));
+    fs_lseek(fd, phoff + i * phentsize, SEEK_SET);
+    assert(fs_read(fd, &phdr, sizeof(phdr)) == sizeof(phdr));
     if (phdr.p_vaddr == 0) continue;
-    ramdisk_read((void *)phdr.p_vaddr, phdr.p_offset, phdr.p_filesz);
+    fs_lseek(fd, phdr.p_offset, SEEK_SET);
+    assert(fs_read(fd, (void *)phdr.p_vaddr, phdr.p_filesz) == phdr.p_filesz);
     memset((void *)(phdr.p_vaddr + phdr.p_filesz), 0, phdr.p_memsz - phdr.p_filesz);
   }
 
   assert(ehdr.e_entry);
+  fs_close(fd);
   return ehdr.e_entry;
 }
 
