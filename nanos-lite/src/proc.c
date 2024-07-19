@@ -25,7 +25,7 @@ void init_proc() {
   Log("Initializing processes...");
 
   void naive_uload(PCB *pcb, const char *filename);
-  naive_uload(NULL, "/bin/microbench");
+  naive_uload(NULL, "/bin/fceux");
 }
 
 Context* schedule(Context *prev) {
