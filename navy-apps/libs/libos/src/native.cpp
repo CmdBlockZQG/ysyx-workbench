@@ -79,7 +79,7 @@ static int event_thread(void *args) {
 
     switch (event.type) {
       case SDL_QUIT: exit(0); break;
-      case SDL_USEREVENT: update_screen(); break;
+      case SDL_USEREVENT: break;
       case SDL_KEYDOWN:
       case SDL_KEYUP:
         SDL_LockMutex(key_queue_lock);
@@ -233,7 +233,11 @@ ssize_t write(int fd, const void *buf, size_t count) {
     SDL_PauseAudio(0);
     return count;
   }
-  return glibc_write(fd, buf, count);
+  ssize_t res = glibc_write(fd, buf, count);
+  if (fd == fb_memfd) {
+    update_screen();
+  }
+  return res;
 }
 
 int execve(const char *filename, char *const argv[], char *const envp[]) {
