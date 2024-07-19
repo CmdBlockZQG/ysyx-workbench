@@ -2,6 +2,7 @@
 #include <sdl-video.h>
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -46,6 +47,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   } else {
     dst_x = dst_y = 0;
   }
+
+  printf("%p %p\n", dst->pixels, src->pixels);
 
   size_t psize = src->format->BitsPerPixel;
   for (int i = 0; i < h; ++i) {
