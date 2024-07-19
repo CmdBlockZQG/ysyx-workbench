@@ -49,8 +49,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 
   size_t psize = src->format->BitsPerPixel;
   for (int i = 0; i < h; ++i) {
-    size_t src_off = src->pitch * (srcrect->y + i) + psize * srcrect->x;
-    size_t dst_off = dst->pitch * (dstrect->y + i) + psize * dstrect->x;
+    size_t src_off = src->pitch * (src_y + i) + psize * src_x;
+    size_t dst_off = dst->pitch * (dst_y + i) + psize * dst_x;
     memcpy(dst->pixels + dst_off, src->pixels + src_off, psize * w);
   }
 }
