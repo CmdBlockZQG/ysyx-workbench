@@ -15,7 +15,7 @@ static int offset_x = 0, offset_y = 0;
 uint32_t NDL_GetTicks() {
   struct timeval tv;
   assert(gettimeofday(&tv, NULL) == 0);
-  return tv.tv_usec / 1000;
+  return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 int NDL_PollEvent(char *buf, int len) {
@@ -59,6 +59,9 @@ void NDL_OpenCanvas(int *w, int *h) {
     if (*w || *h) {
       offset_x = (screen_w - *w) / 2;
       offset_y = (screen_h - *h) / 2;
+    } else {
+      *w = screen_w;
+      *h = screen_h;
     }
 
     fbdev = open("/dev/fb", O_WRONLY);

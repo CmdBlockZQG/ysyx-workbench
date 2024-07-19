@@ -45,7 +45,7 @@ void do_syscall(Context *c) {
       c->GPRx = fs_lseek(a[1], a[2], a[3]);
     break;
     case SYS_brk:
-      Log("[STRACE] brk %p", a[1]);
+      // Log("[STRACE] brk %p", a[1]);
       c->GPRx = 0;
     break;
     case SYS_gettimeofday:
@@ -55,7 +55,7 @@ void do_syscall(Context *c) {
         AM_TIMER_UPTIME_T uptime;
         ioe_read(AM_TIMER_UPTIME, &uptime);
         tv->tv_sec = uptime.us / 1000000;
-        tv->tv_usec = uptime.us;
+        tv->tv_usec = uptime.us % 1000000;
       }
       c->GPRx = 0;
     break;

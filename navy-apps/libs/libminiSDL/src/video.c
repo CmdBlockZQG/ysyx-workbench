@@ -1,18 +1,101 @@
 #include <NDL.h>
 #include <sdl-video.h>
 #include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+static uint32_t convert_color(SDL_PixelFormat *fmt, uint32_t pixel) {
+  uint32_t t, res = 0;
+  if (fmt->BytesPerPixel == 1) {
+    SDL_Color *color;
+    color = &fmt->palette->colors[pixel & 0xff];
+    res = ((uint32_t)color->r << 16) | ((uint32_t)color->g << 8) | ((uint32_t)color->b);
+  } else {
+    t = pixel & fmt->Rmask;
+    t >>= fmt->Rshift;
+    t <<= fmt->Rloss;
+    res |= t << 16;
+
+    t = pixel & fmt->Gmask;
+    t >>= fmt->Gshift;
+    t <<= fmt->Gloss;
+    res |= t << 8;
+
+    t = pixel & fmt->Bmask;
+    t >>= fmt->Bshift;
+    t <<= fmt->Bloss;
+    res |= t;
+  }
+  return res;
+}
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
+  int src_x, src_y, dst_x, dst_y, w, h;
+  if (srcrect) {
+    src_x = srcrect->x;
+    src_y = srcrect->y;
+    w = srcrect->w;
+    h = srcrect->h;
+  } else {
+    src_x = src_y = 0;
+    w = src->w;
+    h = src->h;
+  }
+  if (dstrect) {
+    dst_x = dstrect->x;
+    dst_y = dstrect->y;
+  } else {
+    dst_x = dst_y = 0;
+  }
+
+  int psize = src->format->BytesPerPixel;
+  for (int i = 0; i < h; ++i) {
+    int src_off = src->pitch * (src_y + i) + psize * src_x;
+    int dst_off = dst->pitch * (dst_y + i) + psize * dst_x;
+    memcpy(dst->pixels + dst_off, src->pixels + src_off, psize * w);
+  }
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
+  int x, y, w, h;
+  if (dstrect) {
+    x = dstrect->x; y = dstrect->y;
+    w = dstrect->w; h = dstrect->h;
+  } else {
+    x = y = 0;
+    w = dst->w; h = dst->h;
+  }
+
+  for (int i = 0; i < h; ++i) {
+    for (int j = 0; j < w; ++j) {
+      *(uint32_t *)(dst->pixels + dst->pitch * (y + i) + dst->format->BytesPerPixel * (x + j)) = color;
+    }
+  }
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+  if (!x && !y && !w && !h) {
+    w = s->w; h = s->h;
+  }
+
+  uint32_t *buf = malloc(w * h * 4);
+  SDL_PixelFormat *fmt = s->format;
+  uint32_t pixel;
+
+  for (int i = 0; i < h; ++i) {
+    for (int j = 0; j < w; ++j) {
+      pixel = *(uint32_t *)(s->pixels + s->pitch * (y + i) + fmt->BytesPerPixel * (x + j));
+      buf[i * w + j] = convert_color(fmt, pixel);
+    }
+  }
+
+  NDL_DrawRect(buf, x, y, w, h);
+
+  free(buf);
 }
 
 // APIs below are already implemented.
