@@ -48,6 +48,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     dst_x = dst_y = 0;
   }
 
+  printf("%d %d %d %d %d %d\n", src_x, src_y, dst_x, dst_y, w, h);
+
   int psize = src->format->BitsPerPixel;
   for (int i = 0; i < h; ++i) {
     int src_off = src->pitch * (src_y + i) + psize * src_x;
