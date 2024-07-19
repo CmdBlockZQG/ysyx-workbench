@@ -44,6 +44,16 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   if (dstrect) {
     dst_x = dstrect->x;
     dst_y = dstrect->y;
+    if (dst_x < 0) {
+      if (dst_x + w <= 0) return;
+      src_x -= dst_x;
+      dst_x = 0;
+    }
+    if (dst_y < 0) {
+      if (dst_y + h <= 0) return;
+      src_y -= dst_y;
+      dst_y = 0;
+    }
   } else {
     dst_x = dst_y = 0;
   }
@@ -52,7 +62,6 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   for (int i = 0; i < h; ++i) {
     int src_off = src->pitch * (src_y + i) + psize * src_x;
     int dst_off = dst->pitch * (dst_y + i) + psize * dst_x;
-    printf(">> %d %d %d %d\n", dst->pitch, dst_y, psize, dst_x);
     memcpy(dst->pixels + dst_off, src->pixels + src_off, psize * w);
   }
 }
