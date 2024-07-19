@@ -78,11 +78,18 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     w = dst->w; h = dst->h;
   }
 
+  uint32_t *buf = malloc(w * h * 4);
+  uint32_t pixel = convert_color(dst->format, color);
+
   for (int i = 0; i < h; ++i) {
     for (int j = 0; j < w; ++j) {
       *(uint32_t *)(dst->pixels + dst->pitch * (y + i) + dst->format->BytesPerPixel * (x + j)) = color;
+      buf[i * w + j] = pixel;
     }
   }
+
+  NDL_DrawRect(buf, x, y, w, h);
+  free(buf);
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
