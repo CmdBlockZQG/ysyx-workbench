@@ -8,22 +8,26 @@
 
 static uint32_t convert_color(SDL_PixelFormat *fmt, uint32_t pixel) {
   uint32_t t, res = 0;
+  if (fmt->BytesPerPixel == 1) {
+    SDL_Color *color;
+    color = &fmt->palette->colors[pixel & 0xff];
+    res = ((uint32_t)color->r << 16) | ((uint32_t)color->g << 8) | ((uint32_t)color->b);
+  } else {
+    t = pixel & fmt->Rmask;
+    t >>= fmt->Rshift;
+    t <<= fmt->Rloss;
+    res |= t << 16;
 
-  t = pixel & fmt->Rmask;
-  t >>= fmt->Rshift;
-  t <<= fmt->Rloss;
-  res |= t << 16;
+    t = pixel & fmt->Gmask;
+    t >>= fmt->Gshift;
+    t <<= fmt->Gloss;
+    res |= t << 8;
 
-  t = pixel & fmt->Gmask;
-  t >>= fmt->Gshift;
-  t <<= fmt->Gloss;
-  res |= t << 8;
-
-  t = pixel & fmt->Bmask;
-  t >>= fmt->Bshift;
-  t <<= fmt->Bloss;
-  res |= t;
-
+    t = pixel & fmt->Bmask;
+    t >>= fmt->Bshift;
+    t <<= fmt->Bloss;
+    res |= t;
+  }
   return res;
 }
 
