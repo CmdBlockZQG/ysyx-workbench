@@ -56,6 +56,10 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
       h += dst_y;
       dst_y = 0;
     }
+    dstrect->x = dst_x;
+    dstrect->y = dst_y;
+    dstrect->w = w;
+    dstrect->h = h;
   } else {
     dst_x = dst_y = 0;
   }
