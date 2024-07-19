@@ -17,11 +17,11 @@ int SDL_PollEvent(SDL_Event *ev) {
   char buf[20];
   int res = NDL_PollEvent(buf, sizeof(buf));
   if (!res) return 0;
-  event->type = buf[1] == 'd' ? SDL_KEYDOWN : SDL_KEYUP;
+  ev->type = buf[1] == 'd' ? SDL_KEYDOWN : SDL_KEYUP;
   *strchr(buf + 3, '\n') = '\0';
   for (int i = 0; i < sizeof(keyname) / sizeof(const char *); ++i) {
     if (!strcmp(keyname[i], buf + 3)) {
-      event->key.keysym.sym = i;
+      ev->key.keysym.sym = i;
       break;
     }
   }
