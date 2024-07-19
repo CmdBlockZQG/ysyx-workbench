@@ -78,6 +78,8 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     w = dst->w; h = dst->h;
   }
 
+  printf("%d %d %d %d\n", x, y, w, h);
+
   uint32_t *buf = malloc(w * h * 4);
   uint32_t pixel = convert_color(dst->format, color);
 
