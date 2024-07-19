@@ -4,6 +4,4 @@
 #define ARCH_H "navy.h"
 #include "am-origin.h"
 
-#define MAINARGS "test"
-
 #endif
