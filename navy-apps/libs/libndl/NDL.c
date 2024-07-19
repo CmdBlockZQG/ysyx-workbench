@@ -19,9 +19,7 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
-  int fd = open("/dev/events", O_RDONLY);
-  int res = read(fd, buf, len);
-  close(fd);
+  int res = read(evtdev, buf, len);
   return res && buf[0] == 'k';
 }
 
@@ -62,17 +60,17 @@ void NDL_OpenCanvas(int *w, int *h) {
       offset_x = (screen_w - *w) / 2;
       offset_y = (screen_h - *h) / 2;
     }
+
+    fbdev = open("/dev/fb", O_WRONLY);
   }
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   x += offset_x; y += offset_y;
-  int fd = open("/dev/fb", O_WRONLY | O_CREAT | O_TRUNC);
   for (int i = 0; i < h; ++i) {
-    lseek(fd, ((y + i) * screen_w + x) * 4, SEEK_SET);
-    write(fd, pixels + w * i, w * 4);
+    lseek(fbdev, ((y + i) * screen_w + x) * 4, SEEK_SET);
+    write(fbdev, pixels + w * i, w * 4);
   }
-  close(fd);
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
@@ -92,9 +90,13 @@ int NDL_QueryAudio() {
 int NDL_Init(uint32_t flags) {
   if (getenv("NWM_APP")) {
     evtdev = 3;
+  } else {
+    evtdev = open("/dev/events", O_RDONLY);
   }
   return 0;
 }
 
 void NDL_Quit() {
+  if (evtdev != -1) close(evtdev);
+  if (fbdev != -1) close(fbdev);
 }
