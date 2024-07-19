@@ -55,7 +55,7 @@ void do_syscall(Context *c) {
         AM_TIMER_UPTIME_T uptime;
         ioe_read(AM_TIMER_UPTIME, &uptime);
         tv->tv_sec = uptime.us / 1000000;
-        tv->tv_usec = uptime.us;
+        tv->tv_usec = uptime.us % 1000000;
       }
       c->GPRx = 0;
     break;
