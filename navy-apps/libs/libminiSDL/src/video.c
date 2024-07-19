@@ -81,6 +81,8 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
       *(uint32_t *)(dst->pixels + dst->pitch * (y + i) + dst->format->BytesPerPixel * (x + j)) = color;
     }
   }
+
+  SDL_UpdateRect(dst, x, y, w, h);
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
