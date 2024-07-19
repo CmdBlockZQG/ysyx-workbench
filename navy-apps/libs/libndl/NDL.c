@@ -59,6 +59,9 @@ void NDL_OpenCanvas(int *w, int *h) {
     if (*w || *h) {
       offset_x = (screen_w - *w) / 2;
       offset_y = (screen_h - *h) / 2;
+    } else {
+      *w = screen_w;
+      *h = screen_h;
     }
 
     fbdev = open("/dev/fb", O_WRONLY);

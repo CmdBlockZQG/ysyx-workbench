@@ -64,15 +64,12 @@ static void prev() {
 }
 
 static void clear_display(void) {
-  SDL_FillRect(screen, NULL, 0x007dbe);
+  SDL_FillRect(screen, NULL, 0xffffff);
 }
 
 int main(int argc, char *argv[], char *envp[]) {
   SDL_Init(0);
   screen = SDL_SetVideoMode(0, 0, 32, SDL_HWSURFACE);
-
-  clear_display();
-  while (1);
 
   font = new BDF_Font(font_fname);
   logo_sf = SDL_LoadBMP("/share/pictures/projectn.bmp");
