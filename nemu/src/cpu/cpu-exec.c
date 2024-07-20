@@ -76,8 +76,8 @@ static void ftrace(Decode *s) {
   word_t from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
   if (likely(from == to)) return;
 
-  log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
   if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
+    log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
     for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
     log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
               elf_symbol_list[from].name,
@@ -96,6 +96,7 @@ static void ftrace(Decode *s) {
     while (ret_st[--ftrace_dep] != s->dnpc);
     if (!lock_dep || ftrace_dep <= lock_dep) {
       lock_dep = 0;
+      log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
       for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
       log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
                 elf_symbol_list[from].name,
