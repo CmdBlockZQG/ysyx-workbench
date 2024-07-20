@@ -50,20 +50,13 @@ extern ElfSymbol elf_symbol_list[];
 extern word_t elf_symbol_list_size;
 
 static word_t get_func_sym_ndx(paddr_t p) {
-  word_t res = 0;
-  paddr_t res_off = -1;
   for (word_t i = 0; i < elf_symbol_list_size; ++i) {
     if (elf_symbol_list[i].type == ELF_SYM_FUNC && elf_symbol_list[i].addr <= p) {
       if (p < elf_symbol_list[i].addr + elf_symbol_list[i].size) return i;
-      paddr_t off = p - elf_symbol_list[i].addr;
-      if (off < res_off) {
-        res_off = off;
-        res = i;
-      }
     }
   }
   // Log(ANSI_FMT("[FTRACE] Warning: PC outside any FUNC symbol area: " FMT_PADDR, ANSI_FG_YELLOW), p);
-  return res;
+  return 0;
 }
 
 static void ftrace(Decode *s) {
