@@ -53,8 +53,5 @@ int main(int argc, char *argv[]) {
   finalize_pctrace();
 #endif
 
-  extern FILE* log_fp;
-  fflush(log_fp);
-
   return is_exit_status_bad();
 }
