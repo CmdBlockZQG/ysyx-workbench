@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <unistd.h>
 
-#define SBUF_SIZE 64
+#define SBUF_SIZE 128
 
 static void (*callback)(void *userdata, uint8_t *stream, int len);
 static bool audio_pause;
@@ -71,46 +71,32 @@ void SDL_MixAudio(uint8_t *dst, uint8_t *src, uint32_t len, int volume) {
   }
 }
 
-static void nread(int fd, void *buf, int n) {
-  while (n > 0) {
-    int c = read(fd, buf, n);
-    n -= c;
-    buf += c;
-  }
-}
-
 SDL_AudioSpec *SDL_LoadWAV(const char *file, SDL_AudioSpec *spec, uint8_t **audio_buf, uint32_t *audio_len) {
-  printf("%s\n", file);
-  int fd = open(file, O_RDONLY);
-  lseek(fd, 0, SEEK_SET);
+  FILE *f = fopen(file, "rb");
   uint32_t t;
   uint16_t s;
-  nread(fd, &t, 4);
+
+  fseek(f, 0, SEEK_SET);
+  assert(fread(&t, 4, 1, f) == 1);
   assert(t == 0x46464952);
 
-  lseek(fd, 8, SEEK_SET);
-  nread(fd, &t, 4);
-  assert(t == 0x45564157);
-
-  lseek(fd, 22, SEEK_SET);
-  nread(fd, &s, 2);
+  fseek(f, 22, SEEK_SET);
+  assert(fread(&s, 2, 1, f) == 1);
   spec->channels = s - 1;
 
-  lseek(fd, 24, SEEK_SET);
-  nread(fd, &t, 4);
+  fseek(f, 24, SEEK_SET);
+  assert(fread(&t, 4, 1, f) == 1);
   spec->freq = t;
 
-  lseek(fd, 40, SEEK_SET);
-  nread(fd, &t, 4);
+  fseek(f, 40, SEEK_SET);
+  assert(fread(&t, 4, 1, f) == 1);
   spec->size = t;
-
-  // spec->samples = 1024;
 
   void *buf = malloc(t);
   *audio_buf = buf;
   *audio_len = t;
-  nread(fd, buf, t);
-  close(fd);
+  assert(fread(buf, 1, t, f) == t);
+  fclose(f);
 
   return spec;
 }
