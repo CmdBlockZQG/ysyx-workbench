@@ -28,6 +28,7 @@ static void sh_handle_cmd(const char *cmd) {
     sh_printf(cmd + 5);
     return;
   }
+  *(char *)strchr(cmd, '\n') = '\0';
   execve(cmd, NULL, NULL);
 }
 
