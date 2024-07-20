@@ -9,6 +9,7 @@
 
 static int evtdev = -1;
 static int fbdev = -1;
+static int sbdev = -1;
 static int screen_w = 0, screen_h = 0;
 static int offset_x = 0, offset_y = 0;
 
@@ -77,17 +78,34 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
+  int buf[3] = {freq, channels, samples};
+  int fd = open("/dev/sbctl", O_WRONLY);
+  assert(write(fd, buf, 12) == 12);
+  close(fd);
+  sbdev = open("/dev/sb", O_WRONLY);
 }
 
 void NDL_CloseAudio() {
+  close(sbdev);
+  sbdev = -1;
 }
 
 int NDL_PlayAudio(void *buf, int len) {
+  int bytes_left = len;
+  while (bytes_left) {
+    bytes_left -= write(sbdev, buf + len - bytes_left, bytes_left);
+  }
   return 0;
 }
 
 int NDL_QueryAudio() {
-  return 0;
+  int res;
+  char buf[20];
+  int fd = open("/dev/sbctl", O_RDONLY);
+  read(fd, buf, sizeof(buf));
+  sscanf(buf, "%d", &res);
+  close(fd);
+  return res;
 }
 
 int NDL_Init(uint32_t flags) {
@@ -102,4 +120,5 @@ int NDL_Init(uint32_t flags) {
 void NDL_Quit() {
   if (evtdev != -1) close(evtdev);
   if (fbdev != -1) close(fbdev);
+  if (sbdev != -1) close(sbdev);
 }
