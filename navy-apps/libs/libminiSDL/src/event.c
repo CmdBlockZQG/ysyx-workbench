@@ -3,6 +3,8 @@
 #include <string.h>
 #include <assert.h>
 
+void CallbackHelper(int);
+
 #define keyname(k) #k,
 
 #define NR_KEY (sizeof(keyname) / sizeof(const char *))
@@ -20,6 +22,8 @@ int SDL_PushEvent(SDL_Event *ev) {
 }
 
 int SDL_PollEvent(SDL_Event *ev) {
+  CallbackHelper(0);
+
   char buf[20];
   int res = NDL_PollEvent(buf, sizeof(buf));
   if (!res) return 0;

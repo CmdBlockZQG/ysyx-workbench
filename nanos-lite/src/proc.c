@@ -25,7 +25,7 @@ void init_proc() {
   Log("Initializing processes...");
 
   void naive_uload(PCB *pcb, const char *filename);
-  naive_uload(NULL, "/bin/pal");
+  naive_uload(NULL, "/bin/nplayer");
 }
 
 Context* schedule(Context *prev) {
