@@ -16,7 +16,7 @@ static int get_func_sym_ndx(addr_t p) {
 }
 
 void ftrace(addr_t pc, addr_t next_pc) {
-  static addr_t ret_st[256];
+  static addr_t ret_st[128];
   static int ftrace_dep = 0;
   static int lock_dep = 0;
 
@@ -36,8 +36,8 @@ void ftrace(addr_t pc, addr_t next_pc) {
       if (strstr(elf_symbol_list[to].name, "printf")) {
         lock_dep = ftrace_dep;
       }
-      ret_st[ftrace_dep++] = pc + 4;
     }
+    ret_st[ftrace_dep++] = pc + 4;
   } else { // ret, return to calling position
     Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
     while (ret_st[--ftrace_dep] != next_pc);

@@ -60,7 +60,7 @@ static int get_func_sym_ndx(paddr_t p) {
 }
 
 static void ftrace(Decode *s) {
-  static vaddr_t ret_st[256];
+  static vaddr_t ret_st[128];
   static int ftrace_dep = 0;
   static int lock_dep = 0;
 
