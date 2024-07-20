@@ -63,7 +63,7 @@ static word_t get_func_sym_ndx(paddr_t p) {
       }
     }
   }
-  Log(ANSI_FMT("[FTRACE] Warning: PC outside any FUNC symbol area: " FMT_PADDR, ANSI_FG_YELLOW), p);
+  // Log(ANSI_FMT("[FTRACE] Warning: PC outside any FUNC symbol area: " FMT_PADDR, ANSI_FG_YELLOW), p);
   return res;
 }
 
