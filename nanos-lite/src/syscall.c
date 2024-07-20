@@ -2,8 +2,10 @@
 #include <fs.h>
 #include <sys/time.h>
 #include "syscall.h"
+#include "proc.h"
 
 const char *fs_get_filename(int fd);
+void naive_uload(PCB *pcb, const char *filename);
 
 void do_syscall(Context *c) {
   uintptr_t a[4];
@@ -47,6 +49,9 @@ void do_syscall(Context *c) {
     case SYS_brk:
       // Log("[STRACE] brk %p", a[1]);
       c->GPRx = 0;
+    break;
+    case SYS_execve:
+      naive_uload(NULL, (char *)a[1]);
     break;
     case SYS_gettimeofday:
       // Log("[STRACE] gettimeofday %p %p", a[1], a[2]);
