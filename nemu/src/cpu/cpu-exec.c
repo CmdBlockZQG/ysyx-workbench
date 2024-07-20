@@ -72,7 +72,7 @@ static void ftrace(Decode *s) {
   if (elf_symbol_list_size == 0) return; // no elf file
   word_t from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
   if (likely(from == to)) return;
-  log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
+  Log("[FTRACE] " FMT_PADDR ": ", s->pc);
   if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
     for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
     ++ftrace_dep;
@@ -85,7 +85,7 @@ static void ftrace(Decode *s) {
     Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
     --ftrace_dep;
     for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
-    log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
+    Log("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
               elf_symbol_list[from].name,
               elf_symbol_list[from].addr,
               elf_symbol_list[to].name,
