@@ -49,14 +49,14 @@ void device_update();
 extern ElfSymbol elf_symbol_list[];
 extern word_t elf_symbol_list_size;
 
-static word_t get_func_sym_ndx(paddr_t p) {
-  for (word_t i = 0; i < elf_symbol_list_size; ++i) {
+static int get_func_sym_ndx(paddr_t p) {
+  for (int i = 0; i < elf_symbol_list_size; ++i) {
     if (elf_symbol_list[i].type == ELF_SYM_FUNC && elf_symbol_list[i].addr <= p) {
       if (p < elf_symbol_list[i].addr + elf_symbol_list[i].size) return i;
     }
   }
   // Log(ANSI_FMT("[FTRACE] Warning: PC outside any FUNC symbol area: " FMT_PADDR, ANSI_FG_YELLOW), p);
-  return 0;
+  return -1;
 }
 
 static void ftrace(Decode *s) {
@@ -66,8 +66,9 @@ static void ftrace(Decode *s) {
 
   if (likely(s->dnpc == s->snpc)) return;
   if (elf_symbol_list_size == 0) return; // no elf file
-  word_t from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
+  int from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
   if (likely(from == to)) return;
+  if (from == -1 || to == -1) return;
 
   if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
     if (!lock_dep) {
