@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-Area heap = {(void *)0x84000000L, (void *)0x85000000L};
+Area heap;
 
 extern int _syscall_(int, uintptr_t, uintptr_t, uintptr_t);
 
