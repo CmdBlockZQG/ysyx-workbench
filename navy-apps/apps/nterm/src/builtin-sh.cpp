@@ -26,7 +26,9 @@ static void sh_prompt() {
 static void sh_handle_cmd(const char *cmd) {
   if (!strncmp(cmd, "echo ", 5)) {
     sh_printf(cmd + 5);
+    return;
   }
+  execve(cmd, NULL, NULL);
 }
 
 void builtin_sh_run() {
