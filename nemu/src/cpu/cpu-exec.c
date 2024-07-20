@@ -76,7 +76,7 @@ static void ftrace(Decode *s) {
   if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
     for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
     ++ftrace_dep;
-    log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
+    Log("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
               elf_symbol_list[from].name,
               elf_symbol_list[from].addr,
               elf_symbol_list[to].name,
