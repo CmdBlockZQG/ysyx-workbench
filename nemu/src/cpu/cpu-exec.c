@@ -69,14 +69,10 @@ static word_t get_func_sym_ndx(paddr_t p) {
 static void ftrace(Decode *s) {
   static vaddr_t ret_st[256];
   static int ftrace_dep = 0;
-  static int recover_pc = 0;
+  static int lock_dep = 0;
 
   if (likely(s->dnpc == s->snpc)) return;
   if (elf_symbol_list_size == 0) return; // no elf file
-  if (recover_pc) {
-    if (s->dnpc != recover_pc) return;
-    recover_pc = 0;
-  }
   word_t from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
   if (likely(from == to)) return;
 
@@ -88,25 +84,26 @@ static void ftrace(Decode *s) {
               elf_symbol_list[from].addr,
               elf_symbol_list[to].name,
               elf_symbol_list[to].addr);
-    ret_st[ftrace_dep++] = s->snpc;
+    ret_st[ftrace_dep] = s->snpc;
 
     if (strstr(elf_symbol_list[to].name, "printf")) {
-      recover_pc = s->snpc;
+      lock_dep = ftrace_dep;
     }
+
+    ftrace_dep++;
   } else { // ret, return to calling position
     Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
-    --ftrace_dep;
-    while (ret_st[ftrace_dep] != s->dnpc) {
-      Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
-      --ftrace_dep;
+    while (ret_st[--ftrace_dep] != s->dnpc);
+    if (!lock_dep || ftrace_dep <= lock_dep) {
+      lock_dep = 0;
+      for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
+      log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
+                elf_symbol_list[from].name,
+                elf_symbol_list[from].addr,
+                elf_symbol_list[to].name,
+                elf_symbol_list[to].addr,
+                s->dnpc);
     }
-    for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
-    log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
-              elf_symbol_list[from].name,
-              elf_symbol_list[from].addr,
-              elf_symbol_list[to].name,
-              elf_symbol_list[to].addr,
-              s->dnpc);
   }
 }
 #endif
