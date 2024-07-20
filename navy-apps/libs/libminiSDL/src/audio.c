@@ -4,14 +4,14 @@
 #include <string.h>
 #include <assert.h>
 
-#define SBUF_SIZE 4000
+#define SBUF_SIZE 16384
 
 static void (*callback)(void *userdata, uint8_t *stream, int len);
 static bool pause;
 static void *userdata;
 static uint32_t interval;
 static uint32_t last_call;
-static void *buf;
+static uint8_t *sbuf;
 static bool re_entry;
 
 void CallbackHelper(int force) {
@@ -22,8 +22,8 @@ void CallbackHelper(int force) {
     last_call = t;
     int len = NDL_QueryAudio();
     len = len > SBUF_SIZE ? SBUF_SIZE : len;
-    callback(userdata, buf, len);
-    NDL_PlayAudio(buf, len);
+    callback(userdata, sbuf, len);
+    NDL_PlayAudio(sbuf, len);
   }
   re_entry = false;
 }
@@ -37,14 +37,14 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
   userdata = desired->userdata;
   pause = true;
   interval = desired->samples * 1000 / desired->freq;
-  buf = malloc(SBUF_SIZE);
   re_entry = false;
+  sbuf = malloc(SBUF_SIZE);
   return 0;
 }
 
 void SDL_CloseAudio() {
   callback = NULL;
-  free(buf);
+  free(sbuf);
   NDL_CloseAudio();
 }
 
