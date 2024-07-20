@@ -7,7 +7,7 @@
 // #define RVE 1
 #define MAX_CYCLE (uint64_t)(-1) // 10000000
 
-// #define ELF 1
+#define ELF 1
 // #define WATCHPOINT 1
 #define ITRACE 1
 #define PCTRACE 1
