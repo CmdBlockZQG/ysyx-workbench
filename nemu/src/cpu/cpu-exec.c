@@ -95,7 +95,11 @@ static void ftrace(Decode *s) {
     }
   } else { // ret, return to calling position
     Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
-    while (ret_st[--ftrace_dep] != s->dnpc);
+    --ftrace_dep;
+    while (ret_st[ftrace_dep] != s->dnpc) {
+      Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
+      --ftrace_dep;
+    }
     for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
     log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
               elf_symbol_list[from].name,
