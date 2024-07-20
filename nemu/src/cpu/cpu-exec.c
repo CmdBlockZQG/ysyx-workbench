@@ -47,7 +47,7 @@ void device_update();
 
 #ifdef CONFIG_FTRACE
 extern ElfSymbol elf_symbol_list[];
-extern word_t elf_symbol_list_size;
+extern int elf_symbol_list_size;
 
 static int get_func_sym_ndx(paddr_t p) {
   for (int i = 0; i < elf_symbol_list_size; ++i) {
