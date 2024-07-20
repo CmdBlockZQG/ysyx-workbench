@@ -67,7 +67,7 @@ static word_t get_func_sym_ndx(paddr_t p) {
 }
 
 static void ftrace(Decode *s) {
-  static vaddr_t ret_st[64];
+  static vaddr_t ret_st[256];
   static int ftrace_dep = 0;
   static int recover_pc = 0;
 
