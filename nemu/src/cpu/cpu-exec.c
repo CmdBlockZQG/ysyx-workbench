@@ -77,20 +77,19 @@ static void ftrace(Decode *s) {
   if (likely(from == to)) return;
 
   if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
-    log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
-    for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
-    log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
-              elf_symbol_list[from].name,
-              elf_symbol_list[from].addr,
-              elf_symbol_list[to].name,
-              elf_symbol_list[to].addr);
-    ret_st[ftrace_dep] = s->snpc;
-
-    if (strstr(elf_symbol_list[to].name, "printf")) {
-      lock_dep = ftrace_dep;
+    if (!lock_dep) {
+      log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
+      for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
+      log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
+                elf_symbol_list[from].name,
+                elf_symbol_list[from].addr,
+                elf_symbol_list[to].name,
+                elf_symbol_list[to].addr);
+      if (strstr(elf_symbol_list[to].name, "printf")) {
+        lock_dep = ftrace_dep;
+      }
     }
-
-    ftrace_dep++;
+    ret_st[ftrace_dep++] = s->snpc;
   } else { // ret, return to calling position
     Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
     while (ret_st[--ftrace_dep] != s->dnpc);
