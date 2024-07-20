@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-#define SBUF_SIZE 16384
+#define SBUF_SIZE 128
 
 static void (*callback)(void *userdata, uint8_t *stream, int len);
 static bool pause;
@@ -19,11 +19,14 @@ void CallbackHelper(int force) {
   re_entry = true;
   uint32_t t = NDL_GetTicks();
   if (force || t >= last_call + interval) {
-    last_call = t;
     int len = NDL_QueryAudio();
-    len = len > SBUF_SIZE ? SBUF_SIZE : len;
-    callback(userdata, sbuf, len);
-    NDL_PlayAudio(sbuf, len);
+    while (len) {
+      int c = len > SBUF_SIZE ? SBUF_SIZE : len;
+      callback(userdata, sbuf, c);
+      NDL_PlayAudio(sbuf, c);
+      len -= c;
+    }
+    last_call = t;
   }
   re_entry = false;
 }
