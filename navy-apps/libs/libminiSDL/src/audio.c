@@ -12,9 +12,11 @@ static void *userdata;
 static uint32_t interval;
 static uint32_t last_call;
 static void *buf;
+static bool re_entry;
 
 void CallbackHelper(int force) {
-  if (!callback || pause) return;
+  if (!callback || pause || re_entry) return;
+  re_entry = true;
   uint32_t t = NDL_GetTicks();
   if (force || t >= last_call + interval) {
     last_call = t;
@@ -23,6 +25,7 @@ void CallbackHelper(int force) {
     callback(userdata, buf, len);
     NDL_PlayAudio(buf, len);
   }
+  re_entry = false;
 }
 
 int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
@@ -35,6 +38,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
   pause = true;
   interval = desired->samples * 1000 / desired->freq;
   buf = malloc(SBUF_SIZE);
+  re_entry = false;
   return 0;
 }
 
