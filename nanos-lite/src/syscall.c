@@ -51,6 +51,7 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
     break;
     case SYS_execve:
+      Log("[STRACE] execve %p", a[1]);
       naive_uload(NULL, (char *)a[1]);
     break;
     case SYS_gettimeofday:
