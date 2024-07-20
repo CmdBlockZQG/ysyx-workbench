@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-#define SBUF_SIZE 1024
+#define SBUF_SIZE 64
 
 static void (*callback)(void *userdata, uint8_t *stream, int len);
 static bool pause;
