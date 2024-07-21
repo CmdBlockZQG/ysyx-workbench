@@ -37,7 +37,6 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
   if (obtained) {
     memcpy(obtained, desired, sizeof(SDL_AudioSpec));
   }
-  printf("open audio: %d %d %d\n", desired->freq, desired->channels, desired->samples);
   NDL_OpenAudio(desired->freq, desired->channels, desired->samples);
   callback = desired->callback;
   userdata = desired->userdata;
