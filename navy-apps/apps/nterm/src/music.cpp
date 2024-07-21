@@ -12,6 +12,7 @@ static void *file_buf;
 static stb_vorbis *v = NULL;
 static stb_vorbis_info info = {};
 static int16_t *stream_save = NULL;
+static bool is_end = false;
 
 static void FillAudio(void *userdata, uint8_t *stream, int len) {
   int nbyte = 0;
@@ -20,14 +21,11 @@ static void FillAudio(void *userdata, uint8_t *stream, int len) {
   if (samples_per_channel != 0 || len < sizeof(int16_t)) {
     int samples = samples_per_channel * info.channels;
     nbyte = samples * sizeof(int16_t);
-    if (nbyte < len) memset(stream + nbyte, 0, len - nbyte);
-    memcpy(stream_save, stream, len);
   } else {
-    SDL_CloseAudio();
-    stb_vorbis_close(v);
-    free(stream_save);
-    free(file_buf);
+    is_end = true;
   }
+  if (nbyte < len) memset(stream + nbyte, 0, len - nbyte);
+  memcpy(stream_save, stream, len);
 }
 
 void play_audio() {
@@ -58,4 +56,14 @@ void play_audio() {
   stream_save = (int16_t *)malloc(SAMPLES * info.channels * sizeof(*stream_save));
   assert(stream_save);
   SDL_PauseAudio(0);
+}
+
+void close_audio() {
+  if (is_end) {
+    SDL_CloseAudio();
+    stb_vorbis_close(v);
+    free(stream_save);
+    free(file_buf);
+    is_end = false;
+  }
 }

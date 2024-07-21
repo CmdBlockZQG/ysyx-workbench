@@ -62,6 +62,9 @@ void refresh_terminal() {
       last = now;
     }
   }
+
+  void close_audio();
+  close_audio();
 }
 
 #define ENTRY(KEYNAME, NOSHIFT, SHIFT) { SDLK_##KEYNAME, #KEYNAME, NOSHIFT, SHIFT }
