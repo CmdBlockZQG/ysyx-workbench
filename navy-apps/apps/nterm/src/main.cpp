@@ -12,6 +12,10 @@ void extern_app_run(const char *app_path);
 
 int main(int argc, char *argv[]) {
   SDL_Init(0);
+
+  void play_audio();
+  play_audio();
+
   font = new BDF_Font(font_fname);
 
   // setup display
