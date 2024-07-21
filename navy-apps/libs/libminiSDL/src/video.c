@@ -8,13 +8,18 @@
 
 void CallbackHelper(int);
 
-static uint32_t convert_color(SDL_PixelFormat *fmt, uint32_t pixel) {
-  uint32_t t, res = 0;
-  if (fmt->BytesPerPixel == 1) {
+uint32_t convert_color(SDL_PixelFormat *fmt, uint8_t *pixel_ptr) {
+  uint32_t res = 0;
+  int sz = fmt->BytesPerPixel;
+  if (sz == 1) {
+    uint8_t pixel = *pixel_ptr;
     SDL_Color *color;
     color = &fmt->palette->colors[pixel & 0xff];
     res = ((uint32_t)color->r << 16) | ((uint32_t)color->g << 8) | ((uint32_t)color->b);
   } else {
+    uint32_t t, pixel = 0;
+    for (int i = 0; i < sz; ++i) pixel |= (*pixel_ptr++) << (8 * i);
+
     t = pixel & fmt->Rmask;
     t >>= fmt->Rshift;
     t <<= fmt->Rloss;
@@ -89,12 +94,12 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
 
   uint32_t *buf = malloc(w * h * 4);
   SDL_PixelFormat *fmt = s->format;
-  uint32_t pixel;
+  void *pixel_ptr;
 
   for (int i = 0; i < h; ++i) {
     for (int j = 0; j < w; ++j) {
-      pixel = *(uint32_t *)(s->pixels + s->pitch * (y + i) + fmt->BytesPerPixel * (x + j));
-      buf[i * w + j] = convert_color(fmt, pixel);
+      pixel_ptr = s->pixels + s->pitch * (y + i) + fmt->BytesPerPixel * (x + j);
+      buf[i * w + j] = convert_color(fmt, pixel_ptr);
     }
   }
 
