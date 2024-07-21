@@ -1,7 +1,7 @@
-#include <cassert>
-#include <cstdio>
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
+#include <string.h>
 #include <vorbis.h>
 #include <SDL.h>
 
@@ -51,6 +51,7 @@ void play_audio() {
   spec.format = AUDIO_S16SYS;
   spec.userdata = NULL;
   spec.callback = FillAudio;
+  printf("call sdl openaudio\n");
   SDL_OpenAudio(&spec, NULL);
 
   stream_save = (int16_t *)malloc(SAMPLES * info.channels * sizeof(*stream_save));
