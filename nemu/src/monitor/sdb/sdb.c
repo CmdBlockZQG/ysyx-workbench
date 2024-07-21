@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <cpu/difftest.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <memory/vaddr.h>
@@ -151,6 +152,16 @@ static int cmd_d(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_detach(char *args) {
+  difftest_detach();
+  return 0;
+}
+
+static int cmd_attach(char *args) {
+  difftest_attach();
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -165,6 +176,8 @@ static struct {
   { "p", "p EXPR: Evaluate EXPR", cmd_p },
   { "w", "w EXPR: Stop when value of EXPR changes(watchpoint)", cmd_w },
   { "d", "d N: Delete watchpoint No.N", cmd_d },
+  {"detach", "Detach difftest", cmd_detach},
+  {"attach", "Attach difftest", cmd_attach},
 };
 
 #define NR_CMD ARRLEN(cmd_table)
