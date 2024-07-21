@@ -58,8 +58,6 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   }
 }
 
-word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause;
-word_t csr_mvendorid = 0x79737978, csr_marchid = 0x15fdeeb;
 static word_t *get_csr_ptr(int x) {
   switch (x & 0xfff) {
     case 0x300: return &csr_mstatus;
