@@ -69,6 +69,7 @@ size_t sbctl_write(const void *buf, size_t offset, size_t len) {
   ctl.freq = *(int *)buf;
   ctl.channels = *(int *)(buf + 4);
   ctl.samples = *(int *)(buf + 8);
+  printf("sbctl %d %d %d\n", ctl.freq, ctl.channels, ctl.samples);
   ioe_write(AM_AUDIO_CTRL, &ctl);
   return 12;
 }
