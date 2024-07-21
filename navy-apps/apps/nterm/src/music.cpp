@@ -51,7 +51,6 @@ void play_audio() {
   spec.format = AUDIO_S16SYS;
   spec.userdata = NULL;
   spec.callback = FillAudio;
-  printf("call sdl openaudio\n");
   SDL_OpenAudio(&spec, NULL);
 
   stream_save = (int16_t *)malloc(SAMPLES * info.channels * sizeof(*stream_save));

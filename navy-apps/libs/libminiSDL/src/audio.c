@@ -34,10 +34,10 @@ void CallbackHelper(int force) {
 }
 
 int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
-  printf("open audio\n");
   if (obtained) {
     memcpy(obtained, desired, sizeof(SDL_AudioSpec));
   }
+  printf("open audio: %d %d %d\n", desired->freq, desired->channels, desired->samples);
   NDL_OpenAudio(desired->freq, desired->channels, desired->samples);
   callback = desired->callback;
   userdata = desired->userdata;
@@ -49,7 +49,6 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
 }
 
 void SDL_CloseAudio() {
-  printf("close audio\n");
   callback = NULL;
   free(sbuf);
   NDL_CloseAudio();
