@@ -18,7 +18,7 @@ uint32_t convert_color(SDL_PixelFormat *fmt, uint8_t *pixel_ptr) {
     res = ((uint32_t)color->r << 16) | ((uint32_t)color->g << 8) | ((uint32_t)color->b);
   } else {
     uint32_t t, pixel = 0;
-    for (int i = 0; i < sz; ++i) pixel = (pixel << 8) | *pixel_ptr++;
+    for (int i = 0; i < sz; ++i) pixel |= (*pixel_ptr++) << (8 * i);
 
     t = pixel & fmt->Rmask;
     t >>= fmt->Rshift;
