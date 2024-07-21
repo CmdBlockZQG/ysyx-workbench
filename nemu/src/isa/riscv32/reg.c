@@ -25,7 +25,6 @@ const char *regs[] = {
 
 void cpu_state_display(CPU_state *s) {
   word_t val;
-  printf("pc = " FMT_PADDR "\n", s->pc);
   printf(
     MUXDEF(CONFIG_RV64, "%-3s %-18s %-20s %-20s\n", "%-3s %-10s %-12s %-12s\n"),
     "Reg", "Hex", "Unsigned dec", "Signed dec"
