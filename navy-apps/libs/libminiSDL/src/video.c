@@ -8,7 +8,7 @@
 
 void CallbackHelper(int);
 
-uint32_t convert_color(SDL_PixelFormat *fmt, uint32_t pixel) {
+__attribute__((__noinline__)) uint32_t convert_color(SDL_PixelFormat *fmt, uint32_t pixel) {
   uint32_t t, res = 0;
   if (fmt->BytesPerPixel == 1) {
     SDL_Color *color;
