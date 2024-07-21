@@ -93,6 +93,7 @@ void NDL_CloseAudio() {
 int NDL_PlayAudio(void *buf, int len) {
   int bytes_left = len;
   while (bytes_left) {
+    assert(sbdev != -1);
     bytes_left -= write(sbdev, buf + len - bytes_left, bytes_left);
   }
   return 0;

@@ -60,6 +60,7 @@ static void audio_dev_open() {
   s.freq = freq;
   s.channels = channels;
   s.samples = samples;
+  SDL_CloseAudio();
   SDL_OpenAudio(&s, NULL);
   SDL_PauseAudio(0);
 }
