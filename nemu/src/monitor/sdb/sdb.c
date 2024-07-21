@@ -166,6 +166,7 @@ static int cmd_attach(char *args) {
 static int cmd_save(char *args) {
   FILE *f = fopen(args, "wb");
   assert(fwrite(&cpu, sizeof(CPU_state), 1, f) == 1);
+  isa_snapshot_save(f);
   assert(fwrite(guest_to_host(RESET_VECTOR), 1, CONFIG_MSIZE, f) == CONFIG_MSIZE);
   fclose(f);
   return 0;
@@ -174,6 +175,7 @@ static int cmd_save(char *args) {
 static int cmd_load(char *args) {
   FILE *f = fopen(args, "rb");
   assert(fread(&cpu, sizeof(CPU_state), 1, f) == 1);
+  isa_snapshot_load(f);
   assert(fread(guest_to_host(RESET_VECTOR), 1, CONFIG_MSIZE, f) == CONFIG_MSIZE);
   fclose(f);
   return 0;
