@@ -20,6 +20,7 @@
 #include <readline/history.h>
 #include <memory/vaddr.h>
 #include "sdb.h"
+#include "memory/paddr.h"
 
 static int is_batch_mode = false;
 
@@ -162,6 +163,22 @@ static int cmd_attach(char *args) {
   return 0;
 }
 
+static int cmd_save(char *args) {
+  FILE *f = fopen(args, "wb");
+  assert(fwrite(&cpu, sizeof(CPU_state), 1, f) == 1);
+  assert(fwrite(guest_to_host(RESET_VECTOR), 1, CONFIG_MSIZE, f) == CONFIG_MSIZE);
+  fclose(f);
+  return 0;
+}
+
+static int cmd_load(char *args) {
+  FILE *f = fopen(args, "rb");
+  assert(fread(&cpu, sizeof(CPU_state), 1, f) == 1);
+  assert(fread(guest_to_host(RESET_VECTOR), 1, CONFIG_MSIZE, f) == CONFIG_MSIZE);
+  fclose(f);
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -178,6 +195,8 @@ static struct {
   { "d", "d N: Delete watchpoint No.N", cmd_d },
   {"detach", "Detach difftest", cmd_detach},
   {"attach", "Attach difftest", cmd_attach},
+  {"save", "save [path]: Save snapshot", cmd_save},
+  {"load", "load [path]: Load snapshot", cmd_load}
 };
 
 #define NR_CMD ARRLEN(cmd_table)
