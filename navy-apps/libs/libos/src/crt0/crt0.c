@@ -15,9 +15,7 @@ void call_main(uintptr_t *args) {
   }
   assert(*args++ == 0);
   printf("envp: \n");
-  while (*args) {
-    printf("%s\n", (char *)*args++);
-  }
+  printf("%s\n", (char *)*args++);
 
   char *empty[] =  {NULL };
   environ = empty;
