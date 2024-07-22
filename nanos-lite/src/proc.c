@@ -36,7 +36,7 @@ void init_proc() {
   // naive_uload(NULL, "/bin/dummy");
 
   void context_uload(PCB *pcb, const char *filename);
-  context_uload(&pcb[1], "/bin/hello");
+  context_uload(&pcb[0], "/bin/hello");
   context_uload(&pcb[1], "/bin/pal");
 
   yield();
