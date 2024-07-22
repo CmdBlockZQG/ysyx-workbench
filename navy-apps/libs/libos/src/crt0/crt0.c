@@ -9,7 +9,7 @@ extern char **environ;
 void call_main(uintptr_t *args) {
 
   int argc = *args++;
-  printf("argv: \n");
+  printf("%d argv: \n", argc);
   for (int i = 0; i < argc; ++i) {
     printf("%s", (char *)*args++);
   }
