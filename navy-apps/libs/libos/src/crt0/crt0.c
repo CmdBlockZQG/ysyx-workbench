@@ -11,12 +11,12 @@ void call_main(uintptr_t *args) {
   int argc = *args++;
   printf("%d argv: \n", argc);
   for (int i = 0; i < argc; ++i) {
-    printf("%s", (char *)*args++);
+    printf("%s\n", (char *)*args++);
   }
   assert(*args++ == 0);
   printf("envp: \n");
   while (*args) {
-    printf("%s", (char *)*args++);
+    printf("%s\n", (char *)*args++);
   }
 
   char *empty[] =  {NULL };
