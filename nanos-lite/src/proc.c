@@ -38,8 +38,7 @@ void init_proc() {
   char *const argv[] = { "/bin/pal", "--skip", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
 
-  void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]);
-  context_uload(&pcb[1], "/bin/pal", argv, envp);
+  context_uload(&pcb[1], "/bin/exec-test", argv, envp);
 
   yield();
 }

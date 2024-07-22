@@ -52,7 +52,9 @@ void do_syscall(Context *c) {
     break;
     case SYS_execve:
       // Log("[STRACE] execve %s", a[1]);
-      naive_uload(NULL, (char *)a[1]);
+      context_uload(current, (char *)a[1], (char *const *)a[2], (char *const *)a[3]);
+      switch_boot_pcb();
+      yield();
     break;
     case SYS_gettimeofday:
       // Log("[STRACE] gettimeofday %p %p", a[1], a[2]);

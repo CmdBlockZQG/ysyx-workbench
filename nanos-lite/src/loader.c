@@ -83,7 +83,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   uintptr_t entry = loader(pcb, filename);
   Area kstack = { .start = pcb->stack, .end = pcb->stack + STACK_SIZE };
   Context *ctx = ucontext(NULL, kstack, (void *)entry);
-  void *ustack_top = heap.end;
+  void *ustack_top = new_page(8) + 8 * PGSIZE;
 
   int argc, envc, len = 0;
   for (argc = 0; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
