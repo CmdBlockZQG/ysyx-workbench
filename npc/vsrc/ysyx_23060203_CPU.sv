@@ -117,7 +117,7 @@ module ysyx_23060203_CPU (
     wire [31:0] exu_out_inst;
     wire [31:0] exu_out_dnpc;
   `endif
-  ysyx_23060203_EXU_old EXU (
+  ysyx_23060203_EXU EXU (
     .clock(clock), .reset(reset),
 
     .jump_flush(jump_flush), .jump_dnpc(jump_dnpc),
