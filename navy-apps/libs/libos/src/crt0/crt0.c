@@ -8,15 +8,18 @@ void __libc_init_array();
 extern char **environ;
 void call_main(uintptr_t *args) {
 
-  int argc = *args++;
-  printf("%d argv: \n", argc);
-  for (int i = 0; i < argc; ++i) {
-    printf("%s\n", (char *)*args++);
-  }
-  assert(*args++ == 0);
-  printf("envp: \n");
-  while (*args) {
-    printf("%s\n", (char *)*args++);
+  // int argc = *args++;
+  // printf("%d argv: \n", argc);
+  // for (int i = 0; i < argc; ++i) {
+  //   printf("%s\n", (char *)*args++);
+  // }
+  // assert(*args++ == 0);
+  // printf("envp: \n");
+  // while (*args) {
+  //   printf("%s\n", (char *)*args++);
+  // }
+  for (int i = 0; i < 6; ++i) {
+    printf("%u\n", *args++);
   }
 
   char *empty[] =  {NULL };
