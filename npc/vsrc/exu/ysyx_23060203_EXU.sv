@@ -146,7 +146,7 @@ module ysyx_23060203_EXU (
   // wire mul_in_ready, mul_out_valid;
   // wire [63:0] mul_out_prod;
   // wire [31:0] mul_val = (|alu_funct[1:0]) ? mul_out_prod[63:32] : mul_out_prod[31:0];
-  // MUL_dummy MUL (
+  // MUL_test MUL (
   //   .clock(clock), .reset(reset), .flush(0),
   //   .in_ready(mul_in_ready), .in_valid(exec_in_en & mul_in_en),
   //   .in_sign(mul_in_sign), .in_a(in_val_a), .in_b(in_val_b),
@@ -160,7 +160,7 @@ module ysyx_23060203_EXU (
   // wire div_in_ready, div_out_valid;
   // wire [31:0] div_out_quot, div_out_rem;
   // wire [31:0] div_val = alu_funct[1] ? div_out_rem : div_out_quot;
-  // DIV_dummy DIV (
+  // DIV_test DIV (
   //   .clock(clock), .reset(reset), .flush(0),
   //   .in_ready(div_in_ready), .in_valid(exec_in_en & div_in_en),
   //   .in_sign(div_in_sign), .in_a(in_val_a), .in_b(in_val_b),
