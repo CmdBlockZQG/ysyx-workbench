@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <nterm.h>
 #include <stdarg.h>
 #include <cstring>
