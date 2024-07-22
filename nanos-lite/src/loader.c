@@ -82,14 +82,10 @@ void naive_uload(PCB *pcb, const char *filename) {
 void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]) {
   void *ustack_top = new_page(8) + 8 * PGSIZE;
 
-  // printf("%p %p\n", *argv[0], *envp[0]);
-
   int argc = 0, envc = 0, len = 0;
   for (; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
   for (; envp[envc]; ++envc) len += strlen(envp[envc]) + 1;
   len = ROUNDUP(len, sizeof(uintptr_t));
-
-  printf("1231231231243\n");
 
   char *strtab = ustack_top - len;
   char **sp = (char **)strtab;
