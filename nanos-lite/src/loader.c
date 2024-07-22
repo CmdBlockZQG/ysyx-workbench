@@ -85,9 +85,9 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   Context *ctx = ucontext(NULL, kstack, (void *)entry);
   void *ustack_top = new_page(8) + 8 * PGSIZE;
 
-  int argc, envc, len = 0;
-  for (argc = 0; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
-  for (envc = 0; envp[envc]; ++envc) len += strlen(envp[envc]) + 1;
+  int argc = 0, envc = 0, len = 0;
+  for (; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
+  // for (; envp[envc]; ++envc) len += strlen(envp[envc]) + 1;
   len = ROUNDUP(len, sizeof(uintptr_t));
 
   char *strtab = ustack_top - len;
