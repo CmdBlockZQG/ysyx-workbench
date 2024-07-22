@@ -88,13 +88,12 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   int argc, envc, len = 0;
   for (argc = 0; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
   for (envc = 0; envp[envc]; ++envc) len += strlen(envp[envc]) + 1;
-  len = ROUNDUP(len, sizeof(uintptr_t));
 
   Log("%d %d", argc, envc);
 
   char *strtab = ustack_top - len;
   char **sp = (char **)strtab;
-  for (int i = envc - 1; i >= 0; --i) {
+  for (int i = envc; i >= 0; --i) {
     sp -= sizeof(uintptr_t);
     *sp = envp[i];
     if (envp[i]) {
@@ -102,7 +101,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
       strtab += strlen(envp[i]) + 1;
     }
   }
-  for (int i = argc - 1; i >= 0; --i) {
+  for (int i = argc; i >= 0; --i) {
     sp -= sizeof(uintptr_t);
     *sp = argv[i];
     if (argv[i]) {
@@ -111,7 +110,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
     }
   }
   sp -= sizeof(uintptr_t);
-  *(uintptr_t *)sp = argc - 1;
+  *(uintptr_t *)sp = argc;
 
   ctx->GPRx = (uintptr_t)sp;
   pcb->cp = ctx;
