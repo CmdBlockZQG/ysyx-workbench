@@ -93,7 +93,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   printf("123123\n");
   for (; envp[envc]; ++envc) {
     printf("%s\n", envp[envc]);
-    len += strlen(envp[envc]) + 1;
+    // len += strlen(envp[envc]) + 1;
   }
   len = ROUNDUP(len, sizeof(uintptr_t));
 
