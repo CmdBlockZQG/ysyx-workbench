@@ -1,4 +1,4 @@
-module ysyx_23060203_GPR #(NR_REG = 32) (
+module ysyx_23060203_GPR (
   input clock, reset,
 
   input wen, // 写入使能
@@ -10,6 +10,9 @@ module ysyx_23060203_GPR #(NR_REG = 32) (
   input [4:0] raddr2, // 读出地址
   output [31:0] rdata2 // 读出数据
 );
+
+  parameter NR_REG = 16;
+
   // -------------------- WRITE --------------------
   reg [31:0] r [1:NR_REG-1]/*verilator public*/;
 
