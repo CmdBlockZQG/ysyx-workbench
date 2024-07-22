@@ -52,8 +52,6 @@ void do_syscall(Context *c) {
     break;
     case SYS_execve:
       Log("[STRACE] execve %s %p %p", a[1], a[2], a[3]);
-      // printf("%p %p\n", *(void **)a[2], *(void **)a[3]);
-      // printf("%p %p\n", **(void ***)a[2], **(void ***)a[3]);
       context_uload(current, (char *)a[1], (char *const *)a[2], (char *const *)a[3]);
       switch_boot_pcb();
       yield();
