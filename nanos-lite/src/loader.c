@@ -85,7 +85,10 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   printf("%s %p %p\n", filename, argv, envp);
 
   int argc = 0, envc = 0, len = 0;
-  for (; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
+  for (; argv[argc]; ++argc) {
+    printf("%s\n", argv[argc]);
+    len += strlen(argv[argc]) + 1;
+  }
   for (; envp[envc]; ++envc) len += strlen(envp[envc]) + 1;
   len = ROUNDUP(len, sizeof(uintptr_t));
 
