@@ -60,7 +60,7 @@ void _exit(int status) {
   // _syscall_(SYS_exit, status, 0, 0);
   int _execve(const char *fname, char * const argv[], char *const envp[]);
   static char *const empty[] = { NULL };
-  _execve("/bin/nterm", (void *)empty, (void *)empty);
+  _execve("/bin/nterm", empty, empty);
   while (1);
 }
 
