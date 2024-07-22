@@ -9,14 +9,17 @@ extern char **environ;
 void call_main(uintptr_t *args) {
 
   int argc = *args++;
+  char **argv = (char **)args + 1;
+  char **envp = (char **)args + 1 + argc + 1;
+
   printf("%d argv: \n", argc);
   for (int i = 0; i < argc; ++i) {
-    printf("%s\n", (char *)*args++);
+    printf("%s\n", argv[i]);
   }
-  assert(*args++ == 0);
+  assert(argv[argc] == NULL);
   printf("envp: \n");
-  while (*args) {
-    printf("%s\n", (char *)*args++);
+  for (int i = 0; envp[i]; ++i) {
+    printf("%s\n", envp[i]);
   }
 
   char *empty[] =  {NULL };
