@@ -33,8 +33,9 @@ void init_proc() {
 
   Log("Initializing processes...");
 
-  void naive_uload(PCB *pcb, const char *filename);
-  naive_uload(NULL, "/bin/dummy");
+  // void naive_uload(PCB *pcb, const char *filename);
+  // naive_uload(NULL, "/bin/dummy");
+  yield();
 }
 
 Context* schedule(Context *prev) {
