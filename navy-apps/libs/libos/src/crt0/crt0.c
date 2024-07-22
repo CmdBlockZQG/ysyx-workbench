@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -13,6 +12,6 @@ void call_main(uintptr_t *args) {
   char **envp = (char **)args + 1 + argc + 1;
 
   __libc_init_array();
-  exit(main(0, argv, envp));
+  exit(main(argc, argv, envp));
   assert(0);
 }
