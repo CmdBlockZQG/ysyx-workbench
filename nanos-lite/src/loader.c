@@ -81,7 +81,7 @@ void naive_uload(PCB *pcb, const char *filename) {
 
 void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]) {
   void *ustack_top = new_page(8) + 8 * PGSIZE;
-  printf("stack: %p %p\n", ustack_top - 8 * PGSIZE, ustack_top);
+  // printf("stack: %p %p\n", ustack_top - 8 * PGSIZE, ustack_top);
 
   printf("%s %p %p\n", filename, argv, envp);
 
