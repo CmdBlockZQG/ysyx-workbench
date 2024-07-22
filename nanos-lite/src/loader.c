@@ -79,10 +79,38 @@ void naive_uload(PCB *pcb, const char *filename) {
   ((void(*)())entry) ();
 }
 
-void context_uload(PCB *pcb, const char *filename) {
+void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]) {
   uintptr_t entry = loader(pcb, filename);
   Area kstack = { .start = pcb->stack, .end = pcb->stack + STACK_SIZE };
   Context *ctx = ucontext(NULL, kstack, (void *)entry);
-  ctx->GPRx = (uintptr_t)heap.end;
+  void *ustack_top = heap.end;
+
+  int argc, envc, len = 0;
+  for (argc = 0; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
+  for (envc = 0; envp[envc]; ++envc) len += strlen(argv[envc]) + 1;
+  len = ROUNDUP(len, sizeof(uintptr_t));
+
+  char *strtab = ustack_top - len;
+  char **sp = (char **)strtab;
+  for (int i = envc - 1; i >= 0; --i) {
+    sp -= sizeof(uintptr_t);
+    *sp = envp[i];
+    if (envp[i]) {
+      strcpy(strtab, envp[i]);
+      strtab += strlen(envp[i]) + 1;
+    }
+  }
+  for (int i = argc - 1; i >= 0; --i) {
+    sp -= sizeof(uintptr_t);
+    *sp = argv[i];
+    if (argv[i]) {
+      strcpy(strtab, argv[i]);
+      strtab += strlen(argv[i]) + 1;
+    }
+  }
+  sp -= sizeof(uintptr_t);
+  *(uintptr_t *)sp = argc - 1;
+
+  ctx->GPRx = (uintptr_t)sp;
   pcb->cp = ctx;
 }

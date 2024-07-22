@@ -13,7 +13,7 @@ void switch_boot_pcb() {
 void hello_fun(void *arg) {
   int j = 1;
   while (1) {
-    Log("Hello World from Nanos-lite with arg '%p' for the %dth time!", (uintptr_t)arg, j);
+    // Log("Hello World from Nanos-lite with arg '%p' for the %dth time!", (uintptr_t)arg, j);
     j ++;
     yield();
   }
@@ -30,14 +30,16 @@ void init_proc() {
 
   Log("Initializing processes...");
   
-  // context_kload(&pcb[0], hello_fun, (void *)1);
+  context_kload(&pcb[0], hello_fun, (void *)1);
 
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  void context_uload(PCB *pcb, const char *filename);
-  context_uload(&pcb[0], "/bin/hello");
-  context_uload(&pcb[1], "/bin/pal");
+  char *const argv[] = { "/bin/pal", "--skip", NULL };
+  char *const envp[] = { "KEY=VALUE", NULL };
+
+  void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]);
+  context_uload(&pcb[1], "/bin/pal", argv, envp);
 
   yield();
 }
