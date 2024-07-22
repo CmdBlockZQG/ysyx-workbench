@@ -12,19 +12,7 @@ void call_main(uintptr_t *args) {
   char **argv = (char **)args + 1;
   char **envp = (char **)args + 1 + argc + 1;
 
-  printf("%d argv: \n", argc);
-  for (int i = 0; i < argc; ++i) {
-    printf("%s\n", argv[i]);
-  }
-  assert(argv[argc] == NULL);
-  printf("envp: \n");
-  for (int i = 0; envp[i]; ++i) {
-    printf("%s\n", envp[i]);
-  }
-
-  char *empty[] =  {NULL };
-  environ = empty;
   __libc_init_array();
-  exit(main(0, empty, empty));
+  exit(main(0, argv, envp));
   assert(0);
 }
