@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -59,6 +60,8 @@ void _exit(int status) {
   // _syscall_(SYS_exit, status, 0, 0);
   int _execve(const char *fname, char * const argv[], char *const envp[]);
   char *const empty[] = { NULL };
+  printf("n: %p %p\n", empty, empty);
+  printf("n: %p %p\n", *empty, *empty);
   _execve("/bin/nterm", empty, empty);
   while (1);
 }
