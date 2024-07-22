@@ -90,6 +90,8 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   for (envc = 0; envp[envc]; ++envc) len += strlen(envp[envc]) + 1;
   len = ROUNDUP(len, sizeof(uintptr_t));
 
+  Log("%d %d", argc, envc);
+
   char *strtab = ustack_top - len;
   char **sp = (char **)strtab;
   for (int i = envc - 1; i >= 0; --i) {
