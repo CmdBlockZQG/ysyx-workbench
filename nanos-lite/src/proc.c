@@ -43,11 +43,11 @@ void init_proc() {
 
 Context* schedule(Context *prev) {
   current->cp = prev;
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
   if (current == &pcb[1]) {
     printf("pal stack: %p\n", current->cp);
   } else {
     printf("hello stack: %p\n", current->cp);
   }
+  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
   return current->cp;
 }
