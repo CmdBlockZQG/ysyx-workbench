@@ -108,7 +108,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
       strtab += strlen(argv[i]) + 1;
     }
   }
-  *(uintptr_t *)sp-- = argc;
+  *(uintptr_t *)(sp--) = argc;
 
   ctx->GPRx = (uintptr_t)sp;
   pcb->cp = ctx;
