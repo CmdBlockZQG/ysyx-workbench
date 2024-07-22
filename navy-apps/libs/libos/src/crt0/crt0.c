@@ -19,7 +19,7 @@ void call_main(uintptr_t *args) {
   //   printf("%s\n", (char *)*args++);
   // }
   for (int i = 0; i < 6; ++i) {
-    printf("%u\n", *args++);
+    printf("%p\n", *args++);
   }
 
   char *empty[] =  {NULL };
