@@ -8,7 +8,7 @@ void __libc_init_array();
 extern char **environ;
 void call_main(uintptr_t *args) {
 
-  int argc = *args++;
+  int argc = *args;
   char **argv = (char **)args + 1;
   char **envp = (char **)args + 1 + argc + 1;
 
