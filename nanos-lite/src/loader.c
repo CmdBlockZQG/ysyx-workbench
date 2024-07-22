@@ -95,6 +95,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   for (int i = envc; i >= 0; --i) {
     sp -= sizeof(uintptr_t);
     *sp = envp[i];
+    printf("%p\n", envp[i]);
     if (envp[i]) {
       strcpy(strtab, envp[i]);
       strtab += strlen(envp[i]) + 1;
@@ -103,6 +104,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   for (int i = argc; i >= 0; --i) {
     sp -= sizeof(uintptr_t);
     *sp = argv[i];
+    printf("%p\n", argv[i]);
     if (argv[i]) {
       strcpy(strtab, argv[i]);
       strtab += strlen(argv[i]) + 1;
