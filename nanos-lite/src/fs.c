@@ -57,7 +57,7 @@ int fs_open(const char *pathname, int flags, int mode) {
       return i;
     }
   }
-  panic("file not found: %s", pathname);
+  return -1;
 }
 
 size_t fs_lseek(int fd, size_t offset, int whence) {
