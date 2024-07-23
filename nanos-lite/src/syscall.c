@@ -27,11 +27,11 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
     break;
     case SYS_open:
-      Log("[STRACE] open %s %u %u", (const char *)a[1], a[2], a[3]);
+      // Log("[STRACE] open %s %u %u", (const char *)a[1], a[2], a[3]);
       c->GPRx = fs_open((const char *)a[1], a[2], a[3]);
     break;
     case SYS_read:
-      Log("[STRACE] read %s %p %u", fs_get_filename(a[1]), a[2], a[3]);
+      // Log("[STRACE] read %s %p %u", fs_get_filename(a[1]), a[2], a[3]);
       c->GPRx = fs_read(a[1], (void *)a[2], a[3]);
     break;
     case SYS_write:
@@ -52,9 +52,13 @@ void do_syscall(Context *c) {
     break;
     case SYS_execve:
       Log("[STRACE] execve %s %p %p", a[1], a[2], a[3]);
-      context_uload(current, (char *)a[1], (char *const *)a[2], (char *const *)a[3]);
-      switch_boot_pcb();
-      yield();
+      if (fs_open((char *)a[1], 0, 0) == -1) {
+        c->GPRx = -2;
+      } else {
+        context_uload(current, (char *)a[1], (char *const *)a[2], (char *const *)a[3]);
+        switch_boot_pcb();
+        yield();
+      }
     break;
     case SYS_gettimeofday:
       // Log("[STRACE] gettimeofday %p %p", a[1], a[2]);
