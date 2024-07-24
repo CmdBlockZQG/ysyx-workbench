@@ -91,7 +91,8 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
     assert(phdr.p_filesz <= phdr.p_memsz);
     printf("%p %u %u\n", phdr.p_vaddr, phdr.p_filesz, phdr.p_memsz);
-    for (uintptr_t vaddr = ROUNDDOWN(phdr.p_vaddr, PGSIZE); vaddr < phdr.p_vaddr + phdr.p_memsz; vaddr += PGSIZE) {
+    uintptr_t vaddr_end = phdr.p_vaddr + phdr.p_memsz;
+    for (uintptr_t vaddr = ROUNDDOWN(phdr.p_vaddr, PGSIZE); vaddr < vaddr_end; vaddr += PGSIZE) {
       uintptr_t paddr = mem_translate(pcb, vaddr);
       if (!paddr) {
         paddr = (uintptr_t)new_page(1);
