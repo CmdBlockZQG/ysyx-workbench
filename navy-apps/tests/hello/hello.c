@@ -11,7 +11,7 @@ int main() {
   volatile int j = 0;
   while (1) {
     j ++;
-    if (j == 10000) {
+    if (j == 1) {
       // printf("Hello World from Navy-apps for the %dth time!\n", i ++);
       _syscall_(SYS_yield, 0, 0, 0);
       j = 0;
