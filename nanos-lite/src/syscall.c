@@ -23,7 +23,7 @@ void do_syscall(Context *c) {
       halt(a[1]);
     break;
     case SYS_yield:
-      // Log("[STRACE] yield");
+      Log("[STRACE] yield");
       yield();
       c->GPRx = 0;
     break;
