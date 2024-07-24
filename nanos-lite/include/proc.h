@@ -19,7 +19,6 @@ typedef union {
 extern PCB *current;
 
 void switch_boot_pcb();
-void create_tmp_context(PCB *pcb);
 void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]);
 
 #endif

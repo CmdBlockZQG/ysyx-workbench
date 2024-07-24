@@ -172,6 +172,4 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
 
   ctx->GPRx = (uintptr_t)pcb->as.area.end - ((uintptr_t)ustack_top - (uintptr_t)sp);
   pcb->cp = ctx;
-
-  create_tmp_context(pcb);
 }

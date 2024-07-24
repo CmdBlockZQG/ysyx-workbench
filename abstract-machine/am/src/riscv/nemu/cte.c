@@ -25,15 +25,11 @@ Context* __am_irq_handle(Context *c) {
       break;
     }
 
-    Context *new_c = user_handler(ev, c);
-    assert(new_c != NULL);
-
-    void __am_switch(Context *c);
-    __am_switch(new_c);
-    
-    if (new_c->mepc == 0) return (Context *)new_c->GPRx;
-    else return new_c;
+    c = user_handler(ev, c);
+    assert(c != NULL);
   }
+  void __am_switch(Context *c);
+  __am_switch(c);
   return c;
 }
 

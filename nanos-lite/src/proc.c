@@ -30,29 +30,21 @@ void init_proc() {
 
   Log("Initializing processes...");
   
-  // context_kload(&pcb[0], hello_fun, (void *)1);
+  context_kload(&pcb[0], hello_fun, (void *)1);
 
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  char *const empty[] = { NULL };
-  context_uload(&pcb[0], "/bin/hello", empty, empty);
+  // char *const empty[] = { NULL };
+  // context_uload(&pcb[0], "/bin/hello", empty, empty);
 
   char *const argv[] = { "/bin/pal", "--skip", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
   context_uload(&pcb[1], "/bin/pal", argv, envp);
 }
 
-void create_tmp_context(PCB *pcb) {
-  Context *tmp_ctx = (void *)pcb->stack;
-  tmp_ctx->pdir = pcb->as.ptr;
-  tmp_ctx->GPRx = (uintptr_t)pcb->cp;
-  tmp_ctx->mepc = 0; // sign
-}
-
 Context* schedule(Context *prev) {
   current->cp = prev;
-  create_tmp_context(current);
   current = current == &pcb[1] ? &pcb[0] : &pcb[1];
-  return (Context *)current->stack;
+  return current->cp;
 }
