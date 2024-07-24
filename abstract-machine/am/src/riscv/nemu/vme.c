@@ -107,8 +107,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
   // [31:0] pte0_addr = { pt0[31:12], vpn0[9:0], 2'b0 }
   uintptr_t *pte0 = (uintptr_t *)(pt0 | (vpn0 << 2));
   // [31:0] pte0 = { 2'b0, pa[31:12], 10'b0000001111 }
-  *pte0 = ((uintptr_t)pa >> 2) | 0xf;
-
+  *pte0 = (((uintptr_t)pa >> 2) & ~0x3ff) | 0xf;
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {

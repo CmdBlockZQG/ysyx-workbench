@@ -6,6 +6,7 @@
 
 const char *fs_get_filename(int fd);
 void naive_uload(PCB *pcb, const char *filename);
+int mm_brk(uintptr_t brk);
 
 void do_syscall(Context *c) {
   uintptr_t a[4];
@@ -48,7 +49,7 @@ void do_syscall(Context *c) {
     break;
     case SYS_brk:
       // Log("[STRACE] brk %p", a[1]);
-      c->GPRx = 0;
+      c->GPRx = mm_brk(a[1]);
     break;
     case SYS_execve:
       Log("[STRACE] execve %s %p %p", a[1], a[2], a[3]);

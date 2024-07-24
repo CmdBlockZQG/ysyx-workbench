@@ -2,7 +2,6 @@
 #include <elf.h>
 #include <ramdisk.h>
 #include <fs.h>
-#include <sys/mman.h>
 
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
@@ -42,8 +41,6 @@ static uintptr_t mem_translate(PCB *pcb, uintptr_t vaddr) {
 }
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
-  const int prot_rwx = PROT_READ | PROT_WRITE | PROT_EXEC;
-
   // open file
   int fd = fs_open(filename, 0, 0);
 
@@ -82,6 +79,8 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   }
   assert(phnum);
 
+  pcb->max_brk = 0;
+
   Elf_Phdr phdr;
   for (size_t i = 0; i < phnum; ++i) {
     fs_lseek(fd, phoff + i * phentsize, SEEK_SET);
@@ -91,11 +90,12 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
     assert(phdr.p_filesz <= phdr.p_memsz);
     uintptr_t vaddr_end = phdr.p_vaddr + phdr.p_memsz;
+    pcb->max_brk = MAX(pcb->max_brk, ROUNDUP(vaddr_end, PGSIZE));
     for (uintptr_t vaddr = ROUNDDOWN(phdr.p_vaddr, PGSIZE); vaddr < vaddr_end; vaddr += PGSIZE) {
       uintptr_t paddr = mem_translate(pcb, vaddr);
       if (!paddr) {
         paddr = (uintptr_t)new_page(1);
-        map(&pcb->as, (void *)vaddr, (void *)paddr, prot_rwx);
+        map(&pcb->as, (void *)vaddr, (void *)paddr, PROT_RWX);
       }
 
       // fill file
@@ -133,12 +133,11 @@ void naive_uload(PCB *pcb, const char *filename) {
 void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]) {
   // create default memory map
   protect(&pcb->as);
-  const int prot_rw = PROT_READ | PROT_WRITE;
 
   // map stack memory
   void *ustack_top = new_page(8);
   for (void *stack_vaddr = pcb->as.area.end - 8 * PGSIZE; stack_vaddr < pcb->as.area.end; stack_vaddr += PGSIZE) {
-    map(&pcb->as, stack_vaddr, ustack_top, prot_rw);
+    map(&pcb->as, stack_vaddr, ustack_top, PROT_RW);
     ustack_top += PGSIZE;
   }
 
