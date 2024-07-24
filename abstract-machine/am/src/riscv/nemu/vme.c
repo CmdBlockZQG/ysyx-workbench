@@ -67,6 +67,7 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
+  printf("map va:%p to pa:%p\n", va, pa);
   // TEMP: Sv32 only
   
   uintptr_t vpn1 = ((uintptr_t)va >> 22) & 0x3ff; // [9:0] vpn1 = va[31:22]
