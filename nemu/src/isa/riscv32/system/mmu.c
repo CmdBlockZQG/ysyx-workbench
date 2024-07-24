@@ -22,7 +22,7 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   // TEMP: Sv32 only
   switch (isa_mmu_check(vaddr, len, type)) {
     case MMU_FAIL: return MEM_RET_FAIL;
-    case MMU_DIRECT: return vaddr;
+    case MMU_DIRECT: assert(0); return vaddr;
     case MMU_TRANSLATE: ;
   }
 
