@@ -30,21 +30,22 @@ void init_proc() {
 
   Log("Initializing processes...");
   
-  context_kload(&pcb[0], hello_fun, (void *)1);
+  // context_kload(&pcb[0], hello_fun, (void *)1);
 
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  char *const argv[] = { "/bin/nterm", NULL };
+  char *const argv[] = { "/bin/dummy", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
 
-  context_uload(&pcb[1], "/bin/nterm", argv, envp);
+  context_uload(&pcb[0], "/bin/dummy", argv, envp);
 
   yield();
 }
 
 Context* schedule(Context *prev) {
-  current->cp = prev;
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
-  return current->cp;
+  // current->cp = prev;
+  // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  // return current->cp;
+  return prev;
 }

@@ -2,6 +2,7 @@
 #include <elf.h>
 #include <ramdisk.h>
 #include <fs.h>
+#include <sys/mman.h>
 
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
@@ -19,7 +20,30 @@
 #define EXPECT_EM EM_RISCV
 #endif
 
+static uintptr_t mem_translate(PCB *pcb, uintptr_t vaddr) {
+  // TEMP: Sv32 only
+  uintptr_t vpn1 = (vaddr >> 22) & 0x3ff;
+  uintptr_t pt1_addr = (uintptr_t)pcb->as.ptr;
+  uintptr_t pte1_addr = pt1_addr | (vpn1 << 2);
+  uintptr_t pte1 = *(uintptr_t *)pte1_addr;
+
+  if ((pte1 & 1) == 0) return 0;
+
+  uintptr_t vpn0 = (vaddr >> 12) & 0x3ff;
+  uintptr_t pt0_addr = (pte1 << 2) & ~0xfff;
+  uintptr_t pte0_addr = pt0_addr | (vpn0 << 2);
+  uintptr_t pte0 = *(uintptr_t *)pte0_addr;
+
+  if (pte0 & 1) {
+    return ((pte0 << 2) & ~0xfff) | (vaddr & 0xfff);
+  } else {
+    return 0;
+  }
+}
+
 static uintptr_t loader(PCB *pcb, const char *filename) {
+  const int prot_rwx = PROT_READ | PROT_WRITE | PROT_EXEC;
+
   // open file
   int fd = fs_open(filename, 0, 0);
 
@@ -64,8 +88,33 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     assert(fs_read(fd, &phdr, sizeof(phdr)) == sizeof(phdr));
     if (phdr.p_vaddr == 0) continue;
     fs_lseek(fd, phdr.p_offset, SEEK_SET);
-    assert(fs_read(fd, (void *)phdr.p_vaddr, phdr.p_filesz) == phdr.p_filesz);
-    memset((void *)(phdr.p_vaddr + phdr.p_filesz), 0, phdr.p_memsz - phdr.p_filesz);
+
+    for (uintptr_t vaddr = ROUNDDOWN(phdr.p_vaddr, PGSIZE); vaddr < phdr.p_vaddr + phdr.p_memsz; vaddr += PGSIZE) {
+      uintptr_t paddr = mem_translate(pcb, vaddr);
+      if (!paddr) {
+        paddr = (uintptr_t)new_page(1);
+        map(&pcb->as, (void *)vaddr, (void *)paddr, prot_rwx);
+      }
+
+      // fill file
+      uintptr_t off = vaddr < phdr.p_vaddr ? phdr.p_vaddr - vaddr : 0;
+      uintptr_t sz = MIN(PGSIZE - off, phdr.p_filesz);
+      if (sz) {
+        assert(fs_read(fd, (void *)(paddr + off), sz) == sz);
+        phdr.p_filesz -= sz;
+        phdr.p_memsz -= sz;
+        off += sz;
+      }
+
+      // fill 0
+      sz = MIN(PGSIZE - off, phdr.p_memsz);
+      if (sz) {
+        memset((void *)(paddr + off), 0, sz);
+        phdr.p_memsz -= sz;
+      }
+    }
+    assert(phdr.p_filesz == 0);
+    assert(phdr.p_memsz == 0);
   }
 
   assert(ehdr.e_entry);
@@ -80,8 +129,18 @@ void naive_uload(PCB *pcb, const char *filename) {
 }
 
 void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]) {
-  void *ustack_top = new_page(8) + 8 * PGSIZE;
+  // create default memory map
+  protect(&pcb->as);
+  const int prot_rw = PROT_READ | PROT_WRITE;
 
+  // map stack memory
+  void *ustack_top = new_page(8);
+  for (void *stack_vaddr = pcb->as.area.end - 8 * PGSIZE; stack_vaddr < pcb->as.area.end; stack_vaddr += PGSIZE) {
+    map(&pcb->as, stack_vaddr, ustack_top, prot_rw);
+    ustack_top += PGSIZE;
+  }
+
+  // pass args
   int argc = 0, envc = 0, len = 0;
   for (; argv[argc]; ++argc) len += strlen(argv[argc]) + 1;
   for (; envp[envc]; ++envc) len += strlen(envp[envc]) + 1;
@@ -105,6 +164,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   }
   *(uintptr_t *)--sp = argc;
 
+  // load program
   uintptr_t entry = loader(pcb, filename);
   Area kstack = { .start = pcb->stack, .end = pcb->stack + STACK_SIZE };
   Context *ctx = ucontext(NULL, kstack, (void *)entry);
