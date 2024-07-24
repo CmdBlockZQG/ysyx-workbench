@@ -39,6 +39,5 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   Assert(pte0 & 1, "Invalid page table entry");
 
   paddr_t paddr = ((pte0 << 2) & ~0xfff) | (vaddr & 0xfff);
-  Assert(paddr == vaddr, "Memory map error");
   return paddr;
 }
