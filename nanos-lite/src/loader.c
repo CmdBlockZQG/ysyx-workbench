@@ -115,6 +115,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         phdr.p_memsz -= sz;
       }
     }
+    printf("%p %u %u\n", phdr.p_vaddr, phdr.p_filesz, phdr.p_memsz);
     assert(phdr.p_filesz == 0);
     assert(phdr.p_memsz == 0);
   }
