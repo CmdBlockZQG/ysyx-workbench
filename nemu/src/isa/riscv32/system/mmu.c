@@ -30,15 +30,14 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   paddr_t vpn1 = (vaddr >> 22) & 0x3ff;
   paddr_t pte1_addr = pt1_addr | (vpn1 << 2); 
   word_t pte1 = paddr_read(pte1_addr, 4);
-  Assert(pte1 & 1, "Invalid page table entry");
+  Assert(pte1 & 1, "Invalid page table entry: " FMT_PADDR, vaddr);
 
   paddr_t pt0_addr = (pte1 << 2) & ~0xfff;
   paddr_t vpn0 = (vaddr >> 12) & 0x3ff;
   paddr_t pte0_addr = pt0_addr | (vpn0 << 2);
   word_t pte0 = paddr_read(pte0_addr, 4);
-  Assert(pte0 & 1, "Invalid page table entry");
+  Assert(pte0 & 1, "Invalid page table entry: " FMT_PADDR, vaddr);
 
   paddr_t paddr = ((pte0 << 2) & ~0xfff) | (vaddr & 0xfff);
-  Assert(paddr == vaddr, "Memory map error");
   return paddr;
 }
