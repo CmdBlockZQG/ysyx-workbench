@@ -170,6 +170,6 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   Area kstack = { .start = pcb->stack, .end = pcb->stack + STACK_SIZE };
   Context *ctx = ucontext(&pcb->as, kstack, (void *)entry);
 
-  ctx->GPRx = (uintptr_t)sp;
+  ctx->GPRx = (uintptr_t)pcb->as.area.end - ((uintptr_t)ustack_top - (uintptr_t)sp);
   pcb->cp = ctx;
 }
