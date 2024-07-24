@@ -30,13 +30,13 @@ void init_proc() {
 
   Log("Initializing processes...");
   
-  // context_kload(&pcb[0], hello_fun, (void *)1);
+  context_kload(&pcb[0], hello_fun, (void *)1);
 
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  char *const empty[] = { NULL };
-  context_uload(&pcb[0], "/bin/hello", empty, empty);
+  // char *const empty[] = { NULL };
+  // context_uload(&pcb[0], "/bin/hello", empty, empty);
 
   char *const argv[] = { "/bin/nterm", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
