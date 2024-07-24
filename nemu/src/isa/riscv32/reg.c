@@ -40,6 +40,7 @@ void cpu_state_display(CPU_state *s) {
 
 void isa_reg_display() {
   cpu_state_display(&cpu);
+  printf("mepc: " FMT_PADDR "\n", csr_mepc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
