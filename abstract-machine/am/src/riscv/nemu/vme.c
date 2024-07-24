@@ -65,7 +65,7 @@ void __am_switch(Context *c) {
   if (vme_enable && c->pdir != NULL) {
     set_satp(c->pdir);
   }
-  assert(0);
+  assert(c->pdir != NULL);
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
