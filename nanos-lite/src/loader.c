@@ -89,6 +89,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     if (phdr.p_vaddr == 0) continue;
     fs_lseek(fd, phdr.p_offset, SEEK_SET);
 
+    assert(phdr.p_filesz <= phdr.p_memsz);
     for (uintptr_t vaddr = ROUNDDOWN(phdr.p_vaddr, PGSIZE); vaddr < phdr.p_vaddr + phdr.p_memsz; vaddr += PGSIZE) {
       uintptr_t paddr = mem_translate(pcb, vaddr);
       if (!paddr) {
