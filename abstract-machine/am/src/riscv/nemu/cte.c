@@ -31,8 +31,10 @@ Context* __am_irq_handle(Context *c) {
     void __am_switch(Context *c);
     __am_switch(new_c);
     
-    if (new_c->mepc == 0) return (Context *)new_c->GPRx;
-    else return new_c;
+    if (new_c->mepc == 0) {
+      assert(new_c->GPRx);
+      return (Context *)new_c->GPRx;
+    } else return new_c;
   }
   return c;
 }
