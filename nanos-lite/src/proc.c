@@ -48,6 +48,7 @@ Context* schedule(Context *prev) {
   current = current == &pcb[0] ? &pcb[1] : &pcb[0];
 
   printf("scheduled to %d\n", current == &pcb[0] ? 0 : 1);
+  printf("%p %p\n", current->as.ptr, current->cp);
   
   Context *tmp_ctx = (Context *)(current->stack + PGSIZE);
   tmp_ctx->pdir = current->as.ptr;
