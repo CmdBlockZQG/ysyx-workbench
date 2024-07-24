@@ -30,7 +30,8 @@ Context* __am_irq_handle(Context *c) {
   }
   void __am_switch(Context *c);
   __am_switch(c);
-  return c;
+  if (c->mepc) return c;
+  else return (Context *)c->GPRx;
 }
 
 extern void __am_asm_trap(void);
