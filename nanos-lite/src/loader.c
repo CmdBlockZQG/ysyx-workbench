@@ -90,7 +90,6 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     fs_lseek(fd, phdr.p_offset, SEEK_SET);
 
     assert(phdr.p_filesz <= phdr.p_memsz);
-    printf("%p %u %u\n", phdr.p_vaddr, phdr.p_filesz, phdr.p_memsz);
     uintptr_t vaddr_end = phdr.p_vaddr + phdr.p_memsz;
     for (uintptr_t vaddr = ROUNDDOWN(phdr.p_vaddr, PGSIZE); vaddr < vaddr_end; vaddr += PGSIZE) {
       uintptr_t paddr = mem_translate(pcb, vaddr);
@@ -116,7 +115,6 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         phdr.p_memsz -= sz;
       }
     }
-    printf("%p %u %u\n", phdr.p_vaddr, phdr.p_filesz, phdr.p_memsz);
     assert(phdr.p_filesz == 0);
     assert(phdr.p_memsz == 0);
   }
@@ -171,7 +169,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   // load program
   uintptr_t entry = loader(pcb, filename);
   Area kstack = { .start = pcb->stack, .end = pcb->stack + STACK_SIZE };
-  Context *ctx = ucontext(NULL, kstack, (void *)entry);
+  Context *ctx = ucontext(&pcb->as, kstack, (void *)entry);
 
   ctx->GPRx = (uintptr_t)sp;
   pcb->cp = ctx;
