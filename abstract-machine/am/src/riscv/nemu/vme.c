@@ -65,6 +65,7 @@ void __am_switch(Context *c) {
   if (vme_enable && c->pdir != NULL) {
     set_satp(c->pdir);
   }
+  assert(vme_enable);
   assert(c->pdir != NULL);
 }
 
