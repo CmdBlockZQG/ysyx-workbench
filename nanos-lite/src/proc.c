@@ -45,7 +45,7 @@ void init_proc() {
 
 Context* schedule(Context *prev) {
   current->cp = prev;
-  current = current == &pcb[1] ? &pcb[0] : &pcb[1];
+  current = current == &pcb[0] ? &pcb[1] : &pcb[0];
   
   Context *tmp_ctx = (Context *)current->stack;
   tmp_ctx->pdir = current->as.ptr;
