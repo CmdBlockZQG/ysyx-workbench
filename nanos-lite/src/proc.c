@@ -39,12 +39,10 @@ void init_proc() {
   char *const envp[] = { "KEY=VALUE", NULL };
 
   context_uload(&pcb[0], "/bin/dummy", argv, envp);
-
-  yield();
 }
 
 Context* schedule(Context *prev) {
   current->cp = prev;
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current = &pcb[0];
   return current->cp;
 }
