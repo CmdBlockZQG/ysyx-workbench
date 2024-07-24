@@ -47,11 +47,10 @@ Context* schedule(Context *prev) {
   current->cp = prev;
   current = current == &pcb[0] ? &pcb[1] : &pcb[0];
   
-  // Context *tmp_ctx = (Context *)current->stack;
-  // tmp_ctx->pdir = current->as.ptr;
-  // tmp_ctx->GPRx = (uintptr_t)current->cp;
-  // tmp_ctx->mepc = 0;
+  Context *tmp_ctx = (Context *)current->stack;
+  tmp_ctx->pdir = current->as.ptr;
+  tmp_ctx->GPRx = (uintptr_t)current->cp;
+  tmp_ctx->mepc = 0;
 
-  // return tmp_ctx;
-  return current->cp;
+  return tmp_ctx;
 }
