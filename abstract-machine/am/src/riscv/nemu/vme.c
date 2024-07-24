@@ -64,9 +64,9 @@ void __am_get_cur_as(Context *c) {
 void __am_switch(Context *c) {
   if (vme_enable && c->pdir != NULL) {
     set_satp(c->pdir);
+  } else {
+    assert(0);
   }
-  assert(vme_enable);
-  assert(c->pdir != NULL);
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
