@@ -35,13 +35,14 @@ void init_proc() {
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  char *const empty[] = { NULL };
-  context_uload(&pcb[0], "/bin/hello", empty, empty);
-  context_uload(&pcb[1], "/bin/hello", empty, empty);
+  // char *const empty[] = { NULL };
+  // context_uload(&pcb[0], "/bin/hello", empty, empty);
 
-  // char *const argv[] = { "/bin/nterm", NULL };
-  // char *const envp[] = { "KEY=VALUE", NULL };
-  // context_uload(&pcb[1], "/bin/nterm", argv, envp);
+  char *const argv[] = { "/bin/nterm", NULL };
+  char *const envp[] = { "KEY=VALUE", NULL };
+  context_uload(&pcb[1], "/bin/nterm", argv, envp);
+
+  context_uload(&pcb[0], "/bin/nterm", argv, envp);
 }
 
 Context* schedule(Context *prev) {
