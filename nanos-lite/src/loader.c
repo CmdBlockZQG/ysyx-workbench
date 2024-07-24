@@ -150,19 +150,21 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   char *strtab = ustack_top - len;
   char **sp = (char **)strtab;
   for (int i = envc; i >= 0; --i) {
-    *--sp = envp[i];
     if (envp[i]) {
       strcpy(strtab, envp[i]);
-      printf("%s\n", strtab);
+      *--sp = strtab;
       strtab += strlen(envp[i]) + 1;
+    } else {
+      *--sp = NULL;
     }
   }
   for (int i = argc; i >= 0; --i) {
-    *--sp = argv[i];
     if (argv[i]) {
       strcpy(strtab, argv[i]);
-      printf("%s\n", strtab);
+      *--sp = argv[i];
       strtab += strlen(argv[i]) + 1;
+    } else {
+      *--sp = NULL;
     }
   }
   *(uintptr_t *)--sp = argc;
