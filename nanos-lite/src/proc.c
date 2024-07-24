@@ -40,7 +40,7 @@ void init_proc() {
 
   char *const argv[] = { "/bin/pal", "--skip", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
-  context_uload(&pcb[1], "/bin/hello", argv, envp);
+  context_uload(&pcb[1], "/bin/pal", argv, envp);
 }
 
 Context* schedule(Context *prev) {
