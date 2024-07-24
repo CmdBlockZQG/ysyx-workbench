@@ -136,7 +136,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
 
   // map stack memory
   void *ustack_top = new_page(8);
-  for (void *stack_vaddr = pcb->as.area.end - 8 * PGSIZE; stack_vaddr < pcb->as.area.end; stack_vaddr += PGSIZE) {
+  for (void *stack_vaddr = pcb->as.area.end - STACK_SIZE; stack_vaddr < pcb->as.area.end; stack_vaddr += PGSIZE) {
     map(&pcb->as, stack_vaddr, ustack_top, PROT_RW);
     ustack_top += PGSIZE;
   }
@@ -150,17 +150,21 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   char *strtab = ustack_top - len;
   char **sp = (char **)strtab;
   for (int i = envc; i >= 0; --i) {
-    *--sp = envp[i];
     if (envp[i]) {
       strcpy(strtab, envp[i]);
+      *--sp = strtab;
       strtab += strlen(envp[i]) + 1;
+    } else {
+      *--sp = NULL;
     }
   }
   for (int i = argc; i >= 0; --i) {
-    *--sp = argv[i];
     if (argv[i]) {
       strcpy(strtab, argv[i]);
+      *--sp = strtab;
       strtab += strlen(argv[i]) + 1;
+    } else {
+      *--sp = NULL;
     }
   }
   *(uintptr_t *)--sp = argc;
