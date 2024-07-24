@@ -43,7 +43,7 @@ void init_proc() {
   context_uload(&pcb[1], "/bin/pal", argv, envp);
 }
 
-static void save_context(PCB *pcb) {
+void create_tmp_context(PCB *pcb) {
   Context *tmp_ctx = (void *)pcb->stack;
   tmp_ctx->pdir = pcb->as.ptr;
   tmp_ctx->GPRx = (uintptr_t)pcb->cp;
@@ -52,7 +52,7 @@ static void save_context(PCB *pcb) {
 
 Context* schedule(Context *prev) {
   current->cp = prev;
-  save_context(current);
+  create_tmp_context(current);
   current = current == &pcb[1] ? &pcb[0] : &pcb[1];
   return (Context *)current->stack;
 }
