@@ -152,6 +152,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   for (int i = envc; i >= 0; --i) {
     *--sp = envp[i];
     if (envp[i]) {
+      printf("%s\n", envp[i]);
       strcpy(strtab, envp[i]);
       strtab += strlen(envp[i]) + 1;
     }
@@ -159,6 +160,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   for (int i = argc; i >= 0; --i) {
     *--sp = argv[i];
     if (argv[i]) {
+      printf("%s\n", argv[i]);
       strcpy(strtab, argv[i]);
       strtab += strlen(argv[i]) + 1;
     }
