@@ -44,5 +44,6 @@ void init_proc() {
 Context* schedule(Context *prev) {
   current->cp = prev;
   current = &pcb[0];
+  Log("scheduled to dummy");
   return current->cp;
 }
