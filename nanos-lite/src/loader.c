@@ -136,7 +136,6 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
 
   // map stack memory
   void *ustack_top = new_page(8);
-  printf("%p\n", ustack_top);
   for (void *stack_vaddr = pcb->as.area.end - STACK_SIZE; stack_vaddr < pcb->as.area.end; stack_vaddr += PGSIZE) {
     map(&pcb->as, stack_vaddr, ustack_top, PROT_RW);
     ustack_top += PGSIZE;
