@@ -35,7 +35,7 @@ void init_proc() {
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  char *const argv[] = { "/bin/pal", NULL };
+  char *const argv[] = { "/bin/pal", "--skip", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
 
   context_uload(&pcb[0], "/bin/pal", argv, envp);
