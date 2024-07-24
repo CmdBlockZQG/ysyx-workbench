@@ -42,7 +42,7 @@ void init_proc() {
   char *const envp[] = { "KEY=VALUE", NULL };
   context_uload(&pcb[1], "/bin/pal", argv, envp);
 
-  context_uload(&pcb[0], "/bin/pal", argv, envp);
+  context_uload(&pcb[0], "/bin/nterm", argv, envp);
 }
 
 Context* schedule(Context *prev) {
