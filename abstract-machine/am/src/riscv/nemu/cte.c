@@ -28,8 +28,10 @@ Context* __am_irq_handle(Context *c) {
     c = user_handler(ev, c);
     assert(c != NULL);
   }
-  void __am_switch(Context *c);
-  __am_switch(c);
+  // void __am_switch(Context *c);
+  // __am_switch(c);
+  uintptr_t satp = (1ul << (__riscv_xlen - 1)) | ((uintptr_t)c->pdir >> 12);
+  asm volatile ("mv a1, %0" : : "r"(satp));
   if (c->mepc) return c;
   else return (Context *)c->GPRx;
 }
