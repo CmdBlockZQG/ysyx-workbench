@@ -69,6 +69,7 @@ static word_t *get_csr_ptr(int x) {
     case 0xf11: return &csr_mvendorid;
     case 0xf12: return &csr_marchid;
   }
+  printf("%x\n", x);
   assert(0);
 }
 
