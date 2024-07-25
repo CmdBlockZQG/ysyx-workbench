@@ -134,7 +134,13 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , I, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   INSTPAT("0000000 00000 00000 001 00000 00011 11", fence.i, I, ;); // fence.i -> nop
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , I, s->dnpc = csr_mepc);
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , I,
+    s->dnpc = csr_mepc;
+    // load mstatus.MPIE to mstatus.MIE
+    csr_mstatus = (csr_mstatus & ~(1 << 3)) | (((csr_mstatus >> 7) & 1) << 3);
+    // set mstatus.MPIE 1
+    csr_mstatus = csr_mstatus | (1 << 7);
+  );
   
   #define csr (*get_csr_ptr(imm))
   #define zimm BITS(s->isa.inst.val, 19, 15)
