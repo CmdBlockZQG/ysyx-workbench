@@ -44,8 +44,19 @@ void init_proc() {
 }
 
 Context* schedule(Context *prev) {
+  static int cnt = 0;
+
   current->cp = prev;
-  current = current == &pcb[0] ? &pcb[1] : &pcb[0];
+  if (current == &pcb[0]) { // hello
+    current = &pcb[1];
+  } else { // pal
+    if (cnt == 10) {
+      current = &pcb[0];
+      cnt = 0;
+    } else {
+      ++cnt;
+    }
+  }
   
   Context *tmp_ctx = (Context *)((uintptr_t)current->stack + PGSIZE);
   tmp_ctx->pdir = current->as.ptr;
