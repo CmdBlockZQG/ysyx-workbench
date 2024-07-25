@@ -15,7 +15,11 @@
 
 #include <isa.h>
 
+#define IRQ_TIMER 0x80000007
+
 extern word_t csr_mstatus, csr_mtvec, csr_mepc, csr_mcause;
+
+#define MSTATUS_MIE ((csr_mstatus >> 3) & 1) // is interrupt enabled
 
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 #ifdef CONFIG_ETRACE
@@ -23,9 +27,19 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 #endif
   csr_mepc = epc;
   csr_mcause = NO;
+
+  // save mstatus.MIE to mstatus.MPIE
+  csr_mstatus = (csr_mstatus & ~(1 << 7)) | (MSTATUS_MIE << 7);
+  // set mstatus.MIE 0
+  csr_mstatus = csr_mstatus & ~(1 << 3);
+
   return csr_mtvec;
 }
 
 word_t isa_query_intr() {
+  if (cpu.intr && MSTATUS_MIE) {
+    cpu.intr = false;
+    return IRQ_TIMER;
+  }
   return INTR_EMPTY;
 }
