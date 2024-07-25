@@ -16,13 +16,11 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
-  yield();
   for (int i = 0; i < len; ++i) putch(((const char *)buf)[i]);
   return len;
 }
 
 size_t events_read(void *buf, size_t offset, size_t len) {
-  yield();
   AM_INPUT_KEYBRD_T kbd;
   ioe_read(AM_INPUT_KEYBRD, &kbd);
   if (!kbd.keycode) return 0;
@@ -38,7 +36,6 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  yield();
   AM_GPU_MEMCPY_T ctl;
   ctl.size = len;
   ctl.dest = offset;
@@ -48,7 +45,6 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
 }
 
 size_t sb_write(const void *buf, size_t offset, size_t len) {
-  yield();
   AM_AUDIO_PLAY_T play;
   play.buf.start = (void *)buf;
   play.buf.end = (void *)buf + len;

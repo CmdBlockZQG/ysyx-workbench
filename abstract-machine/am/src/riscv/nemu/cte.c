@@ -20,6 +20,9 @@ Context* __am_irq_handle(Context *c) {
         if (c->gpr[SYSCALL_TYPE_GPR] == -1) ev.event = EVENT_YIELD;
         else ev.event = EVENT_SYSCALL;
       break;
+      case 0x80000007: // timer interrupt
+        ev.event = EVENT_IRQ_TIMER;
+      break;
       default:
         ev.event = EVENT_ERROR;
       break;
@@ -52,7 +55,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *ctx = kstack.end - sizeof(Context);
   ctx->pdir = NULL;
   ctx->mcause = 11;
-  ctx->mstatus = 0x1800;
+  ctx->mstatus = 0x1808;
   ctx->mepc = (uintptr_t)entry - 4;
   ctx->gpr[10] = (uintptr_t)arg;
   ctx->gpr[2] = (uintptr_t)ctx;
