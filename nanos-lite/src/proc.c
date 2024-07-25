@@ -38,19 +38,26 @@ void init_proc() {
   char *const empty[] = { NULL };
   context_uload(&pcb[0], "/bin/hello", empty, empty);
 
-  char *const argv[] = { "/bin/nterm", "--skip", NULL };
+  char *const argv[] = { "/bin/pal", "--skip", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
-  context_uload(&pcb[1], "/bin/nterm", argv, envp);
+  context_uload(&pcb[1], "/bin/pal", argv, envp);
 }
 
 Context* schedule(Context *prev) {
-  current->cp = prev;
-  current = current == &pcb[0] ? &pcb[1] : &pcb[0];
-  
-  Context *tmp_ctx = (Context *)((uintptr_t)current->stack + PGSIZE);
-  tmp_ctx->pdir = current->as.ptr;
-  tmp_ctx->GPRx = (uintptr_t)current->cp;
-  tmp_ctx->mepc = 0;
+  static int cnt = 0;
 
-  return tmp_ctx;
+  current->cp = prev;
+  if (current == &pcb[0]) { // hello
+    current = &pcb[1];
+  } else { // pal
+    if (cnt == 10) {
+      current = &pcb[0];
+      cnt = 0;
+    } else {
+      current = &pcb[1];
+      ++cnt;
+    }
+  }
+
+  return current->cp;
 }

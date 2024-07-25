@@ -23,4 +23,8 @@ struct Context {
 #define GPR4 gpr[12] // a2
 #define GPRx gpr[10] // a0
 
+#define R_SP   gpr[2] // sp
+
+#define R_PRIV gpr[0] // reuse x0 space
+
 #endif

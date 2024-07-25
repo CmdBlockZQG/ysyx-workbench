@@ -173,6 +173,8 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   uintptr_t entry = loader(pcb, filename);
   Area kstack = { .start = pcb->stack, .end = pcb->stack + STACK_SIZE };
   Context *ctx = ucontext(&pcb->as, kstack, (void *)entry);
+  // NOTE: 为什么不直接在用户栈上构造上下文呢？
+  // 不过考虑到有从GPRx中读出栈指针的约定，还是就这么办吧。
 
   ctx->GPRx = (uintptr_t)pcb->as.area.end - ((uintptr_t)ustack_top - (uintptr_t)sp);
   pcb->cp = ctx;

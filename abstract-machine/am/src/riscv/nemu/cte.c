@@ -32,12 +32,9 @@ Context* __am_irq_handle(Context *c) {
     c = user_handler(ev, c);
     assert(c != NULL);
   }
-  // void __am_switch(Context *c);
-  // __am_switch(c);
-  uintptr_t satp = (1ul << (__riscv_xlen - 1)) | ((uintptr_t)c->pdir >> 12);
-  asm volatile ("mv a1, %0" : : "r"(satp));
-  if (c->mepc) return c;
-  else return (Context *)c->GPRx;
+  void __am_switch(Context *c);
+  __am_switch(c);
+  return c;
 }
 
 extern void __am_asm_trap(void);
@@ -45,6 +42,7 @@ extern void __am_asm_trap(void);
 bool cte_init(Context*(*handler)(Event, Context*)) {
   // initialize exception entry
   asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
+  asm volatile("csrwi mscratch, 0x0");
 
   // register event handler
   user_handler = handler;
@@ -58,8 +56,9 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   ctx->mcause = 11;
   ctx->mstatus = 0x1880;
   ctx->mepc = (uintptr_t)entry;
-  ctx->gpr[10] = (uintptr_t)arg;
-  ctx->gpr[2] = (uintptr_t)ctx;
+  ctx->GPRx = (uintptr_t)arg;
+  ctx->R_SP = (uintptr_t)ctx;
+  ctx->R_PRIV = PRIV_USER;
   return ctx;
 }
 

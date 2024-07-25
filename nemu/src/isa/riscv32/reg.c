@@ -57,7 +57,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 }
 
 word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause;
-word_t csr_satp = 0;
+word_t csr_satp = 0, csr_mscratch;
 word_t csr_mvendorid = 0x79737978, csr_marchid = 0x15fdeeb;
 
 void isa_snapshot_save(FILE *f) {
