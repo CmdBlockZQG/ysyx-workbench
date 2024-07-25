@@ -35,11 +35,11 @@ void init_proc() {
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  char *const empty[] = { NULL };
-  context_uload(&pcb[0], "/bin/hello", empty, empty);
+  char *const argv1[] = { "/bin/hello", NULL };
+  char *const envp[] = { "KEY=VALUE", NULL };
+  context_uload(&pcb[0], "/bin/hello", argv1, envp);
 
   char *const argv[] = { "/bin/nterm", "--skip", NULL };
-  char *const envp[] = { "KEY=VALUE", NULL };
   context_uload(&pcb[1], "/bin/nterm", argv, envp);
 }
 
