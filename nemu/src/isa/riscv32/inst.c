@@ -65,6 +65,7 @@ static word_t *get_csr_ptr(int x) {
     case 0x341: return &csr_mepc;
     case 0x342: return &csr_mcause;
     case 0x180: return &csr_satp;
+    case 0x140: return &csr_mscratch;
     case 0xf11: return &csr_mvendorid;
     case 0xf12: return &csr_marchid;
   }

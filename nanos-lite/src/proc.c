@@ -58,11 +58,6 @@ Context* schedule(Context *prev) {
       ++cnt;
     }
   }
-  
-  Context *tmp_ctx = (Context *)((uintptr_t)current->stack + PGSIZE);
-  tmp_ctx->pdir = current->as.ptr;
-  tmp_ctx->GPRx = (uintptr_t)current->cp;
-  tmp_ctx->mepc = 0;
 
-  return tmp_ctx;
+  return current->cp;
 }
