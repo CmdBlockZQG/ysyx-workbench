@@ -55,7 +55,7 @@ Context* schedule(Context *prev) {
   if (current == &pcb[0]) { // hello
     current = &pcb[current_process_sw];
   } else { // pal
-    if (cnt == 10) {
+    if (cnt == 100) {
       current = &pcb[0];
       cnt = 0;
     } else {
