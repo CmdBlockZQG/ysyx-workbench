@@ -44,20 +44,21 @@ void init_proc() {
 }
 
 Context* schedule(Context *prev) {
-  static int cnt = 0;
+  // static int cnt = 0;
 
   current->cp = prev;
-  if (current == &pcb[0]) { // hello
-    current = &pcb[1];
-  } else { // pal
-    if (cnt == 10) {
-      current = &pcb[0];
-      cnt = 0;
-    } else {
-      current = &pcb[1];
-      ++cnt;
-    }
-  }
+  // if (current == &pcb[0]) { // hello
+  //   current = &pcb[1];
+  // } else { // pal
+  //   if (cnt == 10) {
+  //     current = &pcb[0];
+  //     cnt = 0;
+  //   } else {
+  //     current = &pcb[1];
+  //     ++cnt;
+  //   }
+  // }
+  current = &pcb[1];
 
   return current->cp;
 }
