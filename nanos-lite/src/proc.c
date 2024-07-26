@@ -38,7 +38,7 @@ void init_proc() {
   char *const empty[] = { NULL };
   context_uload(&pcb[0], "/bin/hello", empty, empty);
 
-  char *const argv[] = { "/bin/nterm", "--skip", NULL };
+  char *const argv[] = { "/bin/nterm", NULL };
   char *const envp[] = { "KEY=VALUE", NULL };
   context_uload(&pcb[1], "/bin/nterm", argv, envp);
 }
