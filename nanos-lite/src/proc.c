@@ -35,26 +35,31 @@ void init_proc() {
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
+  // char *const argv[] = { "/bin/nterm", NULL };
+  // char *const envp[] = { "KEY=VALUE", NULL };
+
   char *const empty[] = { NULL };
   context_uload(&pcb[0], "/bin/hello", empty, empty);
+  context_uload(&pcb[1], "/bin/pal", empty, empty);
+  context_uload(&pcb[2], "/bin/bird", empty, empty);
+  context_uload(&pcb[3], "/bin/nslider", empty, empty);
 
-  char *const argv[] = { "/bin/pal", "--skip", NULL };
-  char *const envp[] = { "KEY=VALUE", NULL };
-  context_uload(&pcb[1], "/bin/pal", argv, envp);
 }
 
-Context* schedule(Context *prev) {
-  static int cnt = 0;
+int current_process_sw = 1;
 
+Context* schedule(Context *prev) {
   current->cp = prev;
+
+  static int cnt = 0;
   if (current == &pcb[0]) { // hello
-    current = &pcb[1];
+    current = &pcb[current_process_sw];
   } else { // pal
     if (cnt == 10) {
       current = &pcb[0];
       cnt = 0;
     } else {
-      current = &pcb[1];
+      current = &pcb[current_process_sw];
       ++cnt;
     }
   }

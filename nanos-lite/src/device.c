@@ -25,6 +25,12 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   ioe_read(AM_INPUT_KEYBRD, &kbd);
   if (!kbd.keycode) return 0;
 
+  extern int current_process_sw;
+  switch (kbd.keycode) {
+    case AM_KEY_F1: current_process_sw = 1; return 0;
+    case AM_KEY_F2: current_process_sw = 2; return 0;
+    case AM_KEY_F3: current_process_sw = 3; return 0;
+  }
   return snprintf((char *)buf, len, "k%c %s\n", kbd.keydown ? 'd' : 'u', keyname[kbd.keycode]);
 }
 
