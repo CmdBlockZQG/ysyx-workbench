@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-void CallbackHelper(int);
+void CallbackHelper();
 
 uint32_t convert_color(SDL_PixelFormat *fmt, uint8_t *pixel_ptr) {
   uint32_t res = 0;
@@ -39,7 +39,7 @@ uint32_t convert_color(SDL_PixelFormat *fmt, uint8_t *pixel_ptr) {
 }
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
-  CallbackHelper(0);
+  CallbackHelper();
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
   int src_x, src_y, dst_x, dst_y, w, h;
@@ -69,7 +69,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
-  CallbackHelper(0);
+  CallbackHelper();
   int x, y, w, h;
   if (dstrect) {
     x = dstrect->x; y = dstrect->y;
@@ -93,7 +93,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  CallbackHelper(0);
+  CallbackHelper();
   if (!x && !y && !w && !h) {
     w = s->w; h = s->h;
   }

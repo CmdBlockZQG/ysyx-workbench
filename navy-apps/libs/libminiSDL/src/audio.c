@@ -16,7 +16,7 @@ static uint32_t last_call;
 static uint8_t *sbuf;
 static bool re_entry;
 
-void CallbackHelper(int force) {
+void AudioCallbackHelper(int force) {
   if (!callback || audio_pause || re_entry) return;
   re_entry = true;
   uint32_t t = NDL_GetTicks();
@@ -58,7 +58,7 @@ void SDL_PauseAudio(int pause_on) {
     audio_pause = true;
   } else {
     audio_pause = false;
-    CallbackHelper(1);
+    AudioCallbackHelper(1);
   }
 }
 
