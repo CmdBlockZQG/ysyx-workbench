@@ -1,4 +1,4 @@
-# ENABLE_YSYXSOC ?= 1
+ENABLE_YSYXSOC ?= 1
 ARGS ?= --log=$(BUILD_DIR)/log.txt
 
 ifeq ($(ENABLE_YSYXSOC), 1)
