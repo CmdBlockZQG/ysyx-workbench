@@ -21,7 +21,7 @@ module ysyx_23060203_CLINT (
   assign read.arready = 1;
   assign read.rvalid = 1;
   assign read.rresp = 0;
-  assign read.rdata = uptime;
+  assign read.rdata = read.araddr[2] ? uptime[63:32] : uptime[31:0];
   assign read.rlast = 1;
   assign read.rid = 0;
 endmodule

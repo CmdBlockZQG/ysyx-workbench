@@ -124,7 +124,7 @@ module ysyx_23060203_LSU (
   assign mem_r.arburst = 2'b0;
   assign mem_r.rready = state == ST_LOAD_RESP;
 
-  wire [63:0] mem_rdata_raw = mem_r.rdata >> {alu_val[2:0], 3'b0};
+  wire [31:0] mem_rdata_raw = mem_r.rdata >> {alu_val[1:0], 3'b0};
   reg [31:0] mem_rdata;
   always_comb begin
     case (ls[1:0])
@@ -148,7 +148,7 @@ module ysyx_23060203_LSU (
   assign mem_w.awsize = {1'b0, ls[1:0]};
   assign mem_w.awburst = 2'b0;
 
-  wire [63:0] mem_wdata = {32'b0, val_c} << {alu_val[2:0], 3'b0};
+  wire [31:0] mem_wdata = val_c << {alu_val[1:0], 3'b0};
   reg [3:0] mem_wstrb_raw;
   always_comb begin
     case (ls[1:0])
@@ -158,7 +158,7 @@ module ysyx_23060203_LSU (
       default: mem_wstrb_raw = 4'b0000;
     endcase
   end
-  wire [7:0] mem_wstrb = {4'b0, mem_wstrb_raw} << alu_val[2:0];
+  wire [3:0] mem_wstrb = mem_wstrb_raw << alu_val[1:0];
 
   assign mem_w.wvalid = st_store_req | st_store_data;
   assign mem_w.wdata = mem_wdata;

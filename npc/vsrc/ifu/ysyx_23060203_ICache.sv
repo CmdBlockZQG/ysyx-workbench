@@ -107,7 +107,7 @@ module ysyx_23060203_ICache (
       end
     end
     if (mem_r.rready & mem_r.rvalid) begin
-      line_data[index][off_r] <= off_r[0] ? mem_r.rdata[63:32] : mem_r.rdata[31:0];
+      line_data[index][off_r] <= mem_r.rdata;
       if (mem_r.rlast) begin
         line_valid[index] <= 1;
         line_tag[index] <= tag;
