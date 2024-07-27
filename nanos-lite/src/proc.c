@@ -35,8 +35,8 @@ void init_proc() {
   // void naive_uload(PCB *pcb, const char *filename);
   // naive_uload(NULL, "/bin/dummy");
 
-  // char *const envp[] = { "KEY=VALUE", NULL };
   // char *const argv[] = { "/bin/nterm", NULL };
+  // char *const envp[] = { "KEY=VALUE", NULL };
 
   char *const empty[] = { NULL };
   context_uload(&pcb[0], "/bin/hello", empty, empty);
@@ -55,7 +55,7 @@ Context* schedule(Context *prev) {
   if (current == &pcb[0]) { // hello
     current = &pcb[current_process_sw];
   } else { // pal
-    if (cnt == 100) {
+    if (cnt == 10) {
       current = &pcb[0];
       cnt = 0;
     } else {
