@@ -111,7 +111,7 @@ module npc_RAM (
 
     if (write_en) begin
 `ifndef SYNTHESIS
-      pmem_write({waddr[31:2], 2'b00}, wdata[31:0], wmask[3:0]);
+      pmem_write({waddr[31:2], 2'b00}, wdata[31:0], {4'b0, wmask[3:0]});
 `endif
 
       in.bresp <= 2'b00;
