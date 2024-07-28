@@ -23,9 +23,9 @@ void halt(int code) {
 
 void _trm_init() {
   extern char _data_src, _data_start, _data_end, _bss_start, _bss_end;
-  uint32_t *src = (uint32_t *)&_data_src, *dst = (uint32_t *)&_data_start;
-  while (dst < (uint32_t *)&_data_end) *dst++ = *src++;
-  for (dst = (uint32_t *)&_bss_start; (void *)dst < (void *)&_bss_end; ++dst) *dst = 0;
+  char *src = &_data_src, *dst = &_data_start;
+  while (dst < &_data_end) *dst++ = *src++;
+  for (dst = &_bss_start; dst < &_bss_end; ++dst) *dst = 0;
 
   void __am_uart_init();
   __am_uart_init();

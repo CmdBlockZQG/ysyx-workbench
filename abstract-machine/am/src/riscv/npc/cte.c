@@ -4,25 +4,16 @@
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 
-#ifdef __riscv_e
-#define SYSCALL_TYPE_GPR 15
-#else
-#define SYSCALL_TYPE_GPR 17
-#endif
-
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      case 11: // ecall
-        switch (c->gpr[SYSCALL_TYPE_GPR]) {
-          case -1: ev.event = EVENT_YIELD; break;
-          default: ev.event = EVENT_ERROR; break;
-        }
-      break;
-      default:
-        ev.event = EVENT_ERROR;
-      break;
+#ifdef __riscv_e
+      case 11: ev.event = c->gpr[15] == -1 ? EVENT_YIELD : EVENT_SYSCALL; break;
+#else
+      case 11: ev.event = c->gpr[17] == -1 ? EVENT_YIELD : EVENT_SYSCALL; break;
+#endif
+      default: ev.event = EVENT_ERROR; break;
     }
 
     c = user_handler(ev, c);

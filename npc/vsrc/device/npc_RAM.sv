@@ -1,11 +1,11 @@
 `ifndef YSYXSOC
 module npc_RAM (
-  input clock, reset,
+  input rstn, clk,
 
-  axi_if.in in
+  axi_if.slave in
 );
 
-  always @(posedge clock) if (reset) begin // 复位
+  always @(posedge clk) if (~rstn) begin // 复位
     in.arready <= 1;
     in.rvalid <= 0;
     in.rlast <= 0;
@@ -47,7 +47,7 @@ module npc_RAM (
     endcase
   end
 
-  always @(posedge clock) if (~reset) begin
+  always @(posedge clk) if (rstn) begin
     if (in.arvalid & in.arready) begin
       in.arready <= 0; // idle -> access
 
@@ -58,7 +58,7 @@ module npc_RAM (
       burst_cnt <= in.arlen;
 
       in.rvalid <= 1;
-      in.rdata <= pmem_read(in.araddr);
+      in.rdata <= {2{pmem_read(in.araddr)}};
       in.rlast <= (in.arlen == 8'b0);
     end
 
@@ -70,7 +70,7 @@ module npc_RAM (
       end else begin
         burst_cnt <= burst_cnt - 1;
         araddr <= araddr_next;
-        in.rdata <= pmem_read(araddr_next);
+        in.rdata <= {2{pmem_read(araddr_next)}};
         in.rlast <= (burst_cnt == 8'h1);
       end
     end
@@ -83,16 +83,16 @@ module npc_RAM (
   wire waddr_valid = waddr_handshake | waddr_valid_reg;
 
   wire wdata_handshake = in.wready & in.wvalid;
-  reg [31:0] wdata_reg;
-  reg [3:0] wmask_reg;
-  wire [31:0] wdata = wdata_handshake ? in.wdata : wdata_reg;
-  wire [3:0] wmask = wdata_handshake ? in.wstrb : wmask_reg;
+  reg [63:0] wdata_reg;
+  reg [7:0] wmask_reg;
+  wire [63:0] wdata = wdata_handshake ? in.wdata : wdata_reg;
+  wire [7:0] wmask = wdata_handshake ? in.wstrb : wmask_reg;
   reg wdata_valid_reg;
   wire wdata_valid = wdata_handshake | wdata_valid_reg;
 
   wire write_en = waddr_valid & wdata_valid;
 
-  always @(posedge clock) if (~reset) begin
+  always @(posedge clk) if (rstn) begin
     if (waddr_handshake) begin
       waddr_reg <= in.awaddr;
       if (~write_en) begin
@@ -111,7 +111,8 @@ module npc_RAM (
 
     if (write_en) begin
 `ifndef SYNTHESIS
-      pmem_write({waddr[31:2], 2'b00}, wdata[31:0], {4'b0, wmask[3:0]});
+      pmem_write({waddr[31:3], 3'b000}, wdata[31:0 ], {4'b0, wmask[3:0]});
+      pmem_write({waddr[31:3], 3'b100}, wdata[63:32], {4'b0, wmask[7:4]});
 `endif
 
       in.bresp <= 2'b00;

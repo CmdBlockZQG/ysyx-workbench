@@ -18,7 +18,7 @@ static inline int check_reg_idx(int idx) {
   return idx;
 }
 
-#define gpr(idx) (idx ? cpu_module->GPR->r[check_reg_idx(idx) - 1] : 0)
+#define gpr(idx) (idx ? cpu_module->GPR->rf[check_reg_idx(idx) - 1] : 0)
 extern addr_t cpu_pc;
 
 static inline const char *reg_name(int idx) {

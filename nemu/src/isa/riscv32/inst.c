@@ -58,14 +58,14 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   }
 }
 
+word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause;
+word_t csr_mvendorid = 0x79737978, csr_marchid = 0x15fdeeb;
 static word_t *get_csr_ptr(int x) {
   switch (x & 0xfff) {
     case 0x300: return &csr_mstatus;
     case 0x305: return &csr_mtvec;
     case 0x341: return &csr_mepc;
     case 0x342: return &csr_mcause;
-    case 0x180: return &csr_satp;
-    case 0x340: return &csr_mscratch;
     case 0xf11: return &csr_mvendorid;
     case 0xf12: return &csr_marchid;
   }
@@ -135,13 +135,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , I, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   INSTPAT("0000000 00000 00000 001 00000 00011 11", fence.i, I, ;); // fence.i -> nop
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , I,
-    s->dnpc = csr_mepc;
-    // load mstatus.MPIE to mstatus.MIE
-    csr_mstatus = (csr_mstatus & ~(1 << 3)) | (((csr_mstatus >> 7) & 1) << 3);
-    // set mstatus.MPIE 1
-    csr_mstatus = csr_mstatus | (1 << 7);
-  );
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , I, s->dnpc = csr_mepc);
   
   #define csr (*get_csr_ptr(imm))
   #define zimm BITS(s->isa.inst.val, 19, 15)

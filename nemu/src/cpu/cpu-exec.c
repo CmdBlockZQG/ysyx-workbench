@@ -46,58 +46,51 @@ static void print_iringbuf() {
 void device_update();
 
 #ifdef CONFIG_FTRACE
+static word_t ftrace_dep = 0;
 extern ElfSymbol elf_symbol_list[];
-extern int elf_symbol_list_size;
+extern word_t elf_symbol_list_size;
 
-static int get_func_sym_ndx(paddr_t p) {
-  for (int i = 0; i < elf_symbol_list_size; ++i) {
+static word_t get_func_sym_ndx(paddr_t p) {
+  word_t res = 0;
+  paddr_t res_off = -1;
+  for (word_t i = 0; i < elf_symbol_list_size; ++i) {
     if (elf_symbol_list[i].type == ELF_SYM_FUNC && elf_symbol_list[i].addr <= p) {
       if (p < elf_symbol_list[i].addr + elf_symbol_list[i].size) return i;
+      paddr_t off = p - elf_symbol_list[i].addr;
+      if (off < res_off) {
+        res_off = off;
+        res = i;
+      }
     }
   }
-  // Log(ANSI_FMT("[FTRACE] Warning: PC outside any FUNC symbol area: " FMT_PADDR, ANSI_FG_YELLOW), p);
-  return -1;
+  Log(ANSI_FMT("[FTRACE] Warning: PC outside any FUNC symbol area: " FMT_PADDR, ANSI_FG_YELLOW), p);
+  return res;
 }
 
 static void ftrace(Decode *s) {
-  static vaddr_t ret_st[128];
-  static int ftrace_dep = 0;
-  static int lock_dep = 0;
-
   if (likely(s->dnpc == s->snpc)) return;
   if (elf_symbol_list_size == 0) return; // no elf file
-  int from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
+  word_t from = get_func_sym_ndx(s->pc), to = get_func_sym_ndx(s->dnpc);
   if (likely(from == to)) return;
-  if (from == -1 || to == -1) return;
-
+  log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
   if (elf_symbol_list[to].addr == s->dnpc) { // call, jump to the begging of a func
-    if (!lock_dep) {
-      log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
-      for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
-      log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
-                elf_symbol_list[from].name,
-                elf_symbol_list[from].addr,
-                elf_symbol_list[to].name,
-                elf_symbol_list[to].addr);
-      if (strstr(elf_symbol_list[to].name, "printf")) {
-        lock_dep = ftrace_dep;
-      }
-    }
-    ret_st[ftrace_dep++] = s->snpc;
+    for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
+    ++ftrace_dep;
+    log_write("call [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]\n",
+              elf_symbol_list[from].name,
+              elf_symbol_list[from].addr,
+              elf_symbol_list[to].name,
+              elf_symbol_list[to].addr);
   } else { // ret, return to calling position
     Assert(ftrace_dep, "Error occured in FTRACE: negative deepth");
-    while (ret_st[--ftrace_dep] != s->dnpc);
-    if (!lock_dep || ftrace_dep <= lock_dep) {
-      lock_dep = 0;
-      log_write("[FTRACE] " FMT_PADDR ": ", s->pc);
-      for (int i = 0; i < ftrace_dep; ++i) log_write(" ");
-      log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
-                elf_symbol_list[from].name,
-                elf_symbol_list[from].addr,
-                elf_symbol_list[to].name,
-                elf_symbol_list[to].addr,
-                s->dnpc);
-    }
+    --ftrace_dep;
+    for (int i = 0; i < ftrace_dep; ++i) log_write("| ");
+    log_write("ret [%s@" FMT_PADDR "] -> [%s@" FMT_PADDR "]:" FMT_PADDR "\n",
+              elf_symbol_list[from].name,
+              elf_symbol_list[from].addr,
+              elf_symbol_list[to].name,
+              elf_symbol_list[to].addr,
+              s->dnpc);
   }
 }
 #endif
@@ -166,11 +159,6 @@ static void execute(uint64_t n) {
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
-
-    word_t intr = isa_query_intr();
-    if (intr != INTR_EMPTY) {
-      cpu.pc = isa_raise_intr(intr, cpu.pc);
-    }
   }
 }
 
@@ -210,8 +198,7 @@ void cpu_exec(uint64_t n) {
   switch (nemu_state.state) {
     case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
 
-    case NEMU_ABORT: IFDEF(CONFIG_ITRACE, print_iringbuf());
-    case NEMU_END:
+    case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :

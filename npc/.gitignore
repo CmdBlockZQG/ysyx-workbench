@@ -11,5 +11,4 @@
 !.gitignore
 !README.md
 !*.nxdc
-!*.py
 build/

@@ -122,7 +122,6 @@ word_t paddr_read(paddr_t addr, int len) {
       log_write(ANSI_NONE "\n");
     }
 #endif
-    Assert(addr % len == 0, "Ualigned memory read at " FMT_PADDR, addr);
     return pmem_read(addr, len);
   }
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
@@ -139,7 +138,6 @@ void paddr_write(paddr_t addr, int len, word_t data) {
       log_write(": " FMT_WORD ANSI_NONE "\n", data);
     }
 #endif
-    Assert(addr % len == 0, "Ualigned memory write at " FMT_PADDR, addr);
     pmem_write(addr, len, data);
     return; 
   }

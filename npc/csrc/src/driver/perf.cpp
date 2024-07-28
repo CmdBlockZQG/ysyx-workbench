@@ -7,30 +7,42 @@
 #include "Vysyx_23060203__Dpi.h"
 #endif
 
+// READY : 单元完成当前任务，发出ready信号请求上游供给
+// CPLT  : 完成 complete 的缩写
+
 static const char *perfcnt_name[] = {
-  "IFU_WAIT", // IFU等待指令读取周期数
-  "IFU_INST", // IFU提供指令次数
-  "IFU_HOLD", // IFU提供指令周期数
+  "IFU_FETCH",       // IFU取到指令
+  "IFU_WAIT_MEM",    // IFU因访存延迟等待
+  "IFU_WAIT_EXU",    // IFU因指令执行等待
 
-  "ICACHE_MISS", // ICache缺失次数
-  "ICACHE_MEM",  // ICache等待存储器周期数
+  "IDU_UPIMM",       // 译码 LUI AUIPC
+  "IDU_JUMP",        // 译码无条件跳转 JAL JALR
+  "IDU_BRANCH",      // 译码分支 BXX
+  "IDU_LOAD",        // 译码加载 LXX
+  "IDU_STORE",       // 译码储存 SXX
+  "IDU_CALRI",       // 译码 寄存器-立即数 整数计算 XXI
+  "IDU_CALRR",       // 译码 寄存器-寄存器 整数计算 XXX
+  "IDU_SYS",        // 译码SYS指令 ECALL EBREAK
+  "IDU_CSR",        // 译码CSR指令 CSRXX
 
-  "IDU_IDLE", // IDU空闲周期数
-  "IDU_INST", // IDU提供指令次数
-  "IDU_HOLD", // IDU提供指令周期数
+  "EXU_UPIMM",      // 执行 LUI AUIPC
+  "EXU_JUMP",       // 执行无条件跳转 JAL JALR
+  "EXU_BRANCH",     // 执行分支 BXX
+  "EXU_LOAD",       // 执行加载 LXX
+  "EXU_STORE",      // 执行储存 SXX
+  "EXU_CALRI",      // 执行 寄存器-立即数 整数计算 XXI
+  "EXU_CALRR",      // 执行 寄存器-寄存器 整数计算 XXX
+  "EXU_SYS",        // 执行SYS指令 ECALL EBREAK
+  "EXU_CSR",        // 执行CSR指令 CSRXX
+  "EXU_READY",      // EXU完成计算
 
-  "IDU_LOAD",    // IDU译码LOAD指令
-  "IDU_STORE",  // IDU译码STORE指令
-  "IDU_BRANCH", // IDU译码BRANCH指令
-  "IDU_JAL",    // IDU译码JAL指令
-  "IDU_JALR",   // IDU译码JALR指令
+  "LSU_LOAD",       // LSU取数据ing
+  "LSU_LOAD_RESP",  // LSU取到数据
+  "LSU_STORE",      // LSU存数据ing
 
-  "EXU_IDLE",  // EXU空闲周期数
-  "EXU_INST",  // EXU执行指令数量
-  "EXU_FLUSH", // EXU冲刷上游流水级次数
-
-  "LSU_MEMR",  // LSU读内存周期数
-  "LSU_MEMW",  // LSU写内存周期数
+  "ICACHE_HIT",     // 指令缓存命中
+  "ICACHE_MISS",    // 指令缓存缺失
+  "ICACHE_WAIT_MEM" // 指令缓存缺失，等待存储器
 };
 
 const int perfcnt_num = ARRLEN(perfcnt_name);

@@ -46,7 +46,7 @@ void finalize_driver() {
   delete contextp;
 }
 
-bool wave_rec = true;
+bool wave_rec = false;
 
 static void driver_step() {
   top_module->eval();

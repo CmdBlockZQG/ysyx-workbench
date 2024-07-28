@@ -46,7 +46,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           justify = 1;
           ++fmt;
           continue;
-        default: ;
+        default:
       }
       break;
     }
@@ -78,7 +78,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           int_length = 3;
         }
         break;
-      default: ;
+      default:
     }
 
     // ----- flag override -----
@@ -86,8 +86,6 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
 
     // ----- conversion specifier -----
     char *res, *p;
-    int64_t x;
-    uint64_t ux;
     switch (*fmt) {
       case '%':
         res = buf + 1;
@@ -103,6 +101,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         res = va_arg(ap, char *);
         break;
       case 'd':
+        long long x;
         switch (int_length) {
           case 0: x = va_arg(ap, int); break;
           case 3: x = va_arg(ap, long); break;
@@ -125,7 +124,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         break;
       case 'u':
       case 'x':
-      case 'p': // TEMP: 32 bit pointer
+        unsigned long long ux;
         switch (int_length) {
           case 0: ux = va_arg(ap, unsigned int); break;
           case 3: ux = va_arg(ap, unsigned long); break;
@@ -134,7 +133,7 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         }
         int base = *fmt == 'u' ? 10 : 16;
         p = buf + 1;
-        res = p;
+        res = buf + 1;
         if (ux == 0) {
           *p++ = '0';
           *p = '\0';
@@ -146,12 +145,6 @@ static int vtnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           }
           *p = '\0';
           reverse(buf + 1, p - buf - 1);
-        }
-        if (*fmt == 'p') {
-          write_char(&out, '0');
-          write_char(&out, 'x');
-          pad = '0';
-          field_width = 8;
         }
         break;
       default:

@@ -1,27 +1,29 @@
 module ysyx_23060203_CLINT (
-  input clock, reset,
+  input rstn, clk,
 
-  axi_if.in read
+  axi_if.slave read
 );
-
-  reg [63:0] uptime, uptime_next;
-
-  always @(posedge clock) begin
-    if (reset) begin
-      uptime <= 0;
+  // 计时
+  reg [63:0] uptime;
+  reg [15:0] acc;
+  always @(posedge clk) begin
+    if (rstn) begin
+      if (acc == 0) begin
+        acc <= 0;
+        uptime <= uptime + 1;
+      end else begin
+        acc <= acc + 1;
+      end
     end else begin
-      uptime <= uptime_next;
+      uptime <= 0;
+      acc <= 0;
     end
-  end
-
-  always_comb begin
-    uptime_next = uptime + 1;
   end
 
   assign read.arready = 1;
   assign read.rvalid = 1;
   assign read.rresp = 0;
-  assign read.rdata = read.araddr[2] ? uptime[63:32] : uptime[31:0];
+  assign read.rdata = uptime;
   assign read.rlast = 1;
   assign read.rid = 0;
 endmodule
