@@ -48,7 +48,6 @@ void lstrace(uint32_t addr, int op, int len) {
   if (!fp) return;
   int off;
   *(uint32_t *)&off = addr - last_addr;
-  printf("%x %d %d %d\n", addr, op, len, off);
   if (off == last_len && op == last_op) {
     ++seq_cnt;
   } else {

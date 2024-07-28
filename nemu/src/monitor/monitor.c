@@ -143,7 +143,7 @@ void init_monitor(int argc, char *argv[]) {
 
   /* initialize pc/ls trace */
   IFDEF(CONFIG_PCTRACE, init_pctrace(pctrace_file));
-  IFDEF(CONFIG_LSTRACE, init_pctrace(lstrace_file));
+  IFDEF(CONFIG_LSTRACE, init_lstrace(lstrace_file));
 
   /* Initialize the simple debugger. */
   init_sdb();
