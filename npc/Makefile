@@ -20,7 +20,8 @@ INC_PATH = $(abspath ./csrc/include)
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
-					-O3 --x-assign fast --x-initial fast --noassert
+					-O3 --x-assign fast --x-initial fast --noassert \
+					-Wall -Werror
 VERILATOR_FLAGS += --timescale "1ns/1ns" --no-timing --autoflush
 
 BUILD_DIR = ./build
@@ -95,7 +96,7 @@ run: $(BIN)
 
 sta:
 	make -C /home/cmdblock/ysyx/yosys-sta/ sta
-	tail -n4 /home/cmdblock/ysyx/yosys-sta/result/ysyx_23060203-500MHz/synth_stat.txt
+	grep "Chip area for" ~/ysyx/yosys-sta/result/ysyx_23060203-200MHz/synth_stat.txt
 
 .PHONY: default all clean sim run sta
 

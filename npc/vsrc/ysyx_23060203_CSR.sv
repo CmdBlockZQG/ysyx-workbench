@@ -1,62 +1,58 @@
 module ysyx_23060203_CSR (
-  input rstn, clk,
+  input clock, reset,
 
   input [11:0] raddr, // 读取地址
   output reg [31:0] rdata, // 读出数据
 
-  input wen1, // 写入使能
-  input [11:0] waddr1, // 写入地址
-  input [31:0] wdata1, // 写入数据
-  input wen2, // 写入使能
-  input [11:0] waddr2, // 写入地址
-  input [31:0] wdata2 // 写入数据
+  input wen, // 写入使能
+  input [11:0] waddr, // 写入地址
+  input [31:0] wdata // 写入数据
 );
 
-  `include "params/csr.sv"
+  `include "def/csr.sv"
 
-  reg [31:0] mstatus, mtvec, mepc, mcause;
+  // -------------------- WRITE --------------------
+  reg [31:0] mstatus, mstatus_next;
+  reg [31:0] mtvec, mtvec_next;
+  reg [31:0] mepc, mepc_next;
 
-  // 读逻辑
+  always @(posedge clock) begin
+    if (reset) begin
+      mstatus <= 32'h1800;
+    end else begin
+      mstatus <= mstatus_next;
+      mtvec <= mtvec_next;
+      mepc <= mepc_next;
+    end
+  end
+
+  always_comb begin
+    mstatus_next = mstatus;
+    mtvec_next = mtvec;
+    mepc_next = mepc;
+    if (wen) begin
+      case (waddr)
+        CSR_MSTATUS : mstatus_next = wdata;
+        CSR_MTVEC   : mtvec_next   = wdata;
+        CSR_MEPC    : mepc_next    = wdata;
+        default: ;
+      endcase
+    end
+  end
+
+  // -------------------- READ --------------------
   always_comb begin
     case (raddr)
       CSR_MSTATUS : rdata = mstatus;
       CSR_MTVEC   : rdata = mtvec;
       CSR_MEPC    : rdata = mepc;
-      CSR_MCAUSE  : rdata = mcause;
 
+      CSR_MCAUSE    : rdata = 32'd11;
       CSR_MVENDORID : rdata = 32'h79737978;
       CSR_MARCHID   : rdata = 32'h015fdeeb;
 
-      default     : rdata = 32'b0;
+      default: rdata = 32'b0;
     endcase
   end
 
-  // 写逻辑
-  always @(posedge clk) begin
-    if (rstn) begin
-      if (wen1) begin
-        case (waddr1)
-          CSR_MSTATUS : mstatus <= wdata1;
-          CSR_MTVEC   : mtvec   <= wdata1;
-          CSR_MEPC    : mepc    <= wdata1;
-          CSR_MCAUSE  : mcause  <= wdata1;
-          default: ;
-        endcase
-      end
-      if (wen2) begin
-        case (waddr2)
-          CSR_MSTATUS : mstatus <= wdata2;
-          CSR_MTVEC   : mtvec   <= wdata2;
-          CSR_MEPC    : mepc    <= wdata2;
-          CSR_MCAUSE  : mcause  <= wdata2;
-          default: ;
-        endcase
-      end
-    end else begin // 复位
-      mstatus <= 32'h1800;
-      mtvec   <= 32'b0;
-      mepc    <= 32'b0;
-      mcause  <= 32'b0;
-    end
-  end
 endmodule

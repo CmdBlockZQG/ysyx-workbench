@@ -39,6 +39,11 @@ typedef struct {
   void *ptr;
 } AddrSpace;
 
+enum {
+  PRIV_KERNAL = 0,
+  PRIV_USER = 1
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif

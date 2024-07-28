@@ -23,19 +23,23 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-void isa_reg_display() {
+void cpu_state_display(CPU_state *s) {
   word_t val;
   printf(
     MUXDEF(CONFIG_RV64, "%-3s %-18s %-20s %-20s\n", "%-3s %-10s %-12s %-12s\n"),
     "Reg", "Hex", "Unsigned dec", "Signed dec"
   );
   for (int i = 0; i < MUXDEF(CONFIG_RVE, 16, 32); ++i) {
-    val = gpr(i);
+    val = s->gpr[i];
     printf(
       MUXDEF(CONFIG_RV64, "%-3s 0x%-16llx %-20llu %-20lld\n", "%-3s 0x%-8x %-12u %-12d\n"),
       reg_name(i), val, val, val
     );
   }
+}
+
+void isa_reg_display() {
+  cpu_state_display(&cpu);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
@@ -50,4 +54,20 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   }
   *success = false;
   return -1;
+}
+
+word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause;
+word_t csr_satp = 0, csr_mscratch;
+word_t csr_mvendorid = 0x79737978, csr_marchid = 0x15fdeeb;
+
+void isa_snapshot_save(FILE *f) {
+  assert(fwrite(&csr_mtvec, sizeof(word_t), 1, f) == 1);
+  assert(fwrite(&csr_mepc, sizeof(word_t), 1, f) == 1);
+  assert(fwrite(&csr_mcause, sizeof(word_t), 1, f) == 1);
+}
+
+void isa_snapshot_load(FILE *f) {
+  assert(fread(&csr_mtvec, sizeof(word_t), 1, f) == 1);
+  assert(fread(&csr_mepc, sizeof(word_t), 1, f) == 1);
+  assert(fread(&csr_mcause, sizeof(word_t), 1, f) == 1);
 }

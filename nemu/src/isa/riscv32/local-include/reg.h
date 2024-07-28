@@ -30,4 +30,6 @@ static inline const char* reg_name(int idx) {
   return regs[check_reg_idx(idx)];
 }
 
+extern word_t csr_mstatus, csr_mtvec, csr_mepc, csr_mcause, csr_satp, csr_mscratch, csr_mvendorid, csr_marchid;
+
 #endif
