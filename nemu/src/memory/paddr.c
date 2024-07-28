@@ -63,11 +63,11 @@ uint8_t* guest_to_host(paddr_t paddr) {
 }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
-static word_t pmem_read(paddr_t addr, int len) {
+static word_t pmem_read(paddr_t addr, int len, int inst) {
 #ifdef CONFIG_YSYXSOC
   const MemMap *m = get_mem_map(addr);
   if (m) {
-    IFDEF(CONFIG_LSTRACE, lstrace(addr, 0, len));
+    IFDEF(CONFIG_LSTRACE, if (!inst) lstrace(addr, 0, len));
     return host_read(addr - m->start + m->ptr, len);
   }
   if (addr == 0x10000005) return 0xff; // UART_LST
@@ -125,7 +125,7 @@ void locate_object_sym(paddr_t addr) {
 }
 #endif
 
-word_t paddr_read(paddr_t addr, int len) {
+word_t paddr_read(paddr_t addr, int len, int inst) {
   if (likely(in_pmem(addr))) {
 #ifdef CONFIG_MTRACE
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
@@ -135,7 +135,7 @@ word_t paddr_read(paddr_t addr, int len) {
     }
 #endif
     Assert(addr % len == 0, "Ualigned memory read at " FMT_PADDR, addr);
-    return pmem_read(addr, len);
+    return pmem_read(addr, len, inst);
   }
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
