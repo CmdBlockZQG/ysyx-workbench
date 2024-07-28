@@ -24,6 +24,10 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
+#ifdef CONFIG_LSTRACE
+void lstrace(uint32_t addr, int op, int len);
+#endif
+
 #ifdef CONFIG_YSYXSOC
 static uint8_t mrom [MROM_SIZE] PG_ALIGN;
 static uint8_t sram [SRAM_SIZE] PG_ALIGN;
@@ -59,13 +63,17 @@ uint8_t* guest_to_host(paddr_t paddr) {
 }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
-static word_t pmem_read(paddr_t addr, int len) {
+static word_t pmem_read(paddr_t addr, int len, int inst) {
 #ifdef CONFIG_YSYXSOC
   const MemMap *m = get_mem_map(addr);
-  if (m) return host_read(addr - m->start + m->ptr, len);
+  if (m) {
+    IFDEF(CONFIG_LSTRACE, if (!inst) lstrace(addr, 0, len));
+    return host_read(addr - m->start + m->ptr, len);
+  }
   if (addr == 0x10000005) return 0xff; // UART_LST
   else return 0; // return 0 for all other soc device registers
 #else
+  IFDEF(CONFIG_LSTRACE, lstrace(addr, 0, len));
   return host_read(guest_to_host(addr), len);
 #endif
 }
@@ -73,13 +81,17 @@ static word_t pmem_read(paddr_t addr, int len) {
 static void pmem_write(paddr_t addr, int len, word_t data) {
 #ifdef CONFIG_YSYXSOC
   const MemMap *m = get_mem_map(addr);
-  if (m) host_write(addr - m->start + m->ptr, len, data);
+  if (m) {
+    host_write(addr - m->start + m->ptr, len, data);
+    IFDEF(CONFIG_LSTRACE, lstrace(addr, 1, len));
+  }
   if (addr == 0x10000000) { // UART
     putchar(data);
     fflush(stdout);
   }
   // ignore all store to device
 #else
+  IFDEF(CONFIG_LSTRACE, lstrace(addr, 1, len));
   host_write(guest_to_host(addr), len, data);
 #endif
 }
@@ -113,7 +125,7 @@ void locate_object_sym(paddr_t addr) {
 }
 #endif
 
-word_t paddr_read(paddr_t addr, int len) {
+word_t paddr_read(paddr_t addr, int len, int inst) {
   if (likely(in_pmem(addr))) {
 #ifdef CONFIG_MTRACE
     if (CONFIG_MTRACE_START <= addr && addr <= CONFIG_MTRACE_END) {
@@ -123,7 +135,7 @@ word_t paddr_read(paddr_t addr, int len) {
     }
 #endif
     Assert(addr % len == 0, "Ualigned memory read at " FMT_PADDR, addr);
-    return pmem_read(addr, len);
+    return pmem_read(addr, len, inst);
   }
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);

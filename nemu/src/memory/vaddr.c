@@ -18,12 +18,12 @@
 
 word_t vaddr_ifetch(vaddr_t addr, int len) {
   addr = isa_mmu_translate(addr, 4, 0);
-  return paddr_read(addr, len);
+  return paddr_read(addr, len, 1);
 }
 
 word_t vaddr_read(vaddr_t addr, int len) {
   addr = isa_mmu_translate(addr, len, 0);
-  return paddr_read(addr, len);
+  return paddr_read(addr, len, 0);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data) {
