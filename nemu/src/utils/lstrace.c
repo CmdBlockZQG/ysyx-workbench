@@ -45,7 +45,7 @@ static void write_seq() {
 
 // op 0:read 1:write
 void lstrace(uint32_t addr, int op, int len) {
-  Log("%x %d %d", addr, op, len);
+  printf("%x %d %d", addr, op, len);
   if (!fp) return;
   int off;
   *(uint32_t *)&off = addr - last_addr;
