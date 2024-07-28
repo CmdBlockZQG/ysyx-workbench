@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-static FILE *fp = 0;
+static FILE *fp = NULL;
 
 static uint32_t last_pc;
 static int exec_cnt = 0;
@@ -16,7 +16,7 @@ void init_pctrace(const char *filename) {
   exec_cnt = 0;
 }
 
-void pctrace(paddr_t pc) {
+void pctrace(uint32_t pc) {
   if (!fp) return;
   int off;
   *(uint32_t *)&off = pc - last_pc;
@@ -29,7 +29,6 @@ void pctrace(paddr_t pc) {
       uint16_t x = (d << 2) | 0b01;
       fwrite(&x, sizeof(x), 1, fp);
     }
-    assert(exec_cnt == 0);
     if (-16384 <= off && off < 16384) {
       assert((off & 1) == 0);
       off >>= 1;
@@ -44,14 +43,11 @@ void pctrace(paddr_t pc) {
 }
 
 void finalize_pctrace() {
-  if (exec_cnt) {
-    while (exec_cnt) {
-      int d = exec_cnt < 16384 ? exec_cnt : 16383;
-      exec_cnt -= d;
-      uint16_t x = (d << 2) | 0b01;
-      fwrite(&x, sizeof(x), 1, fp);
-    }
+  while (exec_cnt) {
+    int d = exec_cnt < 16384 ? exec_cnt : 16383;
+    exec_cnt -= d;
+    uint16_t x = (d << 2) | 0b01;
+    fwrite(&x, sizeof(x), 1, fp);
   }
-  assert(exec_cnt == 0);
   if (fp) fclose(fp);
 }

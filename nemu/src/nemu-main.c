@@ -52,6 +52,10 @@ int main(int argc, char *argv[]) {
   void finalize_pctrace();
   finalize_pctrace();
 #endif
+#ifdef CONFIG_LSTRACE
+  void finalize_lstrace();
+  finalize_lstrace();
+#endif
 
   return is_exit_status_bad();
 }
