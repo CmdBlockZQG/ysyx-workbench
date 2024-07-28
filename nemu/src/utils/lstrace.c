@@ -49,7 +49,7 @@ void lstrace(uint32_t addr, int op, int len) {
   if (!fp) return;
   int off;
   *(uint32_t *)&off = addr - last_addr;
-  if (off == last_len && op == last_op) {
+  if (off == last_len && len == last_len && op == last_op) {
     ++seq_cnt;
   } else {
     write_seq();
