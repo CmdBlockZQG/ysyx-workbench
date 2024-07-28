@@ -45,10 +45,10 @@ static void write_seq() {
 
 // op 0:read 1:write
 void lstrace(uint32_t addr, int op, int len) {
-  printf("%x %d %d\n", addr, op, len);
   if (!fp) return;
   int off;
   *(uint32_t *)&off = addr - last_addr;
+  printf("%x %d %d %d\n", addr, op, len, off);
   if (off == last_len && op == last_op) {
     ++seq_cnt;
   } else {
