@@ -68,6 +68,7 @@ static word_t pmem_read(paddr_t addr, int len) {
   const MemMap *m = get_mem_map(addr);
   if (m) {
     return host_read(addr - m->start + m->ptr, len);
+    printf("123123123123\n");
     IFDEF(CONFIG_LSTRACE, lstrace(addr, 0, len));
   }
   if (addr == 0x10000005) return 0xff; // UART_LST
