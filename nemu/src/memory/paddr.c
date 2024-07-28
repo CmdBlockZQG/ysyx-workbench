@@ -67,9 +67,8 @@ static word_t pmem_read(paddr_t addr, int len) {
 #ifdef CONFIG_YSYXSOC
   const MemMap *m = get_mem_map(addr);
   if (m) {
-    return host_read(addr - m->start + m->ptr, len);
-    printf("123123123123\n");
     IFDEF(CONFIG_LSTRACE, lstrace(addr, 0, len));
+    return host_read(addr - m->start + m->ptr, len);
   }
   if (addr == 0x10000005) return 0xff; // UART_LST
   else return 0; // return 0 for all other soc device registers
