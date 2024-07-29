@@ -187,10 +187,10 @@ module ysyx_23060203_LSU (
       default: ;
     endcase
     if (mem_r.rready & mem_r.rvalid) begin
-      event_mem_read(alu_val, {29'b0, mem_r.arsize}, mem_rdata);
+      event_mem_read(addr, {29'b0, mem_r.arsize}, mem_rdata);
     end
     if (mem_w.awready & mem_w.awvalid) begin
-      event_mem_write(alu_val, {29'b0, mem_w.awsize}, val_c);
+      event_mem_write(addr, {29'b0, mem_w.awsize}, val_c);
     end
   end
 `endif
