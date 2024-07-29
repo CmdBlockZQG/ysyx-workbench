@@ -6,7 +6,6 @@ module ysyx_23060203_LSU (
 
   output in_ready,
   input in_valid,
-  input [3:0] in_ls,
   input [3:0] ls,
   input [31:0] alu_val,
   input [31:0] val_c,
@@ -16,9 +15,11 @@ module ysyx_23060203_LSU (
   output [31:0] out_rdata
 );
 
-  typedef enum logic [2:0] {
+  typedef enum logic [3:0] {
     ST_IDLE,
     ST_HOLD,
+
+    ST_SETUP,
 
     ST_LOAD_REQ,
     ST_LOAD_RESP,
@@ -33,6 +34,7 @@ module ysyx_23060203_LSU (
   wire st_idle = state == ST_IDLE;
   wire st_hold = state == ST_HOLD;
 
+  reg [31:0] addr, addr_next;
   reg [31:0] load_val, load_val_next;
 
   always @(posedge clock) begin
@@ -40,6 +42,7 @@ module ysyx_23060203_LSU (
       state <= ST_IDLE;
     end else begin
       state <= state_next;
+      addr <= addr_next;
       load_val <= load_val_next;
     end
   end
@@ -48,14 +51,11 @@ module ysyx_23060203_LSU (
 
   always_comb begin
     state_next = state;
+    addr_next = addr;
     load_val_next = load_val;
 
     if (in_valid & in_ready) begin
-      if (in_ls[3]) begin
-        state_next = ST_LOAD_REQ;
-      end else begin
-        state_next = ST_STORE_REQ;
-      end
+      state_next = ST_SETUP;
     end
 
     case (state)
@@ -69,6 +69,15 @@ module ysyx_23060203_LSU (
           end else begin
             state_next = ST_IDLE;
           end
+        end
+      end
+
+      ST_SETUP: begin
+        addr_next = alu_val;
+        if (ls[3]) begin
+          state_next = ST_LOAD_REQ;
+        end else begin
+          state_next = ST_STORE_REQ;
         end
       end
 
@@ -117,14 +126,14 @@ module ysyx_23060203_LSU (
 
   // -------------------- LOAD --------------------
   assign mem_r.arvalid = state == ST_LOAD_REQ;
-  assign mem_r.araddr = alu_val;
+  assign mem_r.araddr = addr;
   assign mem_r.arid = 4'b0;
   assign mem_r.arlen = 8'b0;
   assign mem_r.arsize = {1'b0, ls[1:0]};
   assign mem_r.arburst = 2'b0;
   assign mem_r.rready = state == ST_LOAD_RESP;
 
-  wire [31:0] mem_rdata_raw = mem_r.rdata >> {alu_val[1:0], 3'b0};
+  wire [31:0] mem_rdata_raw = mem_r.rdata >> {addr[1:0], 3'b0};
   reg [31:0] mem_rdata;
   always_comb begin
     case (ls[1:0])
@@ -142,13 +151,13 @@ module ysyx_23060203_LSU (
   wire st_store_data = state == ST_STORE_DATA;
 
   assign mem_w.awvalid = st_store_req | st_store_addr;
-  assign mem_w.awaddr = alu_val;
+  assign mem_w.awaddr = addr;
   assign mem_w.awid = 4'b0;
   assign mem_w.awlen = 8'b0;
   assign mem_w.awsize = {1'b0, ls[1:0]};
   assign mem_w.awburst = 2'b0;
 
-  wire [31:0] mem_wdata = val_c << {alu_val[1:0], 3'b0};
+  wire [31:0] mem_wdata = val_c << {addr[1:0], 3'b0};
   reg [3:0] mem_wstrb_raw;
   always_comb begin
     case (ls[1:0])
@@ -158,7 +167,7 @@ module ysyx_23060203_LSU (
       default: mem_wstrb_raw = 4'b0000;
     endcase
   end
-  wire [3:0] mem_wstrb = mem_wstrb_raw << alu_val[1:0];
+  wire [3:0] mem_wstrb = mem_wstrb_raw << addr[1:0];
 
   assign mem_w.wvalid = st_store_req | st_store_data;
   assign mem_w.wdata = mem_wdata;
@@ -178,10 +187,10 @@ module ysyx_23060203_LSU (
       default: ;
     endcase
     if (mem_r.rready & mem_r.rvalid) begin
-      event_mem_read(alu_val, {29'b0, mem_r.arsize}, mem_rdata);
+      event_mem_read(addr, {29'b0, mem_r.arsize}, mem_rdata);
     end
     if (mem_w.awready & mem_w.awvalid) begin
-      event_mem_write(alu_val, {29'b0, mem_w.awsize}, val_c);
+      event_mem_write(addr, {29'b0, mem_w.awsize}, val_c);
     end
   end
 `endif
