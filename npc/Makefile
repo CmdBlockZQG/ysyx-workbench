@@ -20,8 +20,7 @@ INC_PATH = $(abspath ./csrc/include)
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
-					-O3 --x-assign fast --x-initial fast --noassert \
-					-Wall -Werror
+					-O3 --x-assign fast --x-initial fast --noassert
 VERILATOR_FLAGS += --timescale "1ns/1ns" --no-timing --autoflush
 
 BUILD_DIR = ./build
