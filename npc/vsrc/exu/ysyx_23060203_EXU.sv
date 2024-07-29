@@ -111,7 +111,7 @@ module ysyx_23060203_EXU (
   reg exec_out_valid;
   always_comb begin
     exec_out_valid = 1;
-    if (ls[3]) exec_out_valid = lsu_out_valid;
+    if (|ls[3]) exec_out_valid = lsu_out_valid;
     // else if (mul) exec_out_valid = alu_funct[2] ? div_out_valid : mul_out_valid;
   end
 
