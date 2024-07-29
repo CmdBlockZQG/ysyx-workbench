@@ -6,7 +6,6 @@ module ysyx_23060203_LSU (
 
   output in_ready,
   input in_valid,
-  input [3:0] in_ls,
   input [3:0] ls,
   input [31:0] alu_val,
   input [31:0] val_c,
@@ -16,9 +15,11 @@ module ysyx_23060203_LSU (
   output [31:0] out_rdata
 );
 
-  typedef enum logic [2:0] {
+  typedef enum logic [3:0] {
     ST_IDLE,
     ST_HOLD,
+
+    ST_SETUP,
 
     ST_LOAD_REQ,
     ST_LOAD_RESP,
@@ -54,12 +55,7 @@ module ysyx_23060203_LSU (
     load_val_next = load_val;
 
     if (in_valid & in_ready) begin
-      addr_next = alu_val;
-      if (in_ls[3]) begin
-        state_next = ST_LOAD_REQ;
-      end else begin
-        state_next = ST_STORE_REQ;
-      end
+      state_next = ST_SETUP;
     end
 
     case (state)
@@ -73,6 +69,15 @@ module ysyx_23060203_LSU (
           end else begin
             state_next = ST_IDLE;
           end
+        end
+      end
+
+      ST_SETUP: begin
+        addr_next = alu_val;
+        if (ls[3]) begin
+          state_next = ST_LOAD_REQ;
+        end else begin
+          state_next = ST_STORE_REQ;
         end
       end
 
