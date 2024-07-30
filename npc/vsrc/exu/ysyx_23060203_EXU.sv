@@ -188,11 +188,12 @@ module ysyx_23060203_EXU (
     endcase
 
     case (goto)
-      3'b011  : dnpc_b = 32'h0;
-      default : dnpc_b = val_c;
+      3'b011         : dnpc_b = 32'h0;
+      3'b001, 3'b010 : dnpc_b = val_c;
+      default        : dnpc_b = val_c[31] ? 32'h4 : val_c;
     endcase
   end
-  wire [31:0] dnpc_c = dnpc_a + (jump_en ? dnpc_b : 32'h4);
+  wire [31:0] dnpc_c = dnpc_a + dnpc_b;
 
   // TEMP: 当前分支预测是btfnt(仅branch指令)
   assign jump_flush = valid & (jump_en ^ (goto[2] & val_c[31]));
