@@ -1,8 +1,10 @@
 module ysyx_23060203_IFU (
   input clock, reset,
 
-  input flush,
-  input [31:0] dnpc,
+  input jump_flush,
+  input [31:0] jump_dnpc,
+  input cs_flush,
+  input [31:0] cs_dnpc,
   input fencei,
 
   input out_ready,
@@ -59,6 +61,10 @@ module ysyx_23060203_IFU (
     end
   end
 
+  wire flush = jump_flush | cs_flush;
+  wire [31:0] dnpc = cs_flush ? cs_dnpc : jump_dnpc;
+  reg [31:0] dnpc_r, dnpc_r_next;
+
   wire [31:0] imm_b = {{20{cache_inst[31]}}, cache_inst[7],
                        cache_inst[30:25], cache_inst[11:8], 1'b0};
   wire [31:0] pc_incr = (cache_inst[6:2] == 5'b11000) & cache_inst[31] ? imm_b : 32'h4;
@@ -72,13 +78,14 @@ module ysyx_23060203_IFU (
     out_inst_next = out_inst;
     fetch_pc_next = fetch_pc;
     flush_r_next = flush_r;
+    dnpc_r_next = dnpc_r;
 
     if (st_wait) begin
       if (hit) begin
         if (flush | flush_r) begin
           flush_r_next = 0;
           out_valid_r_next = 0;
-          fetch_pc_next = dnpc;
+          fetch_pc_next = flush ? dnpc : dnpc_r;
         end else if (~out_valid_r | out_ready) begin
           out_valid_r_next = 1;
           out_pc_next = fetch_pc;
@@ -90,6 +97,7 @@ module ysyx_23060203_IFU (
       end else begin
         if (flush) begin
           flush_r_next = 1;
+          dnpc_r_next = dnpc;
         end
         if (out_ready | flush) begin
           out_valid_r_next = 0;

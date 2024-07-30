@@ -25,9 +25,10 @@ static const char *perfcnt_name[] = {
   "IDU_JAL",    // IDU译码JAL指令
   "IDU_JALR",   // IDU译码JALR指令
 
+  "BR_FLUSH", // 分支预测错误冲刷IFU次数
+
   "EXU_IDLE",  // EXU空闲周期数
   "EXU_INST",  // EXU执行指令数量
-  "EXU_FLUSH", // EXU冲刷上游流水级次数
 
   "LSU_MEMR",  // LSU读内存周期数
   "LSU_MEMW",  // LSU写内存周期数

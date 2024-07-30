@@ -7,22 +7,29 @@ module ysyx_23060203_WBU (
   output [31:0] gpr_wdata, // 写入数据
 
   // CSR
-  output csr_wen, // 写入使能
-  output [11:0] csr_waddr, // 写入地址
-  output [31:0] csr_wdata, // 写入数据
+  input [11:0] csr_raddr, // 读取地址
+  output reg [31:0] csr_rdata, // 读出数据
+
+  // CSU
+  output cs_flush,
+  output reg [31:0] cs_dnpc,
+  output fencei,
 
   // 上游EXU输入
   output in_ready,
   input in_valid,
+  input [31:0] in_pc,
   input [4:0] in_gpr_waddr,
   input [31:0] in_gpr_wdata,
   input in_csr_wen,
   input [11:0] in_csr_waddr,
-  input [31:0] in_csr_wdata
+  input [31:0] in_csr_wdata,
+  input in_exc,
+  input in_ret,
+  input in_fencei
 
   `ifndef SYNTHESIS
     ,
-    input [31:0] in_pc,
     input [31:0] in_inst,
     input [31:0] in_dnpc
   `endif
@@ -30,19 +37,80 @@ module ysyx_23060203_WBU (
 
   assign in_ready = 1;
 
+  // -------------------- GPR --------------------
   assign gpr_wen = in_valid;
   assign gpr_waddr = in_gpr_waddr;
   assign gpr_wdata = in_gpr_wdata;
 
-  assign csr_wen = in_valid & in_csr_wen;
-  assign csr_waddr = in_csr_waddr;
-  assign csr_wdata = in_csr_wdata;
+  // -------------------- CSU --------------------
+  reg valid;
+  reg [31:0] pc;
+  reg csr_wen, exc, ret, fencei_r;
 
+  always @(posedge clock)
+  if (reset) begin
+    valid <= 0;
+  end else begin
+    if (in_valid) begin
+      pc <= in_pc;
+      csr_wen <= in_csr_wen;
+      exc <= in_exc;
+      ret <= in_ret;
+      fencei_r <= in_fencei;
+    end else begin
+      valid <= 0;
+    end
+  end
+
+  assign cs_flush = valid & (csr_wen | exc | ret | fencei_r);
+  assign fencei = valid & fencei_r;
+
+  always_comb begin
+    case (1'b1)
+      exc     : cs_dnpc = mtvec;
+      ret     : cs_dnpc = mepc;
+      default : cs_dnpc = pc + 4;
+    endcase
+  end
+
+  // -------------------- CSR --------------------
+  `include "def/csr.sv"
+  reg [31:0] mstatus, mtvec, mepc;
+
+  always @(posedge clock)
+  if (reset) begin
+    mstatus <= 32'h1800;
+  end else begin
+    if (in_valid & in_csr_wen) begin
+      case (in_csr_waddr)
+        CSR_MSTATUS : mstatus <= in_csr_wdata;
+        CSR_MTVEC   : mtvec   <= in_csr_wdata;
+        CSR_MEPC    : mepc    <= in_csr_wdata;
+        default: ;
+      endcase
+    end
+  end
+
+  always_comb begin
+    case (csr_raddr)
+      CSR_MSTATUS : csr_rdata = mstatus;
+      CSR_MTVEC   : csr_rdata = mtvec;
+      CSR_MEPC    : csr_rdata = mepc;
+
+      CSR_MCAUSE    : csr_rdata = 32'd11;
+      CSR_MVENDORID : csr_rdata = 32'h79737978;
+      CSR_MARCHID   : csr_rdata = 32'h015fdeeb;
+
+      default: csr_rdata = 32'b0;
+    endcase
+  end
+
+  // -------------------- 仿真环境 --------------------
   `ifndef SYNTHESIS
     always @(posedge clock) begin
       if (in_valid) begin
         inst_complete(in_dnpc, in_inst);
-        if (csr_wen & ~(|csr_waddr)) halt(); // ebreak
+        if (in_exc & in_ret) halt(); // ebreak
       end
     end
   `endif

@@ -1,22 +1,15 @@
 module ysyx_23060203_EXU (
   input clock, reset,
 
-  // 跳转输出
-  output reg jump_flush, // 分支预测错误，需要冲刷流水线
-  output [31:0] jump_dnpc,
-
-  // fence.i
-  output fencei,
-
   // 访存AXI接口
   axi_if.out mem_r,
   axi_if.out mem_w,
 
-  // GPR forwarding
+  // EXU将要写入但还没写入的寄存器
   output [4:0] exu_rd,
-  output [31:0] exu_gpr_wdata,
-  // 将要修改的CSR地址
-  output [11:0] exu_csr_waddr,
+
+  // 冲刷信号
+  input flush,
 
   // 上游IDU输入
   output in_ready,
@@ -25,30 +18,34 @@ module ysyx_23060203_EXU (
   input [31:0] in_val_a,
   input [31:0] in_val_b,
   input [31:0] in_val_c,
-  input        in_alu_src,
-  input [2:0]  in_alu_funct,
+  input [ 2:0] in_alu_funct,
   input        in_alu_sw,
-  // input        in_mul,
-  input [4:0]  in_rd,
+  input [ 4:0] in_rd,
   input        in_rd_src,
-  input [3:0]  in_ls,
-  input [2:0]  in_goto,
-  input [1:0]  in_csrw,
+  input [ 3:0] in_ls,
+  input        in_csr_wen,
+  input        in_csr_src,
+  input        in_exc,
+  input        in_ret,
   input        in_fencei,
 
   // 下游WBU输出
   input out_ready,
   output out_valid,
+  output [31:0] out_pc,
   output [4:0] out_gpr_waddr,
   output [31:0] out_gpr_wdata,
   output out_csr_wen,
   output [11:0] out_csr_waddr,
-  output [31:0] out_csr_wdata
+  output [31:0] out_csr_wdata,
+  output out_exc,
+  output out_ret,
+  output out_fencei
 
   `ifndef SYNTHESIS
     ,
-    output [31:0] out_pc,
     input [31:0] in_inst,
+    input [31:0] in_dnpc,
     output [31:0] out_inst,
     output [31:0] out_dnpc
   `endif
@@ -57,47 +54,49 @@ module ysyx_23060203_EXU (
   reg valid;
   reg [31:0] pc;
   reg [31:0] val_a, val_b, val_c;
-  reg        alu_src;
-  reg [2:0]  alu_funct;
+  reg [ 2:0] alu_funct;
   reg        alu_sw;
-  // reg        mul;
-  reg [4:0]  rd;
+  reg [ 4:0] rd;
   reg        rd_src;
-  reg [3:0]  ls;
-  reg [2:0]  goto;
-  reg [1:0]  csrw;
+  reg [ 3:0] ls;
+  reg        csr_wen;
+  reg        csr_src;
+  reg        exc;
+  reg        ret;
+  reg        fencei;
+
   `ifndef SYNTHESIS
     reg [31:0] inst;
-  `endif
-
-  `ifndef SYNTHESIS
-    assign out_pc = pc;
+    reg [31:0] dnpc;
     assign out_inst = inst;
+    assign out_dnpc = dnpc;
   `endif
 
-  reg fencei_r;
-
-  always @(posedge clock) if (reset) begin
+  always @(posedge clock)
+  if (reset) begin
     valid <= 0;
   end else begin
-    if (in_valid & in_ready) begin
+    if (flush) begin
+      valid <= 0;
+    end if (in_ready & in_valid) begin
       valid <= 1;
       pc <= in_pc;
       val_a <= in_val_a;
       val_b <= in_val_b;
       val_c <= in_val_c;
-      alu_src <= in_alu_src;
       alu_funct <= in_alu_funct;
       alu_sw <= in_alu_sw;
-      // mul <= in_mul;
       rd <= in_rd;
       rd_src <= in_rd_src;
       ls <= in_ls;
-      goto <= in_goto;
-      csrw <= in_csrw;
-      fencei_r <= in_fencei;
+      csr_wen <= in_csr_wen;
+      csr_src <= in_csr_src;
+      exc <= in_exc;
+      ret <= in_ret;
+      fencei <= in_fencei;
       `ifndef SYNTHESIS
         inst <= in_inst;
+        dnpc <= in_dnpc;
       `endif
     end else if (out_ready & out_valid) begin
       valid <= 0;
@@ -106,7 +105,7 @@ module ysyx_23060203_EXU (
 
   // 对于不需要功能单元的指令，EXU只需要一周期，而且WBU从不阻塞
   assign in_ready = lsu_in_ready; // & mul_in_ready & div_in_ready;
-  assign out_valid = valid & exec_out_valid;
+  assign out_valid = ~flush & valid & exec_out_valid;
 
   reg exec_out_valid;
   always_comb begin
@@ -115,14 +114,12 @@ module ysyx_23060203_EXU (
     // else if (mul) exec_out_valid = alu_funct[2] ? div_out_valid : mul_out_valid;
   end
 
-  wire exec_in_en = in_valid & in_ready;
+  wire exec_in_en = ~flush & in_valid & in_ready;
 
   // -------------------- ALU --------------------
-  wire [31:0] alu_a = alu_src ? pc : val_a;
-  wire [31:0] alu_b = val_b;
   wire [31:0] alu_val;
   ysyx_23060203_ALU ALU (
-    .alu_a(alu_a), .alu_b(alu_b),
+    .alu_a(val_a), .alu_b(val_b),
     .funct(alu_funct), .sw(alu_sw),
     .val(alu_val)
   );
@@ -168,73 +165,29 @@ module ysyx_23060203_EXU (
   //   .out_quot(div_out_quot), .out_rem(div_out_rem)
   // );
 
-  // -------------------- 跳转 --------------------
-  wire alu_val_any = |alu_val;
-  reg jump_en;
-  always_comb begin
-    case (goto)
-      3'b000 : jump_en = 0;
-      3'b100 : jump_en = alu_val_any;
-      3'b101 : jump_en = ~alu_val_any;
-      default: jump_en = 1;
-    endcase
-  end
-
-  reg [31:0] dnpc_a, dnpc_b;
-  always_comb begin
-    case (goto)
-      3'b010, 3'b011 : dnpc_a = val_a;
-      default        : dnpc_a = pc;
-    endcase
-
-    case (goto)
-      3'b011  : dnpc_b = 32'h0;
-      default : dnpc_b = val_c;
-    endcase
-  end
-  wire [31:0] dnpc_c = dnpc_a + (jump_en ? dnpc_b : 32'h4);
-
-  // TEMP: 当前分支预测是btfnt(仅branch指令)
-  assign jump_flush = valid & (jump_en ^ (goto[2] & val_c[31]));
-  assign jump_dnpc = {dnpc_c[31:1], 1'b0};
-
-  `ifndef SYNTHESIS
-    assign out_dnpc = jump_dnpc;
-  `endif
-
-  // -------------------- fence.i --------------------
-  assign fencei = valid & fencei_r;
+  // -------------------- sys --------------------
+  assign out_exc = exc;
+  assign out_ret = ret;
+  assign out_fencei = fencei;
 
   // -------------------- GPR写回 --------------------
   assign out_gpr_waddr = rd;
   assign out_gpr_wdata = ls[3] ? lsu_out_rdata : (
-    rd_src ? val_a : (
-      // mul ? (
-      //   alu_funct[2] ? div_val : mul_val
-      // ) :
-      alu_val
-    )
+    rd_src ? val_a : alu_val
   );
 
   assign exu_rd = rd & {5{valid}};
-  assign exu_gpr_wdata = out_gpr_wdata;
 
   // -------------------- CSR写回 --------------------
-  assign out_csr_wen = |csrw;
-  assign out_csr_waddr = &csrw ? 12'h0 : val_c[11:0];
-  assign out_csr_wdata = csrw[1] ? val_b : alu_val;
-  // ebreak被标记为对0号CSR的有效写入操作
-
-  assign exu_csr_waddr = out_csr_waddr & {12{valid & out_csr_wen}};
+  assign out_csr_wen = csr_wen;
+  assign out_csr_waddr = val_c[11:0];
+  assign out_csr_wdata = csr_src ? val_b : alu_val;
 
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS
   always @(posedge clock) if (~reset) begin
     if (out_ready & out_valid) begin
       perf_event(PERF_EXU_INST);
-    end
-    if (jump_flush) begin
-      perf_event(PERF_EXU_FLUSH);
     end
     if (~valid) begin
       perf_event(PERF_EXU_IDLE);
