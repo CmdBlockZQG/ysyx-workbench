@@ -189,9 +189,6 @@ module ysyx_23060203_EXU (
     if (out_ready & out_valid) begin
       perf_event(PERF_EXU_INST);
     end
-    if (jump_flush) begin
-      perf_event(PERF_EXU_FLUSH);
-    end
     if (~valid) begin
       perf_event(PERF_EXU_IDLE);
     end

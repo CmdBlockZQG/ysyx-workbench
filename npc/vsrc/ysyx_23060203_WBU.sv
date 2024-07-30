@@ -13,6 +13,7 @@ module ysyx_23060203_WBU (
   // CSU
   output cs_flush,
   output reg [31:0] cs_dnpc,
+  output fencei,
 
   // 上游EXU输入
   output in_ready,
@@ -44,7 +45,7 @@ module ysyx_23060203_WBU (
   // -------------------- CSU --------------------
   reg valid;
   reg [31:0] pc;
-  reg csr_wen, exc, ret, fencei;
+  reg csr_wen, exc, ret, fencei_r;
 
   always @(posedge clock)
   if (reset) begin
@@ -55,13 +56,14 @@ module ysyx_23060203_WBU (
       csr_wen <= in_csr_wen;
       exc <= in_exc;
       ret <= in_ret;
-      fencei <= in_fencei;
+      fencei_r <= in_fencei;
     end else begin
       valid <= 0;
     end
   end
 
-  assign cs_flush = valid & (csr_wen | exc | ret | fencei);
+  assign cs_flush = valid & (csr_wen | exc | ret | fencei_r);
+  assign fencei = valid & fencei_r;
 
   always_comb begin
     case (1'b1)

@@ -19,8 +19,8 @@ module ysyx_23060203_BRU (
   wire ltu = ~cf;
   wire eq = ~(|e);
 
-  wire t = funct[3] ? (
-    funct[2] ? ltu : lts
+  wire t = funct[2] ? (
+    funct[1] ? ltu : lts
   ) : eq;
 
   assign jump_en = t ^ funct[0];

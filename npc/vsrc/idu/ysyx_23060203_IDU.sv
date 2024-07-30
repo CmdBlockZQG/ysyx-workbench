@@ -64,8 +64,12 @@ module ysyx_23060203_IDU (
   always @(posedge clock)
   if (reset) begin
     valid <= 0;
+    jump_flush_en <= 0;
   end else begin
-    if (in_valid & in_ready) begin
+    if (flush) begin
+      valid <= 0;
+      jump_flush_en <= 0;
+    end else if (in_valid & in_ready) begin
       valid <= 1;
       pc <= in_pc;
       inst <= in_inst;
@@ -135,7 +139,8 @@ module ysyx_23060203_IDU (
   wire ebreak = funct12[1:0] == 2'b01;
   wire mret   = funct12[1:0] == 2'b10;
 
-  assign csr_raddr = inst[31:20];
+  wire [11:0] csr = inst[31:20];
+  assign csr_raddr = csr;
 
   reg [2:0] sys_alu_funct;
   always_comb begin
@@ -289,11 +294,11 @@ module ysyx_23060203_IDU (
 
   // exc 是否异常
   // TEMP: 目前异常只有ecall, ebreak
-  assign exc = sys & ~zicsr & (ecall | ebreak);
+  assign out_exc = sys & ~zicsr & (ecall | ebreak);
 
   // ret 是否返回
   // TEMP: 目前仅mret
-  assign ret = sys & ~zicsr & (mret | ebreak);
+  assign out_ret = sys & ~zicsr & (mret | ebreak);
 
   // TEMP: 将ebreak标记为 exc & ret
 
@@ -303,10 +308,10 @@ module ysyx_23060203_IDU (
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS
   always @(posedge clock) if (~reset) begin
-    if (st_idle) begin
+    if (~valid) begin
       perf_event(PERF_IDU_IDLE);
     end
-    if (st_hold) begin
+    if (valid) begin
       perf_event(PERF_IDU_HOLD);
     end
     if (out_ready & out_valid) begin
