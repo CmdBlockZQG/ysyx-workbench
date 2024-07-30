@@ -90,9 +90,8 @@ module ysyx_23060203_IFU (
       end else begin
         if (flush) begin
           flush_r_next = 1;
-          out_valid_r_next = 0;
         end
-        if (out_ready) begin
+        if (out_ready | flush) begin
           out_valid_r_next = 0;
         end
       end
