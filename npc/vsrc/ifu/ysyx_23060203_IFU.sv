@@ -79,7 +79,7 @@ module ysyx_23060203_IFU (
           flush_r_next = 0;
           out_valid_r_next = 0;
           fetch_pc_next = dnpc;
-        end if (~out_valid_r | out_ready) begin
+        end else if (~out_valid_r | out_ready) begin
           out_valid_r_next = 1;
           out_pc_next = fetch_pc;
           out_inst_next = cache_inst;
