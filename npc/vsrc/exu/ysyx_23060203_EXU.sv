@@ -178,6 +178,11 @@ module ysyx_23060203_EXU (
 
   assign exu_rd = rd & {5{valid}};
 
+  // -------------------- CSR写回 --------------------
+  assign out_csr_wen = csr_wen;
+  assign out_csr_waddr = val_c[11:0];
+  assign out_csr_wdata = csr_src ? val_b : alu_val;
+
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS
   always @(posedge clock) if (~reset) begin

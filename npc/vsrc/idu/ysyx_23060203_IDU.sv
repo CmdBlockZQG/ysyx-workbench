@@ -293,7 +293,9 @@ module ysyx_23060203_IDU (
 
   // ret 是否返回
   // TEMP: 目前仅mret
-  assign ret = sys & ~zicsr & mret;
+  assign ret = sys & ~zicsr & (mret | ebreak);
+
+  // TEMP: 将ebreak标记为 exc & ret
 
   // fencei
   assign out_fencei = opcode == OP_FENCEI;
