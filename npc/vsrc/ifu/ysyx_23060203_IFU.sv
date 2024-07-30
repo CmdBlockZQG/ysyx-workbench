@@ -35,10 +35,13 @@ module ysyx_23060203_IFU (
   reg out_valid_r, out_valid_r_next;
   reg [31:0] fetch_pc, fetch_pc_next;
 
+  reg flush_r, flush_r_next;
+
   always @(posedge clock) begin
     if (reset) begin
       state <= ST_WAIT;
       out_valid_r <= 0;
+      flush_r <= 0;
       `ifdef YSYXSOC
         // soc中从flash开始取指
         fetch_pc <= 32'h30000000;
@@ -52,6 +55,7 @@ module ysyx_23060203_IFU (
       out_pc <= out_pc_next;
       out_inst <= out_inst_next;
       fetch_pc <= fetch_pc_next;
+      flush_r <= flush_r_next;
     end
   end
 
@@ -67,30 +71,37 @@ module ysyx_23060203_IFU (
     out_pc_next = out_pc;
     out_inst_next = out_inst;
     fetch_pc_next = fetch_pc;
+    flush_r_next = flush_r;
 
-
-    if (flush) begin
-      state_next = ST_WAIT;
-      out_valid_r_next = 0;
-      fetch_pc_next = dnpc;
-    end else if (st_wait) begin
+    if (st_wait) begin
       if (hit) begin
-        if (~out_valid_r | out_ready) begin
+        if (flush | flush_r) begin
+          flush_r_next = 0;
+          out_valid_r_next = 0;
+          fetch_pc_next = dnpc;
+        end if (~out_valid_r | out_ready) begin
           out_valid_r_next = 1;
           out_pc_next = fetch_pc;
           out_inst_next = cache_inst;
           fetch_pc_next = fetch_pc_pred;
-          state_next = ST_WAIT;
         end else begin
           state_next = ST_HOLD;
         end
       end else begin
+        if (flush) begin
+          flush_r_next = 1;
+          out_valid_r_next = 0;
+        end
         if (out_ready) begin
           out_valid_r_next = 0;
         end
       end
     end else if (st_hold) begin
-      if (~out_valid_r | out_ready) begin
+      if (flush) begin
+        state_next = ST_WAIT;
+        out_valid_r_next = 0;
+        fetch_pc_next = dnpc;
+      end else if (~out_valid_r | out_ready) begin
         state_next = ST_WAIT;
         out_valid_r_next = 1;
         out_pc_next = fetch_pc;
