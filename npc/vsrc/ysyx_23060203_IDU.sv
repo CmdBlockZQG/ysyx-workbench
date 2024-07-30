@@ -77,7 +77,7 @@ module ysyx_23060203_IDU (
     end
   end
 
-  assign in_ready = st_idle | (out_ready & out_valid) | flush;
+  assign in_ready = st_idle | (out_ready & out_valid);
 
   always_comb begin
     state_next = state;
