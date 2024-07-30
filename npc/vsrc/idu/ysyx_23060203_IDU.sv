@@ -37,17 +37,18 @@ module ysyx_23060203_IDU (
   output reg [ 2:0] out_alu_funct,
   output reg        out_alu_sw,
   output reg [ 4:0] out_rd,
-  output reg        out_rd_src,
+  output            out_rd_src,
   output reg [ 3:0] out_ls,
   output            out_csr_wen,
   output            out_csr_src,
-  output reg        out_exc,
-  output reg        out_ret,
-  output reg        out_fencei
+  output            out_exc,
+  output            out_ret,
+  output            out_fencei
 
   `ifndef SYNTHESIS
     ,
-    output reg [31:0] out_inst
+    output reg [31:0] out_inst,
+    output     [31:0] out_dnpc
   `endif
 );
 
@@ -58,16 +59,20 @@ module ysyx_23060203_IDU (
 
   reg valid;
   reg [31:0] pc, inst;
+  reg jump_flush_en;
 
-  always @(posedge clock) begin
-    if (reset) begin
-      valid <= 0;
+  always @(posedge clock)
+  if (reset) begin
+    valid <= 0;
+  end else begin
+    if (in_valid & in_ready) begin
+      valid <= 1;
+      pc <= in_pc;
+      inst <= in_inst;
+      jump_flush_en <= 1;
     end else begin
-      if (in_valid & in_ready) begin
-        valid <= 1;
-        pc <= in_pc;
-        inst <= in_inst;
-      end else if (out_valid & out_ready) begin
+      jump_flush_en <= 0;
+      if (out_valid & out_ready) begin
         valid <= 0;
       end
     end
@@ -164,7 +169,7 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign jump_flush = valid & jump_pred_fail;
+  assign jump_flush = valid & jump_pred_fail & jump_flush_en;
 
   // jump_dnpc
   wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1 : pc;
@@ -178,7 +183,24 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign jump_dnpc = dnpc_a + dnpc_b;
+  wire [31:0] dnpc_c = dnpc_a + dnpc_b;
+
+  assign jump_dnpc = {dnpc_c[31:1], 1'b0};
+
+  `ifndef SYNTHESIS
+    reg [31:0] out_dnpc_b;
+    always_comb begin
+      case (opcode)
+        OP_JAL    : out_dnpc_b = imm_j;
+        OP_JALR   : out_dnpc_b = imm_i;
+        OP_BRANCH : out_dnpc_b = br_jump_en ? imm_b : 32'h4;
+        default   : out_dnpc_b = 32'h4;
+      endcase
+    end
+
+    wire [31:0] out_dnpc_c = dnpc_a + out_dnpc_b;
+    assign out_dnpc = {out_dnpc_c[31:1], 1'b0};
+  `endif
 
   // -------------------- 选数 --------------------
   always_comb begin
@@ -242,9 +264,7 @@ module ysyx_23060203_IDU (
   // 1: val_a 用于支持zicsr指令
   // 当执行LOAD指令时（可从ls得知），该值无效，寄存器写入内存读取结果
   // 当执行乘除法指令时（可从mul得知），该值无效，寄存器写入乘除法结果
-  always_comb begin
-    out_rd_src = sys;
-  end
+  assign out_rd_src = sys;
 
   // ls[3:0] 内存操作类型
   // 4'b0: 无内存操作
@@ -277,5 +297,28 @@ module ysyx_23060203_IDU (
 
   // fencei
   assign out_fencei = opcode == OP_FENCEI;
+
+  // -------------------- 性能计数器 --------------------
+`ifndef SYNTHESIS
+  always @(posedge clock) if (~reset) begin
+    if (st_idle) begin
+      perf_event(PERF_IDU_IDLE);
+    end
+    if (st_hold) begin
+      perf_event(PERF_IDU_HOLD);
+    end
+    if (out_ready & out_valid) begin
+      perf_event(PERF_IDU_INST);
+      if (opcode == OP_LOAD) perf_event(PERF_IDU_LOAD);
+      if (opcode == OP_STORE) perf_event(PERF_IDU_STORE);
+      if (opcode == OP_BRANCH) perf_event(PERF_IDU_BRANCH);
+      if (opcode == OP_JAL) perf_event(PERF_IDU_JAL);
+      if (opcode == OP_JALR) perf_event(PERF_IDU_JALR);
+    end
+    if (jump_flush) begin
+      perf_event(PERF_BR_FLUSH);
+    end
+  end
+`endif
 
 endmodule
