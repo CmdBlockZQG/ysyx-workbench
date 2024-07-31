@@ -95,7 +95,7 @@ run: $(BIN)
 
 sta:
 	make -C /home/cmdblock/ysyx/yosys-sta/ sta
-	grep "Chip area for" ~/ysyx/yosys-sta/result/ysyx_23060203-800MHz/synth_stat.txt
+	grep "Chip area for" ~/ysyx/yosys-sta/result/ysyx_23060203-600MHz/synth_stat.txt
 
 .PHONY: default all clean sim run sta
 

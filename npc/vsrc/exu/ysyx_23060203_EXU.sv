@@ -5,7 +5,7 @@ module ysyx_23060203_EXU (
   input flush,
 
   // EXU将要写入但还没写入的寄存器
-  output [3:0] exu_rd,
+  output [4:0] exu_rd,
   output [31:0] exu_rd_val,
 
   // 访存AXI接口
@@ -21,7 +21,7 @@ module ysyx_23060203_EXU (
   input [31:0] in_val_c,
   input [ 2:0] in_alu_funct,
   input        in_alu_sw,
-  input [ 3:0] in_rd,
+  input [ 4:0] in_rd,
   input        in_rd_src,
   input [ 3:0] in_ls,
   input        in_csr_wen,
@@ -34,7 +34,7 @@ module ysyx_23060203_EXU (
   input out_ready,
   output out_valid,
   output [31:0] out_pc,
-  output [3:0] out_gpr_waddr,
+  output [4:0] out_gpr_waddr,
   output [31:0] out_gpr_wdata,
   output out_csr_wen,
   output [11:0] out_csr_waddr,
@@ -57,7 +57,7 @@ module ysyx_23060203_EXU (
   reg [31:0] val_a, val_b, val_c;
   reg [ 2:0] alu_funct;
   reg        alu_sw;
-  reg [ 3:0] rd;
+  reg [ 4:0] rd;
   reg        rd_src;
   reg [ 3:0] ls;
   reg        csr_wen;
@@ -174,7 +174,7 @@ module ysyx_23060203_EXU (
     rd_src ? val_a : alu_val
   );
 
-  assign exu_rd = rd & {4{valid}};
+  assign exu_rd = rd & {5{valid}};
   assign exu_rd_val = out_gpr_wdata;
 
   // -------------------- CSR写回 --------------------
