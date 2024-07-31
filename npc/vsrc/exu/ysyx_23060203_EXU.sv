@@ -6,6 +6,7 @@ module ysyx_23060203_EXU (
 
   // EXU将要写入但还没写入的寄存器
   output [4:0] exu_rd,
+  output [31:0] exu_rd_val,
 
   // 访存AXI接口
   axi_if.out mem_r,
@@ -174,6 +175,7 @@ module ysyx_23060203_EXU (
   );
 
   assign exu_rd = rd & {5{valid}};
+  assign exu_rd_val = out_gpr_wdata;
 
   // -------------------- CSR写回 --------------------
   assign out_csr_wen = csr_wen;
