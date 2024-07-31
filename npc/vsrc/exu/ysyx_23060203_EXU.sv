@@ -1,15 +1,15 @@
 module ysyx_23060203_EXU (
   input clock, reset,
 
-  // 访存AXI接口
-  axi_if.out mem_r,
-  axi_if.out mem_w,
+  // 冲刷信号
+  input flush,
 
   // EXU将要写入但还没写入的寄存器
   output [4:0] exu_rd,
 
-  // 冲刷信号
-  input flush,
+  // 访存AXI接口
+  axi_if.out mem_r,
+  axi_if.out mem_w,
 
   // 上游IDU输入
   output in_ready,
@@ -165,11 +165,6 @@ module ysyx_23060203_EXU (
   //   .out_quot(div_out_quot), .out_rem(div_out_rem)
   // );
 
-  // -------------------- sys --------------------
-  assign out_exc = exc;
-  assign out_ret = ret;
-  assign out_fencei = fencei;
-
   // -------------------- GPR写回 --------------------
   assign out_gpr_waddr = rd;
   assign out_gpr_wdata = ls[3] ? lsu_out_rdata : (
@@ -182,6 +177,11 @@ module ysyx_23060203_EXU (
   assign out_csr_wen = csr_wen;
   assign out_csr_waddr = val_c[11:0];
   assign out_csr_wdata = csr_src ? val_b : alu_val;
+
+  // -------------------- sys --------------------
+  assign out_exc = exc;
+  assign out_ret = ret;
+  assign out_fencei = fencei;
 
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS

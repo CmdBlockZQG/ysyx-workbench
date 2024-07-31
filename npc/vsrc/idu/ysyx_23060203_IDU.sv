@@ -1,6 +1,9 @@
 module ysyx_23060203_IDU (
   input clock, reset,
 
+  // 冲刷信号
+  input flush,
+
   // GPR
   output [4:0] rs1,
   input [31:0] src1,
@@ -10,9 +13,6 @@ module ysyx_23060203_IDU (
   // CSR
   output [11:0] csr_raddr,
   input [31:0] csr_rdata,
-
-  // 冲刷信号
-  input flush,
 
   // EXU将要写入但还没写入的寄存器
   input [4:0] exu_rd,
@@ -51,11 +51,6 @@ module ysyx_23060203_IDU (
     output     [31:0] out_dnpc
   `endif
 );
-
-  // `include "def/opcode.sv"
-  // `include "def/csr.sv"
-  // `include "def/alu.sv"
-  // `include "def/branch.sv"
 
   reg valid;
   reg [31:0] pc, inst;
