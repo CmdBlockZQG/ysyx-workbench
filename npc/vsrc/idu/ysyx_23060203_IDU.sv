@@ -59,18 +59,18 @@ module ysyx_23060203_IDU (
   always @(posedge clock)
   if (reset) begin
     valid <= 0;
-    jump_flush_en <= 0;
   end else begin
     if (flush) begin
       valid <= 0;
-      jump_flush_en <= 0;
     end else if (in_valid & in_ready) begin
       valid <= 1;
       pc <= in_pc;
       inst <= in_inst;
       jump_flush_en <= 1;
     end else begin
-      jump_flush_en <= 0;
+      if (jump_flush) begin
+        jump_flush_en <= 0;
+      end
       if (out_valid & out_ready) begin
         valid <= 0;
       end
