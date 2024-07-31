@@ -124,11 +124,15 @@ module ysyx_23060203_IFU (
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS
   always @(posedge clock) if (~reset) begin
-    if (st_hold) begin
+    if (out_valid) begin
       perf_event(PERF_IFU_HOLD);
-    end
-    if (st_wait) begin
+    end else begin
       perf_event(PERF_IFU_WAIT);
+    end
+    if (st_hold) begin
+      perf_event(PERF_IFU_FETCH_HOLD);
+    end else begin
+      perf_event(PERF_IFU_FETCH_WAIT);
     end
     if (out_valid & out_ready) begin
       perf_event(PERF_IFU_INST);
