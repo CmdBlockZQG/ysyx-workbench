@@ -88,7 +88,7 @@ module ysyx_23060203_IFU (
         fetch_pc_next = flush ? dnpc : dnpc_r;
       end else begin
         flush_r_next = 1;
-        dnpc_r_next = dnpc;
+        dnpc_r_next = flush ? dnpc : dnpc_r;
       end
     end else if (out_valid_r) begin
       if (out_ready) begin
