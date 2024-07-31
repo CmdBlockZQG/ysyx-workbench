@@ -71,9 +71,6 @@ module ysyx_23060203_IFU (
   wire [31:0] pc_incr = (cache_inst[6:2] == 5'b11000) & cache_inst[31] ? imm_b : 32'h4;
   wire [31:0] fetch_pc_pred = fetch_pc + pc_incr;
 
-  wire fetch_out_valid = st_wait;
-  wire out_in_ready = ~out_valid_r | out_ready;
-
 
   always_comb begin
     state_next = state;
