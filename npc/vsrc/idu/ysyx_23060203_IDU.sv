@@ -105,14 +105,19 @@ module ysyx_23060203_IDU (
   assign rs2 = inst[24:20];
   wire [4:0] rd = inst[11:7];
 
-  reg gpr_raw;
-  always_comb begin
-    case (opcode)
-      OP_BRANCH : gpr_raw = ((|rs1) & (rs1 == exu_rd)) | ((|rs2) & (rs2 == exu_rd));
-      OP_JALR   : gpr_raw = (|rs1) & (rs1 == exu_rd);
-      default   : gpr_raw = 0;
-    endcase
-  end
+  wire rs1_raw = (|rs1) & (rs1 == exu_rd);
+  wire rs2_raw = (|rs2) & (rs2 == exu_rd);
+
+  // reg gpr_raw;
+  // always_comb begin
+  //   case (opcode)
+  //     OP_BRANCH : gpr_raw = rs1_raw | rs2_raw;
+  //     OP_JALR   : gpr_raw = rs1_raw;
+  //     default   : gpr_raw = 0;
+  //   endcase
+  // end
+  // NOTE: 等价时序优化
+  wire gpr_raw = (opcode[4:1] == 4'b1100) & (rs1_raw | (rs2_raw & opcode[0]));
 
   wire [31:0] src1_fw = ((exu_rd == rs1) & (|rs1)) ? exu_rd_val : src1;
   wire [31:0] src2_fw = ((exu_rd == rs2) & (|rs2)) ? exu_rd_val : src2;
