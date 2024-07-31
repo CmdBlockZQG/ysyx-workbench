@@ -108,7 +108,7 @@ module ysyx_23060203_IFU (
         state_next = ST_WAIT;
         out_valid_r_next = 0;
         fetch_pc_next = dnpc;
-      end else if (~out_valid_r | out_ready) begin
+      end else if (out_ready) begin
         state_next = ST_WAIT;
         out_valid_r_next = 1;
         out_pc_next = fetch_pc;

@@ -52,10 +52,10 @@ module ysyx_23060203_IDU (
   `endif
 );
 
-  `include "def/opcode.sv"
-  `include "def/csr.sv"
-  `include "def/alu.sv"
-  `include "def/branch.sv"
+  // `include "def/opcode.sv"
+  // `include "def/csr.sv"
+  // `include "def/alu.sv"
+  // `include "def/branch.sv"
 
   reg valid;
   reg [31:0] pc, inst;
