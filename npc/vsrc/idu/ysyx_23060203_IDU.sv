@@ -107,6 +107,9 @@ module ysyx_23060203_IDU (
 
   wire gpr_raw = (opcode == OP_BRANCH) & (((|rs1) & (rs1 == exu_rd)) | ((|rs2) & (rs2 == exu_rd)));
 
+  wire [31:0] src1_fw = ((exu_rd == rs1) & (|rs1)) ? exu_rd_val : src1;
+  wire [31:0] src2_fw = ((exu_rd == rs2) & (|rs2)) ? exu_rd_val : src2;
+
   // -------------------- SYS --------------------
   wire sys = opcode == OP_SYS;
 
@@ -156,7 +159,7 @@ module ysyx_23060203_IDU (
   assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
 
   // jump_dnpc
-  wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1 : pc;
+  wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1_fw : pc;
   reg [31:0] dnpc_b;
 
   always_comb begin
@@ -185,10 +188,6 @@ module ysyx_23060203_IDU (
     wire [31:0] out_dnpc_c = dnpc_a + out_dnpc_b;
     assign out_dnpc = {out_dnpc_c[31:1], 1'b0};
   `endif
-
-  // -------------------- GPR旁路 --------------------
-  wire [31:0] src1_fw = ((exu_rd == rs1) & (|rs1)) ? exu_rd_val : src1;
-  wire [31:0] src2_fw = ((exu_rd == rs2) & (|rs2)) ? exu_rd_val : src2;
 
   // -------------------- 选数 --------------------
   always_comb begin
