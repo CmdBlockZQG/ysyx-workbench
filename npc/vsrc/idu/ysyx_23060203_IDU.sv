@@ -153,20 +153,21 @@ module ysyx_23060203_IDU (
     .jump_en(br_jump_en)
   );
 
-  reg jump_pred_fail;
-  always_comb begin
-    case (opcode)
-      OP_JAL, OP_JALR : begin
-        jump_pred_fail = 1;
-      end
-      OP_BRANCH: begin
-        jump_pred_fail = br_jump_en ^ inst[31];
-      end
-      default: begin
-        jump_pred_fail = 0;
-      end
-    endcase
-  end
+  // reg jump_pred_fail;
+  // always_comb begin
+  //   case (opcode)
+  //     OP_JAL, OP_JALR : begin
+  //       jump_pred_fail = 1;
+  //     end
+  //     OP_BRANCH: begin
+  //       jump_pred_fail = br_jump_en ^ inst[31];
+  //     end
+  //     default: begin
+  //       jump_pred_fail = 0;
+  //     end
+  //   endcase
+  // end
+  wire jump_pred_fail = (opcode[4:2] == 3'b110) & (opcode[0] | (br_jump_en ^ inst[31]));
 
   assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
 
