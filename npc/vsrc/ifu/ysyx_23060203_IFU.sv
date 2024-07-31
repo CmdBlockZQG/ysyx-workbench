@@ -71,6 +71,9 @@ module ysyx_23060203_IFU (
   wire [31:0] pc_incr = (cache_inst[6:2] == 5'b11000) & cache_inst[31] ? imm_b : 32'h4;
   wire [31:0] fetch_pc_pred = fetch_pc + pc_incr;
 
+  wire fetch_out_valid = st_wait;
+  wire out_in_ready = ~out_valid_r | out_ready;
+
 
   always_comb begin
     state_next = state;
@@ -81,42 +84,71 @@ module ysyx_23060203_IFU (
     flush_r_next = flush_r;
     dnpc_r_next = dnpc_r;
 
-    if (st_wait) begin
+    if (flush | flush_r) begin
+      out_valid_r_next = 0;
       if (hit) begin
-        if (flush | flush_r) begin
-          flush_r_next = 0;
-          out_valid_r_next = 0;
-          fetch_pc_next = flush ? dnpc : dnpc_r;
-        end else if (~out_valid_r | out_ready) begin
+        flush_r_next = 0;
+        fetch_pc_next = flush ? dnpc : dnpc_r;
+      end else begin
+        flush_r_next = 1;
+        dnpc_r_next = dnpc;
+      end
+    end else if (out_valid_r) begin
+      if (out_ready) begin
+        if (hit) begin
           out_valid_r_next = 1;
           out_pc_next = fetch_pc;
           out_inst_next = cache_inst;
           fetch_pc_next = fetch_pc_pred;
         end else begin
-          state_next = ST_HOLD;
-        end
-      end else begin
-        if (flush) begin
-          flush_r_next = 1;
-          dnpc_r_next = dnpc;
-        end
-        if (out_ready | flush) begin
           out_valid_r_next = 0;
         end
       end
-    end else if (st_hold) begin
-      if (flush) begin
-        state_next = ST_WAIT;
-        out_valid_r_next = 0;
-        fetch_pc_next = dnpc;
-      end else if (out_ready) begin
-        state_next = ST_WAIT;
+    end else begin
+      if (hit) begin
         out_valid_r_next = 1;
         out_pc_next = fetch_pc;
         out_inst_next = cache_inst;
         fetch_pc_next = fetch_pc_pred;
       end
     end
+
+    // if (st_wait) begin
+    //   if (hit) begin
+    //     if (flush | flush_r) begin
+    //       flush_r_next = 0;
+    //       out_valid_r_next = 0;
+    //       fetch_pc_next = flush ? dnpc : dnpc_r;
+    //     end else if (~out_valid_r | out_ready) begin
+    //       out_valid_r_next = 1;
+    //       out_pc_next = fetch_pc;
+    //       out_inst_next = cache_inst;
+    //       fetch_pc_next = fetch_pc_pred;
+    //     end else begin
+    //       state_next = ST_HOLD;
+    //     end
+    //   end else begin
+    //     if (flush) begin
+    //       flush_r_next = 1;
+    //       dnpc_r_next = dnpc;
+    //     end
+    //     if (out_ready | flush) begin
+    //       out_valid_r_next = 0;
+    //     end
+    //   end
+    // end else if (st_hold) begin
+    //   if (flush) begin
+    //     state_next = ST_WAIT;
+    //     out_valid_r_next = 0;
+    //     fetch_pc_next = dnpc;
+    //   end else if (out_ready) begin
+    //     state_next = ST_WAIT;
+    //     out_valid_r_next = 1;
+    //     out_pc_next = fetch_pc;
+    //     out_inst_next = cache_inst;
+    //     fetch_pc_next = fetch_pc_pred;
+    //   end
+    // end
   end
 
   assign out_valid = out_valid_r & ~flush;
