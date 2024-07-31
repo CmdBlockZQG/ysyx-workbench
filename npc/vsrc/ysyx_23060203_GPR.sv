@@ -18,12 +18,12 @@ module ysyx_23060203_GPR (
 
   integer i;
   always @(posedge clock) begin
-    if (~reset & wen & (|waddr)) begin
+    if (wen & (|waddr)) begin
       r[waddr] <= wdata;
     end
   end
 
   // -------------------- READ --------------------
-  assign rdata1 = raddr1 == 5'b0 ? 0 : r[raddr1];
-  assign rdata2 = raddr2 == 5'b0 ? 0 : r[raddr2];
+  assign rdata1 = (|raddr1) ? r[raddr1] : 0;
+  assign rdata2 = (|raddr2) ? r[raddr2] : 0;
 endmodule
