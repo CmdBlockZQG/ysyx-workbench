@@ -24,15 +24,6 @@ module ysyx_23060203_IFU (
     .mem_r(mem_r)
   );
 
-  typedef enum logic {
-    ST_HOLD = 1'b1,
-    ST_WAIT = 1'b0
-  } state_t;
-  wire st_hold = state;
-  wire st_wait = ~state;
-
-  state_t state, state_next;
-
   reg [31:0] out_pc_next, out_inst_next;
   reg out_valid_r, out_valid_r_next;
   reg [31:0] fetch_pc, fetch_pc_next;
@@ -41,7 +32,6 @@ module ysyx_23060203_IFU (
 
   always @(posedge clock) begin
     if (reset) begin
-      state <= ST_WAIT;
       out_valid_r <= 0;
       flush_r <= 0;
       `ifdef YSYXSOC
@@ -52,7 +42,6 @@ module ysyx_23060203_IFU (
         fetch_pc <= 32'h80000000;
       `endif
     end else begin
-      state <= state_next;
       out_valid_r <= out_valid_r_next;
       out_pc <= out_pc_next;
       out_inst <= out_inst_next;
@@ -71,9 +60,7 @@ module ysyx_23060203_IFU (
   wire [31:0] pc_incr = (cache_inst[6:2] == 5'b11000) & cache_inst[31] ? imm_b : 32'h4;
   wire [31:0] fetch_pc_pred = fetch_pc + pc_incr;
 
-
   always_comb begin
-    state_next = state;
     out_valid_r_next = out_valid_r;
     out_pc_next = out_pc;
     out_inst_next = out_inst;
@@ -81,36 +68,32 @@ module ysyx_23060203_IFU (
     flush_r_next = flush_r;
     dnpc_r_next = dnpc_r;
 
-    if (st_wait) begin
+    if (flush) begin
+      out_valid_r_next = 0;
       if (hit) begin
-        if (flush | flush_r) begin
-          flush_r_next = 0;
-          out_valid_r_next = 0;
-          fetch_pc_next = flush ? dnpc : dnpc_r;
-        end else if (~out_valid_r | out_ready) begin
+        fetch_pc_next = dnpc;
+      end else begin
+        flush_r_next = 1;
+        dnpc_r_next = dnpc;
+      end
+    end else if (flush_r) begin
+      if (hit) begin
+        flush_r_next = 0;
+        fetch_pc_next = dnpc_r;
+      end
+    end else if (out_valid_r) begin
+      if (out_ready) begin
+        if (hit) begin
           out_valid_r_next = 1;
           out_pc_next = fetch_pc;
           out_inst_next = cache_inst;
           fetch_pc_next = fetch_pc_pred;
         end else begin
-          state_next = ST_HOLD;
-        end
-      end else begin
-        if (flush) begin
-          flush_r_next = 1;
-          dnpc_r_next = dnpc;
-        end
-        if (out_ready | flush) begin
           out_valid_r_next = 0;
         end
       end
-    end else if (st_hold) begin
-      if (flush) begin
-        state_next = ST_WAIT;
-        out_valid_r_next = 0;
-        fetch_pc_next = dnpc;
-      end else if (out_ready) begin
-        state_next = ST_WAIT;
+    end else begin
+      if (hit) begin
         out_valid_r_next = 1;
         out_pc_next = fetch_pc;
         out_inst_next = cache_inst;
@@ -129,7 +112,7 @@ module ysyx_23060203_IFU (
     end else begin
       perf_event(PERF_IFU_WAIT);
     end
-    if (st_hold) begin
+    if (hit) begin
       perf_event(PERF_IFU_FETCH_HOLD);
     end else begin
       perf_event(PERF_IFU_FETCH_WAIT);
