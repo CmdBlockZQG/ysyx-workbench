@@ -107,6 +107,8 @@ module ysyx_23060203_EXU (
   assign in_ready = lsu_in_ready; // & mul_in_ready & div_in_ready;
   assign out_valid = ~flush & valid & exec_out_valid;
 
+  assign out_pc = pc;
+
   reg exec_out_valid;
   always_comb begin
     exec_out_valid = 1;
