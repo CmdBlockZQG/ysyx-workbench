@@ -9,8 +9,10 @@
 
 static const char *perfcnt_name[] = {
   "IFU_WAIT", // IFU等待指令读取周期数
-  "IFU_INST", // IFU提供指令次数
   "IFU_HOLD", // IFU提供指令周期数
+  "IFU_FETCH_WAIT", // IFU等待指令读取周期数
+  "IFU_FETCH_HOLD", // IFU等待发送指令读取结果周期数
+  "IFU_INST", // IFU提供指令次数
 
   "ICACHE_MISS", // ICache缺失次数
   "ICACHE_MEM",  // ICache等待存储器周期数
@@ -18,8 +20,9 @@ static const char *perfcnt_name[] = {
   "IDU_IDLE", // IDU空闲周期数
   "IDU_INST", // IDU提供指令次数
   "IDU_HOLD", // IDU提供指令周期数
+  "IDU_RAW", // IDU等待寄存器写入周期数
 
-  "IDU_LOAD",    // IDU译码LOAD指令
+  "IDU_LOAD",   // IDU译码LOAD指令
   "IDU_STORE",  // IDU译码STORE指令
   "IDU_BRANCH", // IDU译码BRANCH指令
   "IDU_JAL",    // IDU译码JAL指令

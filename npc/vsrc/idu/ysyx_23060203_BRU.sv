@@ -17,7 +17,7 @@ module ysyx_23060203_BRU (
 
   wire lts = sf ^ of;
   wire ltu = ~cf;
-  wire eq = ~(|e);
+  wire eq = ~(|(src1 ^ src2));
 
   wire t = funct[2] ? (
     funct[1] ? ltu : lts

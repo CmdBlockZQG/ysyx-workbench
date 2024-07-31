@@ -168,7 +168,7 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign jump_flush = valid & ~gpr_raw &jump_pred_fail & jump_flush_en;
+  assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
 
   // jump_dnpc
   wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1 : pc;
@@ -305,8 +305,11 @@ module ysyx_23060203_IDU (
     if (~valid) begin
       perf_event(PERF_IDU_IDLE);
     end
-    if (valid) begin
+    if (out_valid) begin
       perf_event(PERF_IDU_HOLD);
+    end
+    if (valid & gpr_raw & ~flush) begin
+      perf_event(PERF_IDU_RAW);
     end
     if (out_ready & out_valid) begin
       perf_event(PERF_IDU_INST);
