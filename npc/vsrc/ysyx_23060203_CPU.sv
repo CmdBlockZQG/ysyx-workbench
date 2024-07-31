@@ -32,7 +32,7 @@ module ysyx_23060203_CPU (
     .out_inst(ifu_out_inst)
   );
 
-  wire [4:0] gpr_raddr1, gpr_raddr2;
+  wire [3:0] gpr_raddr1, gpr_raddr2;
   wire [11:0] csr_raddr;
   wire jump_flush;
   wire [31:0] jump_dnpc;
@@ -45,7 +45,7 @@ module ysyx_23060203_CPU (
   wire        idu_out_alu_src;
   wire [2:0]  idu_out_alu_funct;
   wire        idu_out_alu_sw;
-  wire [4:0]  idu_out_rd;
+  wire [3:0]  idu_out_rd;
   wire        idu_out_rd_src;
   wire [3:0]  idu_out_ls;
   wire idu_out_csr_wen;
@@ -99,13 +99,13 @@ module ysyx_23060203_CPU (
     `endif
   );
 
-  wire [4:0] exu_rd;
+  wire [3:0] exu_rd;
   wire [31:0] exu_rd_val;
   axi_if lsu_mem_r();
   wire exu_in_ready;
   wire exu_out_valid;
   wire [31:0] exu_out_pc;
-  wire [4:0] exu_out_gpr_waddr;
+  wire [3:0] exu_out_gpr_waddr;
   wire [31:0] exu_out_gpr_wdata;
   wire exu_out_csr_wen;
   wire [11:0] exu_out_csr_waddr;
@@ -165,7 +165,7 @@ module ysyx_23060203_CPU (
   );
 
   wire gpr_wen;
-  wire [4:0] gpr_waddr;
+  wire [3:0] gpr_waddr;
   wire [31:0] gpr_wdata;
   wire [31:0] csr_rdata;
   wire cs_flush;

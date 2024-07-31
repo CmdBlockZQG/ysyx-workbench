@@ -3,7 +3,7 @@ module ysyx_23060203_WBU (
 
   // GPR
   output gpr_wen, // 写入使能
-  output [4:0] gpr_waddr, // 写入地址
+  output [3:0] gpr_waddr, // 写入地址
   output [31:0] gpr_wdata, // 写入数据
 
   // CSR
@@ -19,7 +19,7 @@ module ysyx_23060203_WBU (
   output in_ready,
   input in_valid,
   input [31:0] in_pc,
-  input [4:0] in_gpr_waddr,
+  input [3:0] in_gpr_waddr,
   input [31:0] in_gpr_wdata,
   input in_csr_wen,
   input [11:0] in_csr_waddr,

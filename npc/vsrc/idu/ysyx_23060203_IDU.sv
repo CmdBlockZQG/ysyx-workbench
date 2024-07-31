@@ -5,9 +5,9 @@ module ysyx_23060203_IDU (
   input flush,
 
   // GPR
-  output [4:0] rs1,
+  output [3:0] rs1,
   input [31:0] src1,
-  output [4:0] rs2,
+  output [3:0] rs2,
   input [31:0] src2,
 
   // CSR
@@ -15,7 +15,7 @@ module ysyx_23060203_IDU (
   input [31:0] csr_rdata,
 
   // EXU旁路
-  input [4:0] exu_rd,
+  input [3:0] exu_rd,
   input [31:0] exu_rd_val,
 
   // 跳转输出
@@ -37,7 +37,7 @@ module ysyx_23060203_IDU (
   output reg [31:0] out_val_c,
   output reg [ 2:0] out_alu_funct,
   output reg        out_alu_sw,
-  output reg [ 4:0] out_rd,
+  output reg [ 3:0] out_rd,
   output            out_rd_src,
   output reg [ 3:0] out_ls,
   output            out_csr_wen,
@@ -101,9 +101,9 @@ module ysyx_23060203_IDU (
   assign imm_z = {27'b0, inst[19:15]};
 
   // -------------------- GPR --------------------
-  assign rs1 = inst[19:15];
-  assign rs2 = inst[24:20];
-  wire [4:0] rd = inst[11:7];
+  assign rs1 = inst[18:15];
+  assign rs2 = inst[23:20];
+  wire [3:0] rd = inst[10:7];
 
   wire rs1_raw = (|rs1) & (rs1 == exu_rd);
   wire rs2_raw = (|rs2) & (rs2 == exu_rd);
@@ -255,7 +255,7 @@ module ysyx_23060203_IDU (
   // 0表示不写入寄存器
   always_comb begin
     case (opcode)
-      OP_BRANCH, OP_STORE : out_rd = 5'b0;
+      OP_BRANCH, OP_STORE : out_rd = 4'b0;
       default             : out_rd = rd;
       // ecall, mret, ebreak, fence.i也不写入寄存器，但它们的rd字段都是0
     endcase
