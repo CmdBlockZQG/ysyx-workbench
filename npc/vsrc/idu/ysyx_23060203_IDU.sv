@@ -167,6 +167,8 @@ module ysyx_23060203_IDU (
   //     end
   //   endcase
   // end
+  // NOTE: 等价时序优化
+  // WARN: 等价条件为，没有除了JAL JALR BRANCH之外的指令的opcode高三位为110
   wire jump_pred_fail = (opcode[4:2] == 3'b110) & (opcode[0] | (br_jump_en ^ inst[31]));
 
   assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
