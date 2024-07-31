@@ -32,10 +32,10 @@ module ysyx_23060203_CPU (
     .out_inst(ifu_out_inst)
   );
 
-  wire jump_flush;
-  wire [31:0] jump_dnpc;
   wire [4:0] gpr_raddr1, gpr_raddr2;
   wire [11:0] csr_raddr;
+  wire jump_flush;
+  wire [31:0] jump_dnpc;
   wire idu_in_ready;
   wire idu_out_valid;
   wire [31:0] idu_out_pc;
@@ -45,7 +45,6 @@ module ysyx_23060203_CPU (
   wire        idu_out_alu_src;
   wire [2:0]  idu_out_alu_funct;
   wire        idu_out_alu_sw;
-  // wire        idu_out_mul;
   wire [4:0]  idu_out_rd;
   wire        idu_out_rd_src;
   wire [3:0]  idu_out_ls;
@@ -61,12 +60,13 @@ module ysyx_23060203_CPU (
   ysyx_23060203_IDU IDU (
     .clock(clock), .reset(reset),
 
+    .flush(cs_flush),
+
     .rs1(gpr_raddr1), .src1(gpr_rdata1),
     .rs2(gpr_raddr2), .src2(gpr_rdata2),
 
     .csr_raddr(csr_raddr), .csr_rdata(csr_rdata),
 
-    .flush(cs_flush),
     .exu_rd(exu_rd),
 
     .jump_flush(jump_flush), .jump_dnpc(jump_dnpc),
@@ -100,12 +100,10 @@ module ysyx_23060203_CPU (
   );
 
   wire [4:0] exu_rd;
-  wire [31:0] exu_gpr_wdata;
-  wire [11:0] exu_csr_waddr;
-  wire exu_in_ready;
   axi_if lsu_mem_r();
-  wire [31:0] exu_out_pc;
+  wire exu_in_ready;
   wire exu_out_valid;
+  wire [31:0] exu_out_pc;
   wire [4:0] exu_out_gpr_waddr;
   wire [31:0] exu_out_gpr_wdata;
   wire exu_out_csr_wen;
@@ -121,12 +119,12 @@ module ysyx_23060203_CPU (
   ysyx_23060203_EXU EXU (
     .clock(clock), .reset(reset),
 
-    .mem_r(lsu_mem_r),
-    .mem_w(io_out),
+    .flush(cs_flush),
 
     .exu_rd(exu_rd),
 
-    .flush(cs_flush),
+    .mem_r(lsu_mem_r),
+    .mem_w(io_out),
 
     .in_ready(exu_in_ready),
     .in_valid(idu_out_valid),

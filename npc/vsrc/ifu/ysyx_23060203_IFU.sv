@@ -1,6 +1,8 @@
 module ysyx_23060203_IFU (
   input clock, reset,
 
+  axi_if.out mem_r,
+
   input jump_flush,
   input [31:0] jump_dnpc,
   input cs_flush,
@@ -10,9 +12,7 @@ module ysyx_23060203_IFU (
   input out_ready,
   output out_valid,
   output reg [31:0] out_pc,
-  output reg [31:0] out_inst,
-
-  axi_if.out mem_r
+  output reg [31:0] out_inst
 );
 
   wire hit;
