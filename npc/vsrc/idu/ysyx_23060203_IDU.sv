@@ -169,7 +169,7 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign jump_flush = valid & jump_pred_fail & jump_flush_en;
+  assign jump_flush = valid & ~gpr_raw &jump_pred_fail & jump_flush_en;
 
   // jump_dnpc
   wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1 : pc;
