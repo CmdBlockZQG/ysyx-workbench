@@ -81,12 +81,16 @@ module ysyx_23060203_IFU (
     flush_r_next = flush_r;
     dnpc_r_next = dnpc_r;
 
+    if (flush) begin
+      flush_r_next = 1;
+      dnpc_r_next = dnpc;
+    end
+
     if (st_wait) begin
       if (hit) begin
-        if (flush | flush_r) begin
-          flush_r_next = 0;
+        if (flush_r) begin
           out_valid_r_next = 0;
-          fetch_pc_next = flush ? dnpc : dnpc_r;
+          fetch_pc_next = dnpc_r;
         end else if (~out_valid_r | out_ready) begin
           out_valid_r_next = 1;
           out_pc_next = fetch_pc;
@@ -96,16 +100,12 @@ module ysyx_23060203_IFU (
           state_next = ST_HOLD;
         end
       end else begin
-        if (flush) begin
-          flush_r_next = 1;
-          dnpc_r_next = dnpc;
-        end
-        if (out_ready | flush) begin
+        if (out_ready | flush_r) begin
           out_valid_r_next = 0;
         end
       end
     end else if (st_hold) begin
-      if (flush) begin
+      if (flush_r) begin
         state_next = ST_WAIT;
         out_valid_r_next = 0;
         fetch_pc_next = dnpc;
@@ -119,7 +119,7 @@ module ysyx_23060203_IFU (
     end
   end
 
-  assign out_valid = out_valid_r & ~flush;
+  assign out_valid = out_valid_r & ~flush & ~flush_r;
 
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS
