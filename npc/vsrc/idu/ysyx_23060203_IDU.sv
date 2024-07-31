@@ -1,6 +1,9 @@
 module ysyx_23060203_IDU (
   input clock, reset,
 
+  // 冲刷信号
+  input flush,
+
   // GPR
   output [4:0] rs1,
   input [31:0] src1,
@@ -10,9 +13,6 @@ module ysyx_23060203_IDU (
   // CSR
   output [11:0] csr_raddr,
   input [31:0] csr_rdata,
-
-  // 冲刷信号
-  input flush,
 
   // EXU将要写入但还没写入的寄存器
   input [4:0] exu_rd,
@@ -52,11 +52,6 @@ module ysyx_23060203_IDU (
   `endif
 );
 
-  `include "def/opcode.sv"
-  `include "def/csr.sv"
-  `include "def/alu.sv"
-  `include "def/branch.sv"
-
   reg valid;
   reg [31:0] pc, inst;
   reg jump_flush_en;
@@ -64,20 +59,19 @@ module ysyx_23060203_IDU (
   always @(posedge clock)
   if (reset) begin
     valid <= 0;
-    jump_flush_en <= 0;
   end else begin
     if (flush) begin
       valid <= 0;
-      jump_flush_en <= 0;
     end else if (in_valid & in_ready) begin
       valid <= 1;
       pc <= in_pc;
       inst <= in_inst;
       jump_flush_en <= 1;
     end else begin
-      jump_flush_en <= 0;
       if (out_valid & out_ready) begin
         valid <= 0;
+      end else if (jump_flush) begin
+        jump_flush_en <= 0;
       end
     end
   end
@@ -174,7 +168,7 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  assign jump_flush = valid & jump_pred_fail & jump_flush_en;
+  assign jump_flush = valid & ~gpr_raw &jump_pred_fail & jump_flush_en;
 
   // jump_dnpc
   wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1 : pc;

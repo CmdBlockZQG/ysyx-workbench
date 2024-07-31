@@ -52,6 +52,7 @@ module ysyx_23060203_WBU (
     valid <= 0;
   end else begin
     if (in_valid) begin
+      valid <= 1;
       pc <= in_pc;
       csr_wen <= in_csr_wen;
       exc <= in_exc;

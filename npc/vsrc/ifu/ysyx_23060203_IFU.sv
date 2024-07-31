@@ -1,6 +1,8 @@
 module ysyx_23060203_IFU (
   input clock, reset,
 
+  axi_if.out mem_r,
+
   input jump_flush,
   input [31:0] jump_dnpc,
   input cs_flush,
@@ -10,9 +12,7 @@ module ysyx_23060203_IFU (
   input out_ready,
   output out_valid,
   output reg [31:0] out_pc,
-  output reg [31:0] out_inst,
-
-  axi_if.out mem_r
+  output reg [31:0] out_inst
 );
 
   wire hit;
@@ -58,6 +58,7 @@ module ysyx_23060203_IFU (
       out_inst <= out_inst_next;
       fetch_pc <= fetch_pc_next;
       flush_r <= flush_r_next;
+      dnpc_r <= dnpc_r_next;
     end
   end
 
@@ -108,7 +109,7 @@ module ysyx_23060203_IFU (
         state_next = ST_WAIT;
         out_valid_r_next = 0;
         fetch_pc_next = dnpc;
-      end else if (~out_valid_r | out_ready) begin
+      end else if (out_ready) begin
         state_next = ST_WAIT;
         out_valid_r_next = 1;
         out_pc_next = fetch_pc;
