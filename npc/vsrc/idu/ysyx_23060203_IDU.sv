@@ -68,11 +68,10 @@ module ysyx_23060203_IDU (
       inst <= in_inst;
       jump_flush_en <= 1;
     end else begin
-      if (jump_flush) begin
-        jump_flush_en <= 0;
-      end
       if (out_valid & out_ready) begin
         valid <= 0;
+      end else if (jump_flush) begin
+        jump_flush_en <= 0;
       end
     end
   end
