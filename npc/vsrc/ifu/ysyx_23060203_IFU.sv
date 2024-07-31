@@ -58,6 +58,7 @@ module ysyx_23060203_IFU (
       out_inst <= out_inst_next;
       fetch_pc <= fetch_pc_next;
       flush_r <= flush_r_next;
+      dnpc_r <= dnpc_r_next;
     end
   end
 
