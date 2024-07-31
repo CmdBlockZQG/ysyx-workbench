@@ -105,7 +105,14 @@ module ysyx_23060203_IDU (
   assign rs2 = inst[24:20];
   wire [4:0] rd = inst[11:7];
 
-  wire gpr_raw = (opcode == OP_BRANCH) & (((|rs1) & (rs1 == exu_rd)) | ((|rs2) & (rs2 == exu_rd)));
+  reg gpr_raw;
+  always_comb begin
+    case (opcode)
+      OP_BRANCH : gpr_raw = ((|rs1) & (rs1 == exu_rd)) | ((|rs2) & (rs2 == exu_rd));
+      OP_JALR   : gpr_raw = (|rs1) & (rs1 == exu_rd);
+      default   : gpr_raw = 0;
+    endcase
+  end
 
   wire [31:0] src1_fw = ((exu_rd == rs1) & (|rs1)) ? exu_rd_val : src1;
   wire [31:0] src2_fw = ((exu_rd == rs2) & (|rs2)) ? exu_rd_val : src2;
@@ -159,7 +166,7 @@ module ysyx_23060203_IDU (
   assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
 
   // jump_dnpc
-  wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1_fw : pc;
+  wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1 : pc;
   reg [31:0] dnpc_b;
 
   always_comb begin
