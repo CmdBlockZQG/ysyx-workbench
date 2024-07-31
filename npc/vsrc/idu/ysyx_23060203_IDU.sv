@@ -14,8 +14,9 @@ module ysyx_23060203_IDU (
   output [11:0] csr_raddr,
   input [31:0] csr_rdata,
 
-  // EXU将要写入但还没写入的寄存器
+  // EXU旁路
   input [4:0] exu_rd,
+  input [31:0] exu_rd_val,
 
   // 跳转输出
   output jump_flush,
@@ -104,23 +105,22 @@ module ysyx_23060203_IDU (
   assign rs2 = inst[24:20];
   wire [4:0] rd = inst[11:7];
 
-  reg need_rs1, need_rs2;
-  always_comb begin
-    case (opcode)
-      OP_JALR, OP_BRANCH, OP_LOAD, OP_STORE, OP_RI, OP_RR: need_rs1 = 1;
-      OP_SYS: need_rs1 = zicsr & ~funct3[2];
-      default: need_rs1 = 0;
-    endcase
-  end
+  wire rs1_raw = (|rs1) & (rs1 == exu_rd);
+  wire rs2_raw = (|rs2) & (rs2 == exu_rd);
 
-  always_comb begin
-    case (opcode)
-      OP_BRANCH, OP_STORE, OP_RR: need_rs2 = 1;
-      default: need_rs2 = 0;
-    endcase
-  end
+  // reg gpr_raw;
+  // always_comb begin
+  //   case (opcode)
+  //     OP_BRANCH : gpr_raw = rs1_raw | rs2_raw;
+  //     OP_JALR   : gpr_raw = rs1_raw;
+  //     default   : gpr_raw = 0;
+  //   endcase
+  // end
+  // NOTE: 等价时序优化
+  wire gpr_raw = (opcode[4:1] == 4'b1100) & (rs1_raw | (rs2_raw & ~opcode[0]));
 
-  wire gpr_raw = (need_rs1 & (|rs1) & (rs1 == exu_rd)) | (need_rs2 & (|rs2) & (rs2 == exu_rd));
+  wire [31:0] src1_fw = ((exu_rd == rs1) & (|rs1)) ? exu_rd_val : src1;
+  wire [31:0] src2_fw = ((exu_rd == rs2) & (|rs2)) ? exu_rd_val : src2;
 
   // -------------------- SYS --------------------
   wire sys = opcode == OP_SYS;
@@ -153,20 +153,23 @@ module ysyx_23060203_IDU (
     .jump_en(br_jump_en)
   );
 
-  reg jump_pred_fail;
-  always_comb begin
-    case (opcode)
-      OP_JAL, OP_JALR : begin
-        jump_pred_fail = 1;
-      end
-      OP_BRANCH: begin
-        jump_pred_fail = br_jump_en ^ inst[31];
-      end
-      default: begin
-        jump_pred_fail = 0;
-      end
-    endcase
-  end
+  // reg jump_pred_fail;
+  // always_comb begin
+  //   case (opcode)
+  //     OP_JAL, OP_JALR : begin
+  //       jump_pred_fail = 1;
+  //     end
+  //     OP_BRANCH: begin
+  //       jump_pred_fail = br_jump_en ^ inst[31];
+  //     end
+  //     default: begin
+  //       jump_pred_fail = 0;
+  //     end
+  //   endcase
+  // end
+  // NOTE: 等价时序优化
+  // WARN: 等价条件为，没有除了JAL JALR BRANCH之外的指令的opcode高三位为110
+  wire jump_pred_fail = (opcode[4:2] == 3'b110) & (opcode[0] | (br_jump_en ^ inst[31]));
 
   assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
 
@@ -207,7 +210,7 @@ module ysyx_23060203_IDU (
       OP_LUI                    : out_val_a = 0;
       OP_AUIPC, OP_JAL, OP_JALR : out_val_a = pc;
       OP_SYS                    : out_val_a = csr_rdata;
-      default                   : out_val_a = src1;
+      default                   : out_val_a = src1_fw;
     endcase
 
     case (opcode)
@@ -215,15 +218,15 @@ module ysyx_23060203_IDU (
       // OP_JAL, OP_JALR  : out_val_b = 32'h4;
       OP_LOAD, OP_RI   : out_val_b = imm_i;
       OP_STORE         : out_val_b = imm_s;
-      OP_RR            : out_val_b = src2;
-      OP_SYS           : out_val_b = funct3[2] ? imm_z : src1;
+      OP_RR            : out_val_b = src2_fw;
+      OP_SYS           : out_val_b = funct3[2] ? imm_z : src1_fw;
       default          : out_val_b = 32'h4;
     endcase
 
     case (opcode)
-      // OP_STORE : out_val_c = src2;
+      // OP_STORE : out_val_c = src2_fw;
       OP_SYS   : out_val_c = {20'h0, csr};
-      default  : out_val_c = src2;
+      default  : out_val_c = src2_fw;
     endcase
   end
 

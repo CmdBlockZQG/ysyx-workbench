@@ -67,7 +67,7 @@ module ysyx_23060203_CPU (
 
     .csr_raddr(csr_raddr), .csr_rdata(csr_rdata),
 
-    .exu_rd(exu_rd),
+    .exu_rd(exu_rd), .exu_rd_val(exu_rd_val),
 
     .jump_flush(jump_flush), .jump_dnpc(jump_dnpc),
 
@@ -100,6 +100,7 @@ module ysyx_23060203_CPU (
   );
 
   wire [4:0] exu_rd;
+  wire [31:0] exu_rd_val;
   axi_if lsu_mem_r();
   wire exu_in_ready;
   wire exu_out_valid;
@@ -121,7 +122,7 @@ module ysyx_23060203_CPU (
 
     .flush(cs_flush),
 
-    .exu_rd(exu_rd),
+    .exu_rd(exu_rd), .exu_rd_val(exu_rd_val),
 
     .mem_r(lsu_mem_r),
     .mem_w(io_out),
