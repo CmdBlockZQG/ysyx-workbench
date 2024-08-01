@@ -222,11 +222,14 @@ module ysyx_23060203_IDU (
       default          : out_val_b = 32'h4;
     endcase
 
-    case (opcode)
-      // OP_STORE : out_val_c = src2_fw;
-      OP_SYS   : out_val_c = {20'h0, csr};
-      default  : out_val_c = src2_fw;
-    endcase
+    // case (opcode)
+    //   OP_STORE : out_val_c = src2_fw; // 01000
+    //   OP_SYS   : out_val_c = {20'h0, csr}; // 11100
+    //   default  : out_val_c = src2_fw;
+    // endcase
+    // NOTE: 等价时序优化
+    // WARN: 务必注意opcode添加和数据通路修改的情况
+    out_val_c = opcode[4] ? {20'h0, csr} : src2_fw;
   end
 
   // -------------------- 控制信号 --------------------
