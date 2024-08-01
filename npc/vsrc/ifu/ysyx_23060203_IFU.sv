@@ -73,8 +73,8 @@ module ysyx_23060203_IFU (
   wire flush_w = flush | flush_r;
 
   always_comb begin
-    out_valid_r_next = ~flush_w & (hit | (out_valid_r & ~out_ready));
-    out_pc_next = out_pc;
+    out_valid_r_next = out_valid_r;
+    out_pc_next = (~flush_w & hit & out_step_en) ? fetch_pc : out_pc;
     out_inst_next = out_inst;
     fetch_pc_next = fetch_pc;
 
@@ -85,25 +85,25 @@ module ysyx_23060203_IFU (
     end else if (out_valid_r) begin
       if (out_ready) begin
         if (hit) begin
-          // out_valid_r_next = 1;
-          out_pc_next = fetch_pc;
+          out_valid_r_next = 1;
+          // out_pc_next = fetch_pc;
           out_inst_next = cache_inst;
           fetch_pc_next = fetch_pc_pred;
         end else begin
-          // out_valid_r_next = 0;
+          out_valid_r_next = 0;
         end
       end
     end else begin
       if (hit) begin
-        // out_valid_r_next = 1;
-        out_pc_next = fetch_pc;
+        out_valid_r_next = 1;
+        // out_pc_next = fetch_pc;
         out_inst_next = cache_inst;
         fetch_pc_next = fetch_pc_pred;
       end
     end
 
     if (flush) begin
-      // out_valid_r_next = 0;
+      out_valid_r_next = 0;
       if (hit) begin
         fetch_pc_next = dnpc;
       end else begin
