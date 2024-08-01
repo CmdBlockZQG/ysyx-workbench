@@ -68,12 +68,25 @@ module ysyx_23060203_IFU (
     flush_r_next = flush_r;
     dnpc_r_next = dnpc_r;
 
-    if (flush_r) begin
+    if (flush) begin
+      out_valid_r_next = 0;
+      if (hit) begin
+        flush_r_next = 0;
+        fetch_pc_next = dnpc;
+      end else begin
+        flush_r_next = 1;
+        dnpc_r_next = dnpc;
+      end
+    end else if (flush_r) begin
+      out_valid_r_next = 0;
       if (hit) begin
         flush_r_next = 0;
         fetch_pc_next = dnpc_r;
+      end else begin
+        flush_r_next = 1;
       end
     end else if (out_valid_r) begin
+      flush_r_next = 0;
       if (out_ready) begin
         if (hit) begin
           out_valid_r_next = 1;
@@ -85,21 +98,14 @@ module ysyx_23060203_IFU (
         end
       end
     end else begin
+      flush_r_next = 0;
       if (hit) begin
         out_valid_r_next = 1;
         out_pc_next = fetch_pc;
         out_inst_next = cache_inst;
         fetch_pc_next = fetch_pc_pred;
-      end
-    end
-
-    if (flush) begin
-      out_valid_r_next = 0;
-      if (hit) begin
-        fetch_pc_next = dnpc;
       end else begin
-        flush_r_next = 1;
-        dnpc_r_next = dnpc;
+        out_valid_r_next = 0;
       end
     end
   end
