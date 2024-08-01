@@ -63,7 +63,8 @@ module ysyx_23060203_IFU (
       out_valid_r_next = 0;
     end else if (out_valid_r) begin
       if (out_ready) begin
-        out_valid_r_next = hit;
+        if (hit) out_valid_r_next = 1;
+        else out_valid_r_next = 0;
       end
     end else begin
       if (hit) out_valid_r_next = 1;
