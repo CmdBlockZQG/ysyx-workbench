@@ -82,13 +82,17 @@ module ysyx_23060203_WBU (
   if (reset) begin
     mstatus <= 32'h1800;
   end else begin
-    if (in_valid & in_csr_wen) begin
-      case (in_csr_waddr)
-        CSR_MSTATUS : mstatus <= in_csr_wdata;
-        CSR_MTVEC   : mtvec   <= in_csr_wdata;
-        CSR_MEPC    : mepc    <= in_csr_wdata;
-        default: ;
-      endcase
+    if (in_valid) begin
+      if (in_csr_wen) begin
+        case (in_csr_waddr)
+          CSR_MSTATUS : mstatus <= in_csr_wdata;
+          CSR_MTVEC   : mtvec   <= in_csr_wdata;
+          CSR_MEPC    : mepc    <= in_csr_wdata;
+          default: ;
+        endcase
+      end else if (in_exc) begin
+        mepc <= in_pc;
+      end
     end
   end
 
