@@ -156,7 +156,7 @@ module ysyx_23060203_IDU (
   // reg jump_pred_fail;
   // always_comb begin
   //   case (opcode)
-  //     OP_JAL, OP_JALR : begin
+  //     OP_JALR : begin
   //       jump_pred_fail = 1;
   //     end
   //     OP_BRANCH: begin
@@ -168,8 +168,7 @@ module ysyx_23060203_IDU (
   //   endcase
   // end
   // NOTE: 等价时序优化
-  // WARN: 等价条件为，没有除了JAL JALR BRANCH之外的指令的opcode高三位为110
-  wire jump_pred_fail = (opcode[4:2] == 3'b110) & (opcode[0] | (br_jump_en ^ inst[31]));
+  wire jump_pred_fail = (opcode[4:1] == 4'b1100) & (opcode[0] | (br_jump_en ^ inst[31]));
 
   assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
 
@@ -179,7 +178,6 @@ module ysyx_23060203_IDU (
 
   always_comb begin
     case (opcode)
-      OP_JAL : dnpc_b = imm_j;
       OP_JALR: dnpc_b = imm_i;
       default: dnpc_b = inst[31] ? 32'h4 : imm_b;
     endcase

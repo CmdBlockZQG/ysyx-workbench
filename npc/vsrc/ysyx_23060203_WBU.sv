@@ -76,28 +76,29 @@ module ysyx_23060203_WBU (
 
   // -------------------- CSR --------------------
   `include "def/csr.sv"
-  reg [31:0] mstatus, mtvec, mepc;
+  reg [31:0] mtvec, mepc;
 
   always @(posedge clock)
-  if (reset) begin
-    mstatus <= 32'h1800;
-  end else begin
-    if (in_valid & in_csr_wen) begin
-      case (in_csr_waddr)
-        CSR_MSTATUS : mstatus <= in_csr_wdata;
-        CSR_MTVEC   : mtvec   <= in_csr_wdata;
-        CSR_MEPC    : mepc    <= in_csr_wdata;
-        default: ;
-      endcase
+  begin
+    if (in_valid) begin
+      if (in_csr_wen) begin
+        case (in_csr_waddr)
+          CSR_MTVEC   : mtvec   <= in_csr_wdata;
+          CSR_MEPC    : mepc    <= in_csr_wdata;
+          default: ;
+        endcase
+      end else if (in_exc) begin
+        mepc <= in_pc;
+      end
     end
   end
 
   always_comb begin
     case (csr_raddr)
-      CSR_MSTATUS : csr_rdata = mstatus;
       CSR_MTVEC   : csr_rdata = mtvec;
       CSR_MEPC    : csr_rdata = mepc;
 
+      CSR_MSTATUS   : csr_rdata = 32'h1800;
       CSR_MCAUSE    : csr_rdata = 32'd11;
       CSR_MVENDORID : csr_rdata = 32'h79737978;
       CSR_MARCHID   : csr_rdata = 32'h015fdeeb;
@@ -110,7 +111,9 @@ module ysyx_23060203_WBU (
   `ifndef SYNTHESIS
     always @(posedge clock) begin
       if (in_valid) begin
-        inst_complete(in_dnpc, in_inst);
+        if (in_exc) inst_complete(mtvec, in_inst);
+        else if (in_ret) inst_complete(mepc, in_inst);
+        else inst_complete(in_dnpc, in_inst);
         if (in_exc & in_ret) halt(); // ebreak
       end
     end

@@ -32,9 +32,18 @@ module ysyx_23060203_IFU (
   wire [31:0] dnpc = cs_flush ? cs_dnpc : jump_dnpc;
 
   // pred
-  wire [31:0] imm_b = {{20{cache_inst[31]}}, cache_inst[7],
-                       cache_inst[30:25], cache_inst[11:8], 1'b0};
-  wire [31:0] pc_incr = (cache_inst[6:2] == 5'b11000) & cache_inst[31] ? imm_b : 32'h4;
+  wire [31:0] imm_b =
+    {{20{cache_inst[31]}}, cache_inst[7], cache_inst[30:25], cache_inst[11:8], 1'b0};
+  wire [31:0] imm_j =
+    {{12{cache_inst[31]}}, cache_inst[19:12], cache_inst[20], cache_inst[30:21], 1'b0};
+  reg [31:0] pc_incr;
+  always_comb begin
+    case (cache_inst[6:2])
+      5'b11000: pc_incr = cache_inst[31] ? imm_b : 32'h4;
+      5'b11011: pc_incr = imm_j;
+      default : pc_incr = 32'h4;
+    endcase
+  end
   wire [31:0] fetch_pc_pred = fetch_pc + pc_incr;
 
   reg out_valid_r;
