@@ -76,16 +76,13 @@ module ysyx_23060203_WBU (
 
   // -------------------- CSR --------------------
   `include "def/csr.sv"
-  reg [31:0] mstatus, mtvec, mepc;
+  reg [31:0] mtvec, mepc;
 
   always @(posedge clock)
-  if (reset) begin
-    mstatus <= 32'h1800;
-  end else begin
+  begin
     if (in_valid) begin
       if (in_csr_wen) begin
         case (in_csr_waddr)
-          CSR_MSTATUS : mstatus <= in_csr_wdata;
           CSR_MTVEC   : mtvec   <= in_csr_wdata;
           CSR_MEPC    : mepc    <= in_csr_wdata;
           default: ;
@@ -98,10 +95,10 @@ module ysyx_23060203_WBU (
 
   always_comb begin
     case (csr_raddr)
-      CSR_MSTATUS : csr_rdata = mstatus;
       CSR_MTVEC   : csr_rdata = mtvec;
       CSR_MEPC    : csr_rdata = mepc;
 
+      CSR_MSTATUS   : csr_rdata = 32'h1800;
       CSR_MCAUSE    : csr_rdata = 32'd11;
       CSR_MVENDORID : csr_rdata = 32'h79737978;
       CSR_MARCHID   : csr_rdata = 32'h015fdeeb;
