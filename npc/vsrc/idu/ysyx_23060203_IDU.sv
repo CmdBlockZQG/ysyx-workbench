@@ -138,7 +138,7 @@ module ysyx_23060203_IDU (
 
   reg [2:0] sys_alu_funct;
   always_comb begin
-    unique case (funct3)
+    case (funct3)
       CSRF_RS, CSRF_RSI: sys_alu_funct = ALU_OR;
       CSRF_RC, CSRF_RCI: sys_alu_funct = ALU_AND;
       default          : sys_alu_funct = ALU_ADD;
@@ -153,23 +153,23 @@ module ysyx_23060203_IDU (
     .jump_en(br_jump_en)
   );
 
-  // reg jump_pred_fail;
-  // always_comb begin
-  //   case (opcode)
-  //     OP_JAL, OP_JALR : begin
-  //       jump_pred_fail = 1;
-  //     end
-  //     OP_BRANCH: begin
-  //       jump_pred_fail = br_jump_en ^ inst[31];
-  //     end
-  //     default: begin
-  //       jump_pred_fail = 0;
-  //     end
-  //   endcase
-  // end
+  reg jump_pred_fail;
+  always_comb begin
+    case (opcode)
+      OP_JALR : begin
+        jump_pred_fail = 1;
+      end
+      OP_BRANCH: begin
+        jump_pred_fail = br_jump_en ^ inst[31];
+      end
+      default: begin
+        jump_pred_fail = 0;
+      end
+    endcase
+  end
   // NOTE: 等价时序优化
   // WARN: 等价条件为，没有除了JAL JALR BRANCH之外的指令的opcode高三位为110
-  wire jump_pred_fail = (opcode[4:2] == 3'b110) & (opcode[0] | (br_jump_en ^ inst[31]));
+  // wire jump_pred_fail = (opcode[4:2] == 3'b110) & (opcode[0] | (br_jump_en ^ inst[31]));
 
   assign jump_flush = valid & ~gpr_raw & jump_pred_fail & jump_flush_en;
 
@@ -178,8 +178,7 @@ module ysyx_23060203_IDU (
   reg [31:0] dnpc_b;
 
   always_comb begin
-    unique case (opcode)
-      OP_JAL : dnpc_b = imm_j;
+    case (opcode)
       OP_JALR: dnpc_b = imm_i;
       default: dnpc_b = inst[31] ? 32'h4 : imm_b;
     endcase
@@ -192,7 +191,7 @@ module ysyx_23060203_IDU (
   `ifndef SYNTHESIS
     reg [31:0] out_dnpc_b;
     always_comb begin
-      unique case (opcode)
+      case (opcode)
         OP_JAL    : out_dnpc_b = imm_j;
         OP_JALR   : out_dnpc_b = imm_i;
         OP_BRANCH : out_dnpc_b = br_jump_en ? imm_b : 32'h4;
@@ -206,14 +205,14 @@ module ysyx_23060203_IDU (
 
   // -------------------- 选数 --------------------
   always_comb begin
-    unique case (opcode)
+    case (opcode)
       OP_LUI                    : out_val_a = 0;
       OP_AUIPC, OP_JAL, OP_JALR : out_val_a = pc;
       OP_SYS                    : out_val_a = csr_rdata;
       default                   : out_val_a = src1_fw;
     endcase
 
-    unique case (opcode)
+    case (opcode)
       OP_LUI, OP_AUIPC : out_val_b = imm_u;
       // OP_JAL, OP_JALR  : out_val_b = 32'h4;
       OP_LOAD, OP_RI   : out_val_b = imm_i;
@@ -223,7 +222,7 @@ module ysyx_23060203_IDU (
       default          : out_val_b = 32'h4;
     endcase
 
-    unique case (opcode)
+    case (opcode)
       // OP_STORE : out_val_c = src2_fw;
       OP_SYS   : out_val_c = {20'h0, csr};
       default  : out_val_c = src2_fw;
@@ -234,7 +233,7 @@ module ysyx_23060203_IDU (
 
   // alu_funct ALU模式选择
   always_comb begin
-    unique case (opcode)
+    case (opcode)
       OP_RI, OP_RR : out_alu_funct = funct3;
       OP_SYS       : out_alu_funct = sys_alu_funct;
       default      : out_alu_funct = ALU_ADD;
@@ -243,7 +242,7 @@ module ysyx_23060203_IDU (
 
   // alu_sw ALU符号切换
   always_comb begin
-    unique case (opcode)
+    case (opcode)
       OP_RR   : out_alu_sw = funct7[5];
       OP_RI   : out_alu_sw = (funct3 == ALU_SHR) & funct7[5];
       OP_SYS  : out_alu_sw = &funct3[1:0];
@@ -254,7 +253,7 @@ module ysyx_23060203_IDU (
   // rd 目标寄存器
   // 0表示不写入寄存器
   always_comb begin
-    unique case (opcode)
+    case (opcode)
       OP_BRANCH, OP_STORE : out_rd = 5'b0;
       default             : out_rd = rd;
       // ecall, mret, ebreak, fence.i也不写入寄存器，但它们的rd字段都是0
@@ -274,7 +273,7 @@ module ysyx_23060203_IDU (
   // ls[2]: sext, 1表示符号拓展（只对load有意义）
   // ls[1:0]: size, 00, 01, 10, 11分别表示b, h, w, d
   always_comb begin
-    unique case (opcode)
+    case (opcode)
       OP_LOAD  : out_ls = {1'b1, ~funct3[2], funct3[1:0]};
       OP_STORE : out_ls = {2'b01, funct3[1:0]};
       default  : out_ls = 4'b0;
