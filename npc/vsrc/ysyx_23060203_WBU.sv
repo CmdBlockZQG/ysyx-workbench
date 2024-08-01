@@ -110,7 +110,9 @@ module ysyx_23060203_WBU (
   `ifndef SYNTHESIS
     always @(posedge clock) begin
       if (in_valid) begin
-        inst_complete(in_dnpc, in_inst);
+        if (in_exc) inst_complete(mtvec, in_inst);
+        else if (in_ret) inst_complete(mepc, in_inst);
+        else inst_complete(in_dnpc, in_inst);
         if (in_exc & in_ret) halt(); // ebreak
       end
     end
