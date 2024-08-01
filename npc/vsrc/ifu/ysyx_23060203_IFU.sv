@@ -73,6 +73,21 @@ module ysyx_23060203_IFU (
     end
   end
 
+  // -------------------- fetch --------------------
+  reg [31:0] fetch_pc_next;
+  always_comb begin
+    fetch_pc_next = fetch_pc;
+    if (flush) begin
+      if (hit) fetch_pc_next = dnpc;
+    end if (flush_r) begin
+      if (hit) fetch_pc_next = dnpc_r;
+    end else if (out_valid_r) begin
+      if (out_ready & hit) fetch_pc_next = fetch_pc_pred;
+    end else begin
+      if (hit) fetch_pc_next = fetch_pc_pred;
+    end
+  end
+
   // -------------------- ? --------------------
   always @(posedge clock) begin
     if (reset) begin
@@ -95,38 +110,11 @@ module ysyx_23060203_IFU (
     end
   end
 
-  reg [31:0] fetch_pc_next;
+  
 
   always_comb begin
     // out_valid_r_next = out_valid_r;
-    fetch_pc_next = fetch_pc;
-
-    if (flush_r) begin
-      if (hit) begin
-        fetch_pc_next = dnpc_r;
-      end
-    end else if (out_valid_r) begin
-      if (out_ready) begin
-        if (hit) begin
-          // out_valid_r_next = 1;
-          fetch_pc_next = fetch_pc_pred;
-        end else begin
-          // out_valid_r_next = 0;
-        end
-      end
-    end else begin
-      if (hit) begin
-        // out_valid_r_next = 1;
-        fetch_pc_next = fetch_pc_pred;
-      end
-    end
-
-    if (flush) begin
-      // out_valid_r_next = 0;
-      if (hit) begin
-        fetch_pc_next = dnpc;
-      end
-    end
+    
   end
 
   assign out_valid = out_valid_r & ~flush;
