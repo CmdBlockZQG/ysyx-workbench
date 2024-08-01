@@ -16,7 +16,6 @@ module ysyx_23060203_GPR (
   // -------------------- WRITE --------------------
   reg [31:0] r [1:NR_REG-1]/*verilator public*/;
 
-  integer i;
   always @(posedge clock) begin
     if (wen & (|waddr)) begin
       r[waddr] <= wdata;
