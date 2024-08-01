@@ -28,7 +28,7 @@ module ysyx_23060203_IFU (
   reg out_valid_r, out_valid_r_next;
   reg [31:0] fetch_pc, fetch_pc_next;
 
-  reg flush_r, flush_r_next;
+  reg flush_r;//, flush_r_next;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -72,19 +72,21 @@ module ysyx_23060203_IFU (
   wire out_step_en = ~out_valid_r | out_ready;
   wire flush_w = flush | flush_r;
 
-  wire [31:0] dnpc_r_next = flush ? dnpc : dnpc_r;
+  wire flush_r_next = flush_w & ~hit;
+  wire [31:0] dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
+  // wire [31:0] dnpc_r_next = flush ? dnpc : dnpc_r;
 
   always_comb begin
     out_valid_r_next = out_valid_r;
     out_pc_next = out_pc;
     out_inst_next = out_inst;
     fetch_pc_next = fetch_pc;
-    flush_r_next = flush_r;
-    // dnpc_r_next = dnpc_r;
+    // flush_r_next = flush_w & ~hit;
+    // dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
 
     if (flush_r) begin
       if (hit) begin
-        flush_r_next = 0;
+        // flush_r_next = 0;
         fetch_pc_next = dnpc_r;
       end
     end else if (out_valid_r) begin
@@ -112,7 +114,7 @@ module ysyx_23060203_IFU (
       if (hit) begin
         fetch_pc_next = dnpc;
       end else begin
-        flush_r_next = 1;
+        // flush_r_next = 1;
         // dnpc_r_next = dnpc;
       end
     end
