@@ -175,7 +175,10 @@ module ysyx_23060203_EXU (
   );
 
   assign exu_rd = rd & {5{valid}};
-  assign exu_rd_val = out_gpr_wdata;
+  // assign exu_rd_val = out_gpr_wdata;
+  // TEMP: 只有CSR指令的rd_src为1，反正要被冲刷掉，前递错误也没关系
+  // WARN: 数据通路修改可能会导致错误
+  assign exu_rd_val = ls[3] ? lsu_out_rdata : alu_val;
 
   // -------------------- CSR写回 --------------------
   assign out_csr_wen = csr_wen;
