@@ -136,14 +136,15 @@ module ysyx_23060203_IDU (
   wire [11:0] csr = inst[31:20];
   assign csr_raddr = csr;
 
-  reg [2:0] sys_alu_funct;
-  always_comb begin
-    case (funct3)
-      CSRF_RS, CSRF_RSI: sys_alu_funct = ALU_OR;
-      CSRF_RC, CSRF_RCI: sys_alu_funct = ALU_AND;
-      default          : sys_alu_funct = ALU_ADD;
-    endcase
-  end
+  // reg [2:0] sys_alu_funct;
+  // always_comb begin
+  //   case (funct3)
+  //     CSRF_RS, CSRF_RSI: sys_alu_funct = ALU_OR;
+  //     CSRF_RC, CSRF_RCI: sys_alu_funct = ALU_AND;
+  //     default          : sys_alu_funct = ALU_ADD;
+  //   endcase
+  // end
+  wire [2:0] sys_alu_funct = funct3[0] ? ALU_AND : ALU_OR;
 
   // -------------------- BRANCH --------------------
   // jump_flush
