@@ -75,8 +75,8 @@ module ysyx_23060203_IFU (
   end
 
   // -------------------- fetch --------------------
-  reg [31:0] fetch_pc_next; // WARN: magic timing
-  always_comb begin
+  reg [31:0] fetch_pc_next;
+  always_comb begin // WARN: magic timing
     fetch_pc_next = fetch_pc;
     if (flush_r) begin
       if (hit) begin
