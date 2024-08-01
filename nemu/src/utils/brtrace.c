@@ -32,7 +32,7 @@ static void write_last() {
 }
 
 void brtrace(Decode *s) {
-  assert(s);
+  if (!fp) return;
   // inst
   uint8_t type;
   uint8_t opcode = (s->isa.inst.val >> 2) & ((1 << 5) - 1);
