@@ -26,6 +26,7 @@ void init_disasm(const char *triple);
 void init_elf(const char *elf_file);
 void init_pctrace(const char *filename);
 void init_lstrace(const char *filename);
+void init_brtrace(const char *filename);
 
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
@@ -48,6 +49,7 @@ static char *img_file = NULL;
 static char *elf_file = NULL;
 static char *pctrace_file = NULL;
 static char *lstrace_file = NULL;
+static char *brtrace_file = NULL;
 static int difftest_port = 1234;
 
 static long load_img() {
@@ -81,11 +83,12 @@ static int parse_args(int argc, char *argv[]) {
     {"port"     , required_argument, NULL, 'p'},
     {"pctrace"  , required_argument, NULL, 'c'},
     {"lstrace"  , required_argument, NULL, 's'},
+    {"brtrace"  , required_argument, NULL, 'r'},
     {"help"     , no_argument      , NULL, 'h'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:e:d:p:c:s:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:e:d:p:c:s:r:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
@@ -104,6 +107,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
         printf("\t-c,--pctrace=FILE       dump pctrace for cachesim to FILE\n");
         printf("\t-s,--lstrace=FILE       dump lstrace for cachesim to FILE\n");
+        printf("\t-r,--brtrace=FILE       dump brtrace for branchsim to FILE\n");
         printf("\n");
         exit(0);
     }
@@ -141,9 +145,10 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
 
-  /* initialize pc/ls trace */
+  /* initialize pc/ls/br trace */
   IFDEF(CONFIG_PCTRACE, init_pctrace(pctrace_file));
   IFDEF(CONFIG_LSTRACE, init_lstrace(lstrace_file));
+  IFDEF(CONFIG_BRTRACE, init_lstrace(brtrace_file));
 
   /* Initialize the simple debugger. */
   init_sdb();

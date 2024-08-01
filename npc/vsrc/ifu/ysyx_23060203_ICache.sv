@@ -9,8 +9,8 @@ module ysyx_23060203_ICache (
 
   axi_if.out mem_r
 );
-  parameter OFFSET_W = 5; // 块内地址宽度，块大小=2^x字节
-  parameter INDEX_W  = 1; // 组地址宽度，组数=2^x
+  parameter OFFSET_W = 4; // 块内地址宽度，块大小=2^x字节
+  parameter INDEX_W  = 2; // 组地址宽度，组数=2^x
   parameter TAG_W    = 32 - OFFSET_W - INDEX_W; // 标记字宽度
 
   parameter SET_N = 1 << INDEX_W; // 组数
