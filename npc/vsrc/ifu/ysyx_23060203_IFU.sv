@@ -15,6 +15,8 @@ module ysyx_23060203_IFU (
   output reg [31:0] out_inst
 );
 
+  // -------------------- ICache --------------------
+  reg [31:0] fetch_pc;
   wire hit;
   wire [31:0] cache_inst;
   ysyx_23060203_ICache ICache (
@@ -24,11 +26,35 @@ module ysyx_23060203_IFU (
     .mem_r(mem_r)
   );
 
-  // reg [31:0] out_pc_next, out_inst_next;
-  reg out_valid_r, out_valid_r_next;
-  reg [31:0] fetch_pc, fetch_pc_next;
+  // -------------------- 静态分支预测 --------------------
+  wire [31:0] imm_b =
+    {{20{cache_inst[31]}}, cache_inst[7], cache_inst[30:25], cache_inst[11:8], 1'b0};
+  wire [31:0] imm_j =
+    {{12{cache_inst[31]}}, cache_inst[19:12], cache_inst[20], cache_inst[30:21], 1'b0};
+  reg [31:0] pc_incr;
+  always_comb begin
+    case (cache_inst[6:2])
+      5'b11000: pc_incr = cache_inst[31] ? imm_b : 32'h4;
+      5'b11011: pc_incr = imm_j;
+      default : pc_incr = 32'h4;
+    endcase
+  end
+  wire [31:0] fetch_pc_pred = fetch_pc + pc_incr;
 
+  // -------------------- flush & dnpc --------------------
+  // input
+  wire flush = jump_flush | cs_flush;
+  wire [31:0] dnpc = cs_flush ? cs_dnpc : jump_dnpc;
+  // reg
   reg flush_r;
+  wire flush_r_next = flush_w & ~hit;
+  reg [31:0] dnpc_r;
+  wire [31:0] dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
+
+
+  // -------------------- ? --------------------
+  reg out_valid_r;
+  wire flush_w = flush | flush_r;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -51,37 +77,17 @@ module ysyx_23060203_IFU (
     end
   end
 
-  wire flush = jump_flush | cs_flush;
-  wire [31:0] dnpc = cs_flush ? cs_dnpc : jump_dnpc;
-  reg [31:0] dnpc_r;
-
-  wire [31:0] imm_b =
-    {{20{cache_inst[31]}}, cache_inst[7], cache_inst[30:25], cache_inst[11:8], 1'b0};
-  wire [31:0] imm_j =
-    {{12{cache_inst[31]}}, cache_inst[19:12], cache_inst[20], cache_inst[30:21], 1'b0};
-  reg [31:0] pc_incr;
-  always_comb begin
-    case (cache_inst[6:2])
-      5'b11000: pc_incr = cache_inst[31] ? imm_b : 32'h4;
-      5'b11011: pc_incr = imm_j;
-      default : pc_incr = 32'h4;
-    endcase
-  end
-  wire [31:0] fetch_pc_pred = fetch_pc + pc_incr;
-
   wire out_step_en = ~out_valid_r | out_ready;
-  wire flush_w = flush | flush_r;
-
-  wire flush_r_next = flush_w & ~hit;
-  wire [31:0] dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
 
   wire [31:0] out_pc_next   = (~flush_w & hit & out_step_en) ? fetch_pc   : out_pc;
   wire [31:0] out_inst_next = (~flush_w & hit & out_step_en) ? cache_inst : out_inst;
 
+
+  reg [31:0] fetch_pc_next;
+  reg out_valid_r_next;
+
   always_comb begin
     out_valid_r_next = out_valid_r;
-    // out_pc_next = (~flush_w & hit & out_step_en) ? fetch_pc : out_pc;
-    // out_inst_next = (~flush_w & hit & out_step_en) ? cache_inst : out_inst;
     fetch_pc_next = fetch_pc;
 
     if (flush_r) begin
@@ -92,8 +98,6 @@ module ysyx_23060203_IFU (
       if (out_ready) begin
         if (hit) begin
           out_valid_r_next = 1;
-          // out_pc_next = fetch_pc;
-          // out_inst_next = cache_inst;
           fetch_pc_next = fetch_pc_pred;
         end else begin
           out_valid_r_next = 0;
@@ -102,8 +106,6 @@ module ysyx_23060203_IFU (
     end else begin
       if (hit) begin
         out_valid_r_next = 1;
-        // out_pc_next = fetch_pc;
-        // out_inst_next = cache_inst;
         fetch_pc_next = fetch_pc_pred;
       end
     end
@@ -112,7 +114,6 @@ module ysyx_23060203_IFU (
       out_valid_r_next = 0;
       if (hit) begin
         fetch_pc_next = dnpc;
-      end else begin
       end
     end
   end
