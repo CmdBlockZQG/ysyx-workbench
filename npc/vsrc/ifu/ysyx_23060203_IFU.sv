@@ -65,11 +65,10 @@ module ysyx_23060203_IFU (
   wire out_valid_r_next = ~flush_w & (hit | ~out_step_en);
   wire [31:0] out_pc_next = (hit & out_step_en) ? fetch_pc : out_pc;
   wire [31:0] out_inst_next = (hit & out_step_en) ? cache_inst : out_inst;
-  wire [31:0] fetch_pc_next = hit ? (
+  wire [31:0] fetch_pc_next = ~hit ? fetch_pc :
     flush ? dnpc :
     flush_r ? dnpc_r :
-    out_step_en ? fetch_pc_pred : fetch_pc
-  ) : fetch_pc;
+    out_step_en ? fetch_pc_pred : fetch_pc;
   wire flush_r_next = flush_w & ~hit;
   wire [31:0] dnpc_r_next = flush ? dnpc : dnpc_r;
 
