@@ -24,11 +24,11 @@ module ysyx_23060203_IFU (
     .mem_r(mem_r)
   );
 
-  reg [31:0] out_pc_next, out_inst_next;
+  // reg [31:0] out_pc_next, out_inst_next;
   reg out_valid_r, out_valid_r_next;
   reg [31:0] fetch_pc, fetch_pc_next;
 
-  reg flush_r;//, flush_r_next;
+  reg flush_r;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -47,7 +47,7 @@ module ysyx_23060203_IFU (
       out_inst <= out_inst_next;
       fetch_pc <= fetch_pc_next;
       flush_r <= flush_w & ~hit;
-      dnpc_r <= (flush & ~hit) ? dnpc : dnpc_r;
+      dnpc_r <= dnpc_r_next;
     end
   end
 
@@ -72,10 +72,16 @@ module ysyx_23060203_IFU (
   wire out_step_en = ~out_valid_r | out_ready;
   wire flush_w = flush | flush_r;
 
+  wire flush_r_next = flush_w & ~hit;
+  wire [31:0] dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
+
+  wire [31:0] out_pc_next   = (~flush_w & hit & out_step_en) ? fetch_pc   : out_pc;
+  wire [31:0] out_inst_next = (~flush_w & hit & out_step_en) ? cache_inst : out_inst;
+
   always_comb begin
     out_valid_r_next = out_valid_r;
-    out_pc_next = (~flush_w & hit & out_step_en) ? fetch_pc : out_pc;
-    out_inst_next = out_inst;
+    // out_pc_next = (~flush_w & hit & out_step_en) ? fetch_pc : out_pc;
+    // out_inst_next = (~flush_w & hit & out_step_en) ? cache_inst : out_inst;
     fetch_pc_next = fetch_pc;
 
     if (flush_r) begin
@@ -87,7 +93,7 @@ module ysyx_23060203_IFU (
         if (hit) begin
           out_valid_r_next = 1;
           // out_pc_next = fetch_pc;
-          out_inst_next = cache_inst;
+          // out_inst_next = cache_inst;
           fetch_pc_next = fetch_pc_pred;
         end else begin
           out_valid_r_next = 0;
@@ -97,7 +103,7 @@ module ysyx_23060203_IFU (
       if (hit) begin
         out_valid_r_next = 1;
         // out_pc_next = fetch_pc;
-        out_inst_next = cache_inst;
+        // out_inst_next = cache_inst;
         fetch_pc_next = fetch_pc_pred;
       end
     end
