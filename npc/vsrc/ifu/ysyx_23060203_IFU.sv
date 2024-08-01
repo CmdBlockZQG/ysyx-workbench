@@ -25,10 +25,10 @@ module ysyx_23060203_IFU (
   );
 
   // reg [31:0] out_pc_next, out_inst_next;
-  reg out_valid_r; // , out_valid_r_next;
-  reg [31:0] fetch_pc; // , fetch_pc_next;
+  reg out_valid_r;//, out_valid_r_next;
+  reg [31:0] fetch_pc;//, fetch_pc_next;
 
-  reg flush_r; // , flush_r_next;
+  reg flush_r;//, flush_r_next;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -53,7 +53,7 @@ module ysyx_23060203_IFU (
 
   wire flush = jump_flush | cs_flush;
   wire [31:0] dnpc = cs_flush ? cs_dnpc : jump_dnpc;
-  reg [31:0] dnpc_r; // , dnpc_r_next;
+  reg [31:0] dnpc_r;//, dnpc_r_next;
 
   wire [31:0] imm_b = {{20{cache_inst[31]}}, cache_inst[7],
                        cache_inst[30:25], cache_inst[11:8], 1'b0};
