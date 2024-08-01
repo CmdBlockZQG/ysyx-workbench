@@ -77,7 +77,8 @@ module ysyx_23060203_IFU (
         flush_r_next = 1;
         dnpc_r_next = dnpc;
       end
-    end else if (flush_r) begin
+    end
+    if (flush_r) begin
       out_valid_r_next = 0;
       if (hit) begin
         flush_r_next = 0;
