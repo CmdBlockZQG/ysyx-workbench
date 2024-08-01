@@ -46,14 +46,14 @@ module ysyx_23060203_IFU (
       out_pc <= out_pc_next;
       out_inst <= out_inst_next;
       fetch_pc <= fetch_pc_next;
-      flush_r <= flush_r_next;
-      dnpc_r <= dnpc_r_next;
+      flush_r <= flush_w & ~hit;
+      dnpc_r <= (flush & ~hit) ? dnpc : dnpc_r;
     end
   end
 
   wire flush = jump_flush | cs_flush;
   wire [31:0] dnpc = cs_flush ? cs_dnpc : jump_dnpc;
-  reg [31:0] dnpc_r;//, dnpc_r_next;
+  reg [31:0] dnpc_r;
 
   wire [31:0] imm_b =
     {{20{cache_inst[31]}}, cache_inst[7], cache_inst[30:25], cache_inst[11:8], 1'b0};
@@ -72,37 +72,30 @@ module ysyx_23060203_IFU (
   wire out_step_en = ~out_valid_r | out_ready;
   wire flush_w = flush | flush_r;
 
-  wire flush_r_next = flush_w & ~hit;
-  wire [31:0] dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
-  // wire [31:0] dnpc_r_next = flush ? dnpc : dnpc_r;
-
   always_comb begin
-    out_valid_r_next = out_valid_r;
+    out_valid_r_next = ~flush_w & (hit | (out_valid_r & ~out_ready));
     out_pc_next = out_pc;
     out_inst_next = out_inst;
     fetch_pc_next = fetch_pc;
-    // flush_r_next = flush_w & ~hit;
-    // dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
 
     if (flush_r) begin
       if (hit) begin
-        // flush_r_next = 0;
         fetch_pc_next = dnpc_r;
       end
     end else if (out_valid_r) begin
       if (out_ready) begin
         if (hit) begin
-          out_valid_r_next = 1;
+          // out_valid_r_next = 1;
           out_pc_next = fetch_pc;
           out_inst_next = cache_inst;
           fetch_pc_next = fetch_pc_pred;
         end else begin
-          out_valid_r_next = 0;
+          // out_valid_r_next = 0;
         end
       end
     end else begin
       if (hit) begin
-        out_valid_r_next = 1;
+        // out_valid_r_next = 1;
         out_pc_next = fetch_pc;
         out_inst_next = cache_inst;
         fetch_pc_next = fetch_pc_pred;
@@ -110,12 +103,10 @@ module ysyx_23060203_IFU (
     end
 
     if (flush) begin
-      out_valid_r_next = 0;
+      // out_valid_r_next = 0;
       if (hit) begin
         fetch_pc_next = dnpc;
       end else begin
-        // flush_r_next = 1;
-        // dnpc_r_next = dnpc;
       end
     end
   end
