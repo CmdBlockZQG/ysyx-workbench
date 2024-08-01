@@ -78,11 +78,6 @@ module ysyx_23060203_IFU (
   always_comb begin
     fetch_pc_next = fetch_pc;
 
-    if (flush) begin
-      if (hit) begin
-        fetch_pc_next = dnpc;
-      end
-    end else
     if (flush_r) begin
       if (hit) begin
         fetch_pc_next = dnpc_r;
@@ -96,6 +91,12 @@ module ysyx_23060203_IFU (
     end else begin
       if (hit) begin
         fetch_pc_next = fetch_pc_pred;
+      end
+    end
+
+    if (flush) begin
+      if (hit) begin
+        fetch_pc_next = dnpc;
       end
     end
   end
