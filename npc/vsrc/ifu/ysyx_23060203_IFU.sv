@@ -61,13 +61,15 @@ module ysyx_23060203_IFU (
     out_valid_r_next = out_valid_r;
     if (flush) begin
       out_valid_r_next = 0;
-    end else if (out_valid_r) begin
-      if (out_ready) begin
+    end else if (~flush_r) begin
+      if (out_valid_r) begin
+        if (out_ready) begin
+          if (hit) out_valid_r_next = 1;
+          else out_valid_r_next = 0;
+        end
+      end else begin
         if (hit) out_valid_r_next = 1;
-        else out_valid_r_next = 0;
       end
-    end else begin
-      if (hit) out_valid_r_next = 1;
     end
   end
 
