@@ -53,6 +53,7 @@ module ysyx_23060203_IFU (
   wire [31:0] dnpc_r_next = (flush & ~hit) ? dnpc : dnpc_r;
 
   // -------------------- output --------------------
+  assign out_valid = out_valid_r & ~flush;
   reg out_valid_r, out_valid_r_next;
   wire out_step_en = ~out_valid_r | out_ready;
   wire [31:0] out_pc_next   = (~flush_w & hit & out_step_en) ? fetch_pc   : out_pc;
@@ -74,10 +75,9 @@ module ysyx_23060203_IFU (
   end
 
   // -------------------- fetch --------------------
-  reg [31:0] fetch_pc_next;
+  reg [31:0] fetch_pc_next; // WARN: magic timing
   always_comb begin
     fetch_pc_next = fetch_pc;
-
     if (flush_r) begin
       if (hit) begin
         fetch_pc_next = dnpc_r;
@@ -93,7 +93,6 @@ module ysyx_23060203_IFU (
         fetch_pc_next = fetch_pc_pred;
       end
     end
-
     if (flush) begin
       if (hit) begin
         fetch_pc_next = dnpc;
@@ -101,7 +100,7 @@ module ysyx_23060203_IFU (
     end
   end
 
-  // -------------------- ? --------------------
+  // -------------------- 状态机 --------------------
   always @(posedge clock) begin
     if (reset) begin
       out_valid_r <= 0;
@@ -122,8 +121,6 @@ module ysyx_23060203_IFU (
       dnpc_r <= dnpc_r_next;
     end
   end
-
-  assign out_valid = out_valid_r & ~flush;
 
   // -------------------- 性能计数器 --------------------
 `ifndef SYNTHESIS
