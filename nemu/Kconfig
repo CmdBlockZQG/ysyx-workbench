@@ -161,6 +161,11 @@ config LSTRACE
   bool "Enable load store trace file dump for cachesim"
   default n
 
+config BRTRACE
+  depends on TRACE
+  bool "Enable branch trace file dump for branchsim"
+  default n
+
 config DIFFTEST
   depends on TARGET_NATIVE_ELF
   bool "Enable differential testing"

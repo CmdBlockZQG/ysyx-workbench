@@ -5,7 +5,7 @@
 static FILE *fp = NULL;
 
 static uint32_t last_pc;
-static int exec_cnt = 0;
+static uint32_t exec_cnt = 0;
 
 void init_pctrace(const char *filename) {
   if (!filename) return;

@@ -127,6 +127,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void pctrace(paddr_t pc);
   pctrace(s->pc);
 #endif
+#ifdef CONFIG_BRTRACE
+  void brtrace(Decode *s);
+  brtrace(s);
+#endif
 
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;

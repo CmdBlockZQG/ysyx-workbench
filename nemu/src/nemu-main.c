@@ -56,6 +56,10 @@ int main(int argc, char *argv[]) {
   void finalize_lstrace();
   finalize_lstrace();
 #endif
+#ifdef CONFIG_BRTRACE
+  void finalize_brtrace();
+  finalize_brtrace();
+#endif
 
   return is_exit_status_bad();
 }
