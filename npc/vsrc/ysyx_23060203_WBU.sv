@@ -64,7 +64,7 @@ module ysyx_23060203_WBU (
   end
 
   assign cs_flush = valid & (csr_wen | exc | ret | fencei_r);
-  assign fencei = 0;//valid & fencei_r;
+  assign fencei = valid & fencei_r;
 
   always_comb begin
     case (1'b1)
