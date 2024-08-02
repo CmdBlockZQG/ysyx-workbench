@@ -47,8 +47,6 @@ void brtrace(Decode *s) {
   // pc
   uint32_t pc = s->pc;
 
-  fprintf(stderr, "%x %d %d\n", pc, type, taken);
-
   if (type == last_type && taken == last_taken && pc == last_pc) {
     ++cnt;
   } else {
