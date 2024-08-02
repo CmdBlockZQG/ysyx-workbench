@@ -1,4 +1,4 @@
-# ENABLE_YSYXSOC ?= 1
+ENABLE_YSYXSOC ?= 1
 ARGS ?= --log=$(BUILD_DIR)/log.txt
 
 ifeq ($(ENABLE_YSYXSOC), 1)
@@ -77,7 +77,7 @@ all: default
 clean:
 	rm -rf $(BUILD_DIR)
 
-override ARGS += --wave=$(BUILD_DIR)/wave.vcd
+# override ARGS += --wave=$(BUILD_DIR)/wave.vcd
 override ARGS += --pctrace=$(BUILD_DIR)/pctrace
 IMG ?=
 ifdef ELF
