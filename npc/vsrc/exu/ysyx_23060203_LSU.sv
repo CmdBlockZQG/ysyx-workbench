@@ -1,6 +1,8 @@
 module ysyx_23060203_LSU (
   input clock, reset,
 
+  input flush,
+
   axi_if.out mem_r,
   axi_if.out mem_w,
 

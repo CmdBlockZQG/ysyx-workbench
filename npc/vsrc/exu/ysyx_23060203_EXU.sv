@@ -132,7 +132,7 @@ module ysyx_23060203_EXU (
   wire lsu_in_ready, lsu_out_valid;
   wire [31:0] lsu_out_rdata;
   ysyx_23060203_LSU LSU (
-    .clock(clock), .reset(reset),
+    .clock(clock), .reset(reset), .flush(flush),
     .mem_r(mem_r), .mem_w(mem_w),
     .in_ready(lsu_in_ready), .in_valid(exec_in_en & lsu_in_en),
     .ls(ls), .alu_val(alu_val), .val_c(val_c),

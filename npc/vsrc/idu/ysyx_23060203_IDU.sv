@@ -77,7 +77,7 @@ module ysyx_23060203_IDU (
     end
   end
 
-  assign in_ready = ~valid | (out_ready & ~gpr_raw);
+  assign in_ready = ~valid | (out_ready & ~gpr_raw & ~out_fencei);
   assign out_valid = valid & ~flush & ~gpr_raw;
 
   assign out_pc = pc;
