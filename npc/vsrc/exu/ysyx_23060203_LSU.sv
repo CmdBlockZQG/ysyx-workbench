@@ -75,15 +75,11 @@ module ysyx_23060203_LSU (
       end
 
       ST_SETUP: begin
-        if (flush) begin
-          state_next = ST_IDLE;
+        addr_next = alu_val;
+        if (ls[3]) begin
+          state_next = ST_LOAD_REQ;
         end else begin
-          addr_next = alu_val;
-          if (ls[3]) begin
-            state_next = ST_LOAD_REQ;
-          end else begin
-            state_next = ST_STORE_REQ;
-          end
+          state_next = ST_STORE_REQ;
         end
       end
 
