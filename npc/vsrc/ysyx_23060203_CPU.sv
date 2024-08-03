@@ -45,6 +45,7 @@ module ysyx_23060203_CPU (
   wire        idu_out_alu_src;
   wire [2:0]  idu_out_alu_funct;
   wire        idu_out_alu_sw;
+  wire        idu_out_mul;
   wire [4:0]  idu_out_rd;
   wire        idu_out_rd_src;
   wire [3:0]  idu_out_ls;
@@ -84,6 +85,7 @@ module ysyx_23060203_CPU (
     .out_val_c(idu_out_val_c),
     .out_alu_funct(idu_out_alu_funct),
     .out_alu_sw(idu_out_alu_sw),
+    .out_mul(idu_out_mul),
     .out_rd(idu_out_rd),
     .out_rd_src(idu_out_rd_src),
     .out_ls(idu_out_ls),
@@ -135,6 +137,7 @@ module ysyx_23060203_CPU (
     .in_val_c(idu_out_val_c),
     .in_alu_funct(idu_out_alu_funct),
     .in_alu_sw(idu_out_alu_sw),
+    .in_mul(idu_out_mul),
     .in_rd(idu_out_rd),
     .in_rd_src(idu_out_rd_src),
     .in_ls(idu_out_ls),

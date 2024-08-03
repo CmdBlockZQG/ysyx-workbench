@@ -1,8 +1,6 @@
 module ysyx_23060203_LSU (
   input clock, reset,
 
-  input flush,
-
   axi_if.out mem_r,
   axi_if.out mem_w,
 
@@ -57,7 +55,12 @@ module ysyx_23060203_LSU (
     load_val_next = load_val;
 
     if (in_valid & in_ready) begin
-      state_next = ST_SETUP;
+      addr_next = alu_val;
+      if (ls[3]) begin
+        state_next = ST_LOAD_REQ;
+      end else begin
+        state_next = ST_STORE_REQ;
+      end
     end
 
     case (state)
@@ -70,19 +73,6 @@ module ysyx_23060203_LSU (
             ; // input
           end else begin
             state_next = ST_IDLE;
-          end
-        end
-      end
-
-      ST_SETUP: begin
-        if (flush) begin
-          state_next = ST_IDLE;
-        end else begin
-          addr_next = alu_val;
-          if (ls[3]) begin
-            state_next = ST_LOAD_REQ;
-          end else begin
-            state_next = ST_STORE_REQ;
           end
         end
       end
