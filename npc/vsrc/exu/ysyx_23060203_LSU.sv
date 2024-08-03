@@ -15,9 +15,11 @@ module ysyx_23060203_LSU (
   output [31:0] out_rdata
 );
 
-  typedef enum logic [2:0] {
+  typedef enum logic [3:0] {
     ST_IDLE,
     ST_HOLD,
+
+    ST_SETUP,
 
     ST_LOAD_REQ,
     ST_LOAD_RESP,
@@ -54,6 +56,11 @@ module ysyx_23060203_LSU (
 
     if (in_valid & in_ready) begin
       addr_next = alu_val;
+      if (ls[3]) begin
+        state_next = ST_LOAD_REQ;
+      end else begin
+        state_next = ST_STORE_REQ;
+      end
     end
 
     case (state)
