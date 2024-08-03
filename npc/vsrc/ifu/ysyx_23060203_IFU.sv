@@ -36,7 +36,7 @@ module ysyx_23060203_IFU (
     case (cache_inst[6:2])
       5'b11000: pc_incr = cache_inst[31] ? imm_b : 32'h4;
       5'b11011: pc_incr = imm_j;
-      5'b11100: pc_incr = 0; // sys指令卡住取指
+      // 5'b11100: pc_incr = 0; // sys指令卡住取指
       default : pc_incr = 32'h4;
     endcase
   end
