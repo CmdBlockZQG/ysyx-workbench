@@ -37,6 +37,7 @@ module ysyx_23060203_IDU (
   output reg [31:0] out_val_c,
   output reg [ 2:0] out_alu_funct,
   output reg        out_alu_sw,
+  output            out_mul,
   output reg [ 4:0] out_rd,
   output            out_rd_src,
   output reg [ 3:0] out_ls,
@@ -248,6 +249,10 @@ module ysyx_23060203_IDU (
       default : out_alu_sw = 1'b0;
     endcase
   end
+
+  // mul 是否为乘除法指令
+  // 若是，则alu_funct传递乘除法模式
+  assign out_mul = (opcode == OP_RR) & funct7[0];
 
   // rd 目标寄存器
   // 0表示不写入寄存器

@@ -21,6 +21,7 @@ module ysyx_23060203_EXU (
   input [31:0] in_val_c,
   input [ 2:0] in_alu_funct,
   input        in_alu_sw,
+  input        in_mul,
   input [ 4:0] in_rd,
   input        in_rd_src,
   input [ 3:0] in_ls,
@@ -57,6 +58,7 @@ module ysyx_23060203_EXU (
   reg [31:0] val_a, val_b, val_c;
   reg [ 2:0] alu_funct;
   reg        alu_sw;
+  reg        mul;
   reg [ 4:0] rd;
   reg        rd_src;
   reg [ 3:0] ls;
@@ -87,6 +89,7 @@ module ysyx_23060203_EXU (
       val_c <= in_val_c;
       alu_funct <= in_alu_funct;
       alu_sw <= in_alu_sw;
+      mul <= in_mul;
       rd <= in_rd;
       rd_src <= in_rd_src;
       ls <= in_ls;
@@ -105,7 +108,7 @@ module ysyx_23060203_EXU (
   end
 
   // 对于不需要功能单元的指令，EXU只需要一周期，而且WBU从不阻塞
-  assign in_ready = lsu_in_ready; // & mul_in_ready & div_in_ready;
+  assign in_ready = lsu_in_ready & mul_in_ready & div_in_ready;
   assign out_valid = ~flush & valid & exec_out_valid;
 
   assign out_pc = pc;
@@ -114,7 +117,7 @@ module ysyx_23060203_EXU (
   always_comb begin
     exec_out_valid = 1;
     if (|ls) exec_out_valid = lsu_out_valid;
-    // else if (mul) exec_out_valid = alu_funct[2] ? div_out_valid : mul_out_valid;
+    else if (mul) exec_out_valid = alu_funct[2] ? div_out_valid : mul_out_valid;
   end
 
   wire exec_in_en = ~flush & in_valid & in_ready;
@@ -141,38 +144,40 @@ module ysyx_23060203_EXU (
   );
 
   // -------------------- MUL --------------------
-  // wire mul_in_en = in_mul & ~in_alu_funct[2];
-  // wire [1:0] mul_in_sign = {^in_alu_funct[1:0], ~in_alu_funct[1] & in_alu_funct[0]};
-  // wire mul_in_ready, mul_out_valid;
-  // wire [63:0] mul_out_prod;
-  // wire [31:0] mul_val = (|alu_funct[1:0]) ? mul_out_prod[63:32] : mul_out_prod[31:0];
-  // MUL_test MUL (
-  //   .clock(clock), .reset(reset), .flush(0),
-  //   .in_ready(mul_in_ready), .in_valid(exec_in_en & mul_in_en),
-  //   .in_sign(mul_in_sign), .in_a(in_val_a), .in_b(in_val_b),
-  //   .out_ready(out_ready), .out_valid(mul_out_valid),
-  //   .out_prod(mul_out_prod)
-  // );
+  wire mul_in_en = in_mul & ~in_alu_funct[2];
+  wire [1:0] mul_in_sign = {^in_alu_funct[1:0], ~in_alu_funct[1] & in_alu_funct[0]};
+  wire mul_in_ready, mul_out_valid;
+  wire [63:0] mul_out_prod;
+  wire [31:0] mul_val = (|alu_funct[1:0]) ? mul_out_prod[63:32] : mul_out_prod[31:0];
+  ysyx_23060203_MUL_radix_4 MUL (
+    .clock(clock), .reset(reset), .flush(0),
+    .in_ready(mul_in_ready), .in_valid(exec_in_en & mul_in_en),
+    .in_sign(mul_in_sign), .in_a(in_val_a), .in_b(in_val_b),
+    .out_ready(out_ready), .out_valid(mul_out_valid),
+    .out_prod(mul_out_prod)
+  );
 
   // -------------------- DIV --------------------
-  // wire div_in_en = in_mul & in_alu_funct[2];
-  // wire div_in_sign = ~in_alu_funct[0];
-  // wire div_in_ready, div_out_valid;
-  // wire [31:0] div_out_quot, div_out_rem;
-  // wire [31:0] div_val = alu_funct[1] ? div_out_rem : div_out_quot;
-  // DIV_test DIV (
-  //   .clock(clock), .reset(reset), .flush(0),
-  //   .in_ready(div_in_ready), .in_valid(exec_in_en & div_in_en),
-  //   .in_sign(div_in_sign), .in_a(in_val_a), .in_b(in_val_b),
-  //   .out_ready(out_ready), .out_valid(div_out_valid),
-  //   .out_quot(div_out_quot), .out_rem(div_out_rem)
-  // );
+  wire div_in_en = in_mul & in_alu_funct[2];
+  wire div_in_sign = ~in_alu_funct[0];
+  wire div_in_ready, div_out_valid;
+  wire [31:0] div_out_quot, div_out_rem;
+  wire [31:0] div_val = alu_funct[1] ? div_out_rem : div_out_quot;
+  ysyx_23060203_DIV DIV (
+    .clock(clock), .reset(reset), .flush(0),
+    .in_ready(div_in_ready), .in_valid(exec_in_en & div_in_en),
+    .in_sign(div_in_sign), .in_a(in_val_a), .in_b(in_val_b),
+    .out_ready(out_ready), .out_valid(div_out_valid),
+    .out_quot(div_out_quot), .out_rem(div_out_rem)
+  );
 
   // -------------------- GPR写回 --------------------
   assign out_gpr_waddr = rd;
-  assign out_gpr_wdata = ls[3] ? lsu_out_rdata : (
-    rd_src ? val_a : alu_val
-  );
+  assign out_gpr_wdata =
+    ls[3] ? lsu_out_rdata :
+    rd_src ? val_a :
+    mul ? (alu_funct[2] ? div_val : mul_val) :
+    alu_val;
 
   assign exu_rd = rd & {5{valid}};
   // assign exu_rd_val = out_gpr_wdata;
