@@ -56,6 +56,7 @@ module ysyx_23060203_ICache (
       state <= ST_IDLE;
     end else begin
       state <= state_next;
+      paddr <= paddr_next;
     end
   end
 
