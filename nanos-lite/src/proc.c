@@ -44,7 +44,8 @@ void init_proc() {
   // context_uload(&pcb[2], "/bin/bird", empty, empty);
   // context_uload(&pcb[3], "/bin/nslider", empty, empty);
 
-  context_kload(&pcb[0], hello_fun, (void *)1);
+  // context_kload(&pcb[0], hello_fun, (void *)1);
+  context_uload(&pcb[0], "/bin/hello", empty, empty);
   context_uload(&pcb[1], "/bin/hello", empty, empty);
 }
 
