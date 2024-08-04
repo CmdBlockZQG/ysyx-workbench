@@ -4,6 +4,11 @@ module ysyx_23060203_LSU (
   axi_if.out mem_r,
   axi_if.out mem_w,
 
+  output mmu_valid,
+  output [31:0] mmu_vaddr,
+  input mmu_hit,
+  input [31:0] mmu_paddr,
+
   output in_ready,
   input in_valid,
   input [3:0] ls,
@@ -19,7 +24,7 @@ module ysyx_23060203_LSU (
     ST_IDLE,
     ST_HOLD,
 
-    ST_SETUP,
+    ST_MMU,
 
     ST_LOAD_REQ,
     ST_LOAD_RESP,
@@ -33,6 +38,7 @@ module ysyx_23060203_LSU (
   state_t state, state_next;
   wire st_idle = state == ST_IDLE;
   wire st_hold = state == ST_HOLD;
+  wire st_mmu  = state == ST_MMU;
 
   reg [31:0] addr, addr_next;
   reg [31:0] load_val, load_val_next;
@@ -56,11 +62,7 @@ module ysyx_23060203_LSU (
 
     if (in_valid & in_ready) begin
       addr_next = alu_val;
-      if (ls[3]) begin
-        state_next = ST_LOAD_REQ;
-      end else begin
-        state_next = ST_STORE_REQ;
-      end
+      state_next = ST_MMU;
     end
 
     case (state)
@@ -73,6 +75,17 @@ module ysyx_23060203_LSU (
             ; // input
           end else begin
             state_next = ST_IDLE;
+          end
+        end
+      end
+
+      ST_MMU: begin
+        if (mmu_hit) begin
+          addr_next = mmu_paddr;
+          if (ls[3]) begin
+            state_next = ST_LOAD_REQ;
+          end else begin
+            state_next = ST_STORE_REQ;
           end
         end
       end
@@ -117,6 +130,9 @@ module ysyx_23060203_LSU (
       default: ;
     endcase
   end
+
+  assign mmu_valid = st_mmu;
+  assign mmu_vaddr = addr;
 
   assign out_valid = st_hold;
 
