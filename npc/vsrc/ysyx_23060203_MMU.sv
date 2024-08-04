@@ -108,6 +108,7 @@ module ysyx_23060203_MMU (
     state <= ST_IDLE;
   end else begin
     state <= state_next;
+    ptw_dev <= ptw_dev_next;
     ptw_lv <= ptw_lv_next;
     ptw_raddr <= ptw_raddr_next;
   end
