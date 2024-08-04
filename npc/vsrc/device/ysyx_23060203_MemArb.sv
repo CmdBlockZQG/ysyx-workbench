@@ -3,18 +3,21 @@ module ysyx_23060203_MemArb (
 
   axi_if.in ifu_r,
   axi_if.in lsu_r,
+  axi_if.in mmu_r,
 
   axi_if.out ram_r
 );
 
-  typedef enum logic [2:0] {
-    ST_IDLE = 3'b001,
-    ST_IFU  = 3'b010,
-    ST_LSU  = 3'b100
+  typedef enum logic [1:0] {
+    ST_IDLE,
+    ST_IFU,
+    ST_LSU,
+    ST_MMU
   } state_t;
-  wire st_idle = state[0];
-  wire st_ifu = state[1];
-  wire st_lsu = state[2];
+  wire st_idle = state == ST_IDLE;
+  wire st_ifu = state == ST_IFU;
+  wire st_lsu = state == ST_LSU;
+  wire st_mmu = state == ST_MMU;
 
   state_t state, state_next;
   always @(posedge clock) begin
@@ -30,7 +33,9 @@ module ysyx_23060203_MemArb (
   always_comb begin
     state_next = state;
     if (st_idle) begin
-      if (ifu_r.arvalid) begin
+      if (mmu_r.arvalid) begin
+        state_next = ST_MMU;
+      end else if (ifu_r.arvalid) begin
         state_next = ST_IFU;
       end else if (lsu_r.arvalid) begin
         state_next = ST_LSU;
@@ -59,6 +64,14 @@ module ysyx_23060203_MemArb (
       ram_r.arsize = lsu_r.arsize;
       ram_r.arburst = lsu_r.arburst;
       ram_r.rready = lsu_r.rready;
+    end else if (st_mmu) begin
+      ram_r.arvalid = mmu_r.arvalid;
+      ram_r.araddr = mmu_r.araddr;
+      ram_r.arid = mmu_r.arid;
+      ram_r.arlen = mmu_r.arlen;
+      ram_r.arsize = mmu_r.arsize;
+      ram_r.arburst = mmu_r.arburst;
+      ram_r.rready = mmu_r.rready;
     end else begin
       ram_r.arvalid = 0;
       ram_r.araddr = 0;
@@ -101,6 +114,22 @@ module ysyx_23060203_MemArb (
       lsu_r.rdata = 0;
       lsu_r.rlast = 0;
       lsu_r.rid = 0;
+    end
+
+    if (st_mmu) begin
+      mmu_r.arready = ram_r.arready;
+      mmu_r.rvalid = ram_r.rvalid;
+      mmu_r.rresp = ram_r.rresp;
+      mmu_r.rdata = ram_r.rdata;
+      mmu_r.rlast = ram_r.rlast;
+      mmu_r.rid = ram_r.rid;
+    end else begin
+      mmu_r.arready = 0;
+      mmu_r.rvalid = 0;
+      mmu_r.rresp = 0;
+      mmu_r.rdata = 0;
+      mmu_r.rlast = 0;
+      mmu_r.rid = 0;
     end
   end
 

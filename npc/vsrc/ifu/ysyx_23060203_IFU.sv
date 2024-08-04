@@ -7,7 +7,12 @@ module ysyx_23060203_IFU (
   input [31:0] jump_dnpc,
   input cs_flush,
   input [31:0] cs_dnpc,
-  input fencei,
+  input flush_icache,
+
+  output mmu_valid,
+  output [31:0] mmu_vaddr,
+  input mmu_hit,
+  input [31:0] mmu_paddr,
 
   input out_ready,
   output out_valid,
@@ -21,8 +26,10 @@ module ysyx_23060203_IFU (
   wire [31:0] cache_inst;
   ysyx_23060203_ICache ICache (
     .clock(clock), .reset(reset),
-    .fencei(fencei),
+    .flush_icache(flush_icache),
     .addr(fetch_pc), .hit(hit), .inst(cache_inst),
+    .mmu_valid(mmu_valid), .mmu_vaddr(mmu_vaddr),
+    .mmu_hit(mmu_hit), .mmu_paddr(mmu_paddr),
     .mem_r(mem_r)
   );
 

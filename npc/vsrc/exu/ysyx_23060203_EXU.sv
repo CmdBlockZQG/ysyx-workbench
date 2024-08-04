@@ -8,6 +8,12 @@ module ysyx_23060203_EXU (
   output [4:0] exu_rd,
   output [31:0] exu_rd_val,
 
+  // LSU-MMU
+  output mmu_valid,
+  output [31:0] mmu_vaddr,
+  input mmu_hit,
+  input [31:0] mmu_paddr,
+
   // 访存AXI接口
   axi_if.out mem_r,
   axi_if.out mem_w,
@@ -167,6 +173,8 @@ module ysyx_23060203_EXU (
   ysyx_23060203_LSU LSU (
     .clock(clock), .reset(reset),
     .mem_r(mem_r), .mem_w(mem_w),
+    .mmu_valid(mmu_valid), .mmu_vaddr(mmu_vaddr),
+    .mmu_hit(mmu_hit), .mmu_paddr(mmu_paddr),
     .in_ready(lsu_in_ready), .in_valid(exec_en & lsu_en),
     .ls(ls), .alu_val(alu_val), .val_c(val_c),
     .out_ready(out_ready), .out_valid(lsu_out_valid),

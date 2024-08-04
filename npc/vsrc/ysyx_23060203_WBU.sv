@@ -13,7 +13,11 @@ module ysyx_23060203_WBU (
   // CSU
   output cs_flush,
   output reg [31:0] cs_dnpc,
-  output fencei,
+  output flush_icache,
+
+  // MMU
+  output [31:0] csr_satp,
+  output flush_tlb,
 
   // 上游EXU输入
   output in_ready,
@@ -45,7 +49,8 @@ module ysyx_23060203_WBU (
   // -------------------- CSU --------------------
   reg valid;
   reg [31:0] pc;
-  reg csr_wen, exc, ret, fencei_r;
+  reg csr_wen, exc, ret, fencei;
+  reg vmas_sw;
 
   always @(posedge clock)
   if (reset) begin
@@ -57,14 +62,16 @@ module ysyx_23060203_WBU (
       csr_wen <= in_csr_wen;
       exc <= in_exc;
       ret <= in_ret;
-      fencei_r <= in_fencei;
+      fencei <= in_fencei;
+      vmas_sw <= in_csr_waddr == CSR_SATP;
     end else begin
       valid <= 0;
     end
   end
 
-  assign cs_flush = valid & (csr_wen | exc | ret | fencei_r);
-  assign fencei = valid & fencei_r;
+  assign cs_flush = valid & (csr_wen | exc | ret | fencei);
+  assign flush_icache = valid & (fencei | vmas_sw);
+  assign flush_tlb = valid & vmas_sw;
 
   always_comb begin
     case (1'b1)
@@ -76,30 +83,43 @@ module ysyx_23060203_WBU (
 
   // -------------------- CSR --------------------
   `include "def/csr.sv"
-  reg [31:0] mtvec, mepc;
+  reg [31:0] mstatus, mtvec, mepc, mcause, satp, mscratch;
+  assign csr_satp = satp;
 
   always @(posedge clock)
-  begin
+  if (reset) begin
+    mstatus <= 32'h1800;
+  end else begin
     if (in_valid) begin
       if (in_csr_wen) begin
         case (in_csr_waddr)
-          CSR_MTVEC   : mtvec   <= in_csr_wdata;
-          CSR_MEPC    : mepc    <= in_csr_wdata;
+          CSR_MSTATUS  : mstatus  <= in_csr_wdata;
+          CSR_MTVEC    : mtvec    <= in_csr_wdata;
+          CSR_MEPC     : mepc     <= in_csr_wdata;
+          CSR_MCAUSE   : mcause   <= in_csr_wdata;
+          CSR_SATP     : satp     <= in_csr_wdata;
+          CSR_MSCRATCH : mscratch <= in_csr_wdata;
           default: ;
         endcase
       end else if (in_exc) begin
         mepc <= in_pc;
+        mcause <= 32'd11;
+        mstatus <= {mstatus[31:8], mstatus[3], mstatus[6:4], 1'b0, mstatus[2:0]};
+      end else if (in_ret) begin
+        mstatus <= {mstatus[31:8], 1'b1, mstatus[6:4], mstatus[7], mstatus[2:0]};
       end
     end
   end
 
   always_comb begin
     case (csr_raddr)
-      CSR_MTVEC   : csr_rdata = mtvec;
-      CSR_MEPC    : csr_rdata = mepc;
+      CSR_MSTATUS  : csr_rdata = mstatus;
+      CSR_MTVEC    : csr_rdata = mtvec;
+      CSR_MEPC     : csr_rdata = mepc;
+      CSR_MCAUSE   : csr_rdata = mcause;
+      CSR_SATP     : csr_rdata = satp;
+      CSR_MSCRATCH : csr_rdata = mscratch;
 
-      CSR_MSTATUS   : csr_rdata = 32'h1800;
-      CSR_MCAUSE    : csr_rdata = 32'd11;
       CSR_MVENDORID : csr_rdata = 32'h79737978;
       CSR_MARCHID   : csr_rdata = 32'h015fdeeb;
 
