@@ -70,7 +70,7 @@ module ysyx_23060203_WBU (
   end
 
   assign cs_flush = valid & (csr_wen | exc | ret | fencei);
-  assign flush_icache = 0;//valid & (fencei | vmas_sw);
+  assign flush_icache = valid & (fencei | vmas_sw);
   assign flush_tlb = valid & vmas_sw;
 
   always_comb begin

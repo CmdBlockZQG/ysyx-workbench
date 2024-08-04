@@ -187,6 +187,7 @@ module ysyx_23060203_EXU (
   wire mul_in_ready, mul_out_valid;
   wire [63:0] mul_prod;
   wire [31:0] mul_val = (|alu_funct[1:0]) ? mul_prod[63:32] : mul_prod[31:0];
+  // ysyx_23060203_MUL_radix_4 MUL(
   MUL_test MUL (
     .clock(clock), .reset(reset), .flush(0),
     .in_ready(mul_in_ready), .in_valid(exec_en & mul_en),
@@ -201,6 +202,7 @@ module ysyx_23060203_EXU (
   wire div_in_ready, div_out_valid;
   wire [31:0] div_quot, div_rem;
   wire [31:0] div_val = alu_funct[1] ? div_rem : div_quot;
+  // ysyx_23060203_DIV DIV(
   DIV_test DIV (
     .clock(clock), .reset(reset), .flush(0),
     .in_ready(div_in_ready), .in_valid(exec_en & div_en),
