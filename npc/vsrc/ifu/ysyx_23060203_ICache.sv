@@ -1,7 +1,7 @@
 module ysyx_23060203_ICache (
   input clock, reset,
 
-  input fencei,
+  input flush_icache,
 
   input [31:0] addr,
   output hit,
@@ -14,8 +14,8 @@ module ysyx_23060203_ICache (
 
   axi_if.out mem_r
 );
-  parameter OFFSET_W = 6; // 块内地址宽度，块大小=2^x字节
-  parameter INDEX_W  = 6; // 组地址宽度，组数=2^x
+  parameter OFFSET_W = 4; // 块内地址宽度，块大小=2^x字节
+  parameter INDEX_W  = 2; // 组地址宽度，组数=2^x
   parameter TAG_W    = 32 - OFFSET_W - INDEX_W; // 标记字宽度
 
   parameter SET_N = 1 << INDEX_W; // 组数
@@ -56,11 +56,13 @@ module ysyx_23060203_ICache (
       state <= ST_IDLE;
     end else begin
       state <= state_next;
+      paddr <= paddr_next;
     end
   end
 
   always_comb begin
     state_next = state;
+    paddr_next = paddr;
     case (state)
       ST_IDLE: begin
         if (~hit) begin
@@ -121,7 +123,7 @@ module ysyx_23060203_ICache (
 
   integer i;
   always @(posedge clock) begin
-    if (fencei) begin
+    if (flush_icache) begin
       /*verilator unroll_full*/
       for (i = 0; i < SET_N; i = i + 1) begin
         if (mem_r.rready & mem_r.rvalid & mem_r.rlast & (i[INDEX_W-1:0] == index)) ;

@@ -17,6 +17,8 @@ module ysyx_23060203_CPU (
   wire [31:0] ifu_out_pc;
   wire [31:0] ifu_out_inst;
   axi_if ifu_mem_r();
+  wire ifu_mmu_valid;
+  wire [31:0] ifu_mmu_vaddr;
   ysyx_23060203_IFU IFU (
     .clock(clock), .reset(reset),
 
@@ -24,7 +26,10 @@ module ysyx_23060203_CPU (
 
     .jump_flush(jump_flush), .jump_dnpc(jump_dnpc),
     .cs_flush(cs_flush), .cs_dnpc(cs_dnpc),
-    .fencei(fencei),
+    .flush_icache(flush_icache),
+
+    .mmu_valid(ifu_mmu_valid), .mmu_vaddr(ifu_mmu_vaddr),
+    .mmu_hit(ifu_mmu_hit), .mmu_paddr(ifu_mmu_paddr),
 
     .out_ready(idu_in_ready),
     .out_valid(ifu_out_valid),
@@ -103,6 +108,8 @@ module ysyx_23060203_CPU (
 
   wire [4:0] exu_rd;
   wire [31:0] exu_rd_val;
+  wire lsu_mmu_valid;
+  wire [31:0] lsu_mmu_vaddr;
   axi_if lsu_mem_r();
   wire exu_in_ready;
   wire exu_out_valid;
@@ -125,6 +132,9 @@ module ysyx_23060203_CPU (
     .flush(cs_flush),
 
     .exu_rd(exu_rd), .exu_rd_val(exu_rd_val),
+
+    .mmu_valid(lsu_mmu_valid), .mmu_vaddr(lsu_mmu_vaddr),
+    .mmu_hit(lsu_mmu_hit), .mmu_paddr(lsu_mmu_paddr),
 
     .mem_r(lsu_mem_r),
     .mem_w(io_out),
@@ -173,7 +183,9 @@ module ysyx_23060203_CPU (
   wire [31:0] csr_rdata;
   wire cs_flush;
   wire [31:0] cs_dnpc;
-  wire fencei;
+  wire flush_icache;
+  wire [31:0] csr_satp;
+  wire flush_tlb;
   wire wbu_in_ready;
   ysyx_23060203_WBU WBU(
     .clock(clock), .reset(reset),
@@ -182,7 +194,9 @@ module ysyx_23060203_CPU (
     .csr_raddr(csr_raddr), .csr_rdata(csr_rdata),
 
     .cs_flush(cs_flush), .cs_dnpc(cs_dnpc),
-    .fencei(fencei),
+    .flush_icache(flush_icache),
+
+    .csr_satp(csr_satp), .flush_tlb(flush_tlb),
 
     .in_ready(wbu_in_ready),
     .in_valid(exu_out_valid),
@@ -203,10 +217,31 @@ module ysyx_23060203_CPU (
     `endif
   );
 
+  axi_if mmu_mem_r();
+  wire ifu_mmu_hit;
+  wire [31:0] ifu_mmu_paddr;
+  wire lsu_mmu_hit;
+  wire [31:0] lsu_mmu_paddr;
+  ysyx_23060203_MMU MMU(
+    .clock(clock), .reset(reset),
+
+    .flush(flush_tlb),
+
+    .csr_satp(csr_satp),
+
+    .mem_r(mmu_mem_r),
+
+    .ifu_valid(ifu_mmu_valid), .ifu_vaddr(ifu_mmu_vaddr),
+    .ifu_hit(ifu_mmu_hit), .ifu_paddr(ifu_mmu_paddr),
+
+    .lsu_valid(lsu_mmu_valid), .lsu_vaddr(lsu_mmu_vaddr),
+    .lsu_hit(lsu_mmu_hit), .lsu_paddr(lsu_mmu_paddr)
+  );
+
   axi_if mem_r();
   ysyx_23060203_MemArb MemArb (
     .clock(clock), .reset(reset),
-    .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
+    .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r), .mmu_r(mmu_mem_r),
     .ram_r(mem_r)
   );
 

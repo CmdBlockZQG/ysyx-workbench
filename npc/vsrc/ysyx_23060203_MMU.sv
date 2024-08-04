@@ -3,30 +3,28 @@ module ysyx_23060203_MMU (
 
   input flush,
 
-  input [31:0] satp,
+  input [31:0] csr_satp,
 
   axi_if.out mem_r,
 
   input ifu_valid,
   input [31:0] ifu_vaddr,
-  output ifu_hit,
+  output reg ifu_hit,
   output [31:0] ifu_paddr,
 
   input lsu_valid,
   input [31:0] lsu_vaddr,
-  output lsu_hit,
+  output reg lsu_hit,
   output [31:0] lsu_paddr
 );
 
   wire [19:0] ifu_vpn = ifu_vaddr[31:12];
   reg [19:0] ifu_ppn;
   assign ifu_paddr = {ifu_ppn, ifu_vaddr[11:0]};
-  reg ifu_hit;
 
   wire [19:0] lsu_vpn = lsu_vaddr[31:12];
   reg [19:0] lsu_ppn;
   assign lsu_paddr = {lsu_ppn, lsu_vaddr[11:0]};
-  reg lsu_hit;
 
   // -------------------- TLB --------------------
   parameter integer LINE_W = 4;
@@ -44,13 +42,13 @@ module ysyx_23060203_MMU (
     line_evit = line_rand;
     for (integer i = 0; i < LINE_N; i = i + 1) begin
       if (~line_valid[i]) begin
-        line_evit = i;
+        line_evit = i[LINE_W-1:0];
       end
     end
   end
 
   always_comb begin
-    if (satp[31]) begin // Sv32
+    if (csr_satp[31]) begin // Sv32
       ifu_hit = 0;
       ifu_ppn = 0;
       lsu_hit = 0;
@@ -126,12 +124,12 @@ module ysyx_23060203_MMU (
           state_next = ST_REQ;
           ptw_dev_next = 1; // LSU
           ptw_lv_next = 1;
-          ptw_raddr_next = {satp[19:0], lsu_vpn[19:10], 2'b0};
+          ptw_raddr_next = {csr_satp[19:0], lsu_vpn[19:10], 2'b0};
         end else if (ifu_valid & ~ifu_hit) begin
           state_next = ST_REQ;
           ptw_dev_next = 0; // IFU
           ptw_lv_next = 1;
-          ptw_raddr_next = {satp[19:0], ifu_vpn[19:10], 2'b0};
+          ptw_raddr_next = {csr_satp[19:0], ifu_vpn[19:10], 2'b0};
         end
       end
       state[1]: begin // ST_REQ
