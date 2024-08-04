@@ -89,6 +89,7 @@ module ysyx_23060203_WBU (
   always @(posedge clock)
   if (reset) begin
     mstatus <= 32'h1800;
+    satp <= 0;
   end else begin
     if (in_valid) begin
       if (in_csr_wen) begin
