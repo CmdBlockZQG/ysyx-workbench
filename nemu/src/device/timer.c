@@ -33,7 +33,6 @@ static void timer_intr() {
   if (nemu_state.state == NEMU_RUNNING) {
     extern void dev_raise_intr();
     dev_raise_intr();
-    printf("1231312123\n");
   }
 }
 #endif

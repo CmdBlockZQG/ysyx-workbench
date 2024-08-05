@@ -52,7 +52,7 @@ module ysyx_23060203_WBU (
 
   // -------------------- interrupt --------------------
   wire mstatus_mie = mstatus[3];
-  wire timer_intr_pending = 0;//mstatus_mie & clint_mtip;
+  wire timer_intr_pending = mstatus_mie & clint_mtip;
 
   // -------------------- CSU --------------------
   reg valid;
@@ -124,8 +124,8 @@ module ysyx_23060203_WBU (
         endcase
       end else if (timer_intr_pending) begin
         mepc <= in_dnpc;
-        mcause <= 32'd11;
-        mstatus <= 32'h80000007;
+        mcause <= 32'h80000007;
+        mstatus <= exc_mstatus;
         intr <= 1;
       end else begin
         intr <= 0;
