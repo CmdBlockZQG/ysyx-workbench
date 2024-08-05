@@ -22,6 +22,7 @@ module ysyx_23060203_EXU (
   output in_ready,
   input in_valid,
   input [31:0] in_pc,
+  input [31:0] in_dnpc,
   input [31:0] in_val_a,
   input [31:0] in_val_b,
   input [31:0] in_val_c,
@@ -31,7 +32,7 @@ module ysyx_23060203_EXU (
   input [ 4:0] in_rd,
   input        in_rd_src,
   input [ 3:0] in_ls,
-  input        in_csr_wen,
+  input        in_zicsr,
   input        in_csr_src,
   input        in_exc,
   input        in_ret,
@@ -41,9 +42,10 @@ module ysyx_23060203_EXU (
   input out_ready,
   output out_valid,
   output [31:0] out_pc,
+  output [31:0] out_dnpc,
   output [4:0] out_gpr_waddr,
   output [31:0] out_gpr_wdata,
-  output out_csr_wen,
+  output out_zicsr,
   output [11:0] out_csr_waddr,
   output [31:0] out_csr_wdata,
   output out_exc,
@@ -53,14 +55,13 @@ module ysyx_23060203_EXU (
   `ifndef SYNTHESIS
     ,
     input [31:0] in_inst,
-    input [31:0] in_dnpc,
-    output [31:0] out_inst,
-    output [31:0] out_dnpc
+    output [31:0] out_inst
   `endif
 );
 
   reg valid;
   reg [31:0] pc;
+  reg [31:0] dnpc;
   reg [31:0] val_a, val_b, val_c;
   reg [ 2:0] alu_funct;
   reg        alu_sw;
@@ -68,7 +69,7 @@ module ysyx_23060203_EXU (
   reg [ 4:0] rd;
   reg        rd_src;
   reg [ 3:0] ls;
-  reg        csr_wen;
+  reg        zicsr;
   reg        csr_src;
   reg        exc;
   reg        ret;
@@ -76,9 +77,7 @@ module ysyx_23060203_EXU (
 
   `ifndef SYNTHESIS
     reg [31:0] inst;
-    reg [31:0] dnpc;
     assign out_inst = inst;
-    assign out_dnpc = dnpc;
   `endif
 
   always @(posedge clock)
@@ -90,6 +89,7 @@ module ysyx_23060203_EXU (
     end if (in_ready & in_valid) begin
       valid <= 1;
       pc <= in_pc;
+      dnpc <= in_dnpc;
       val_a <= in_val_a;
       val_b <= in_val_b;
       val_c <= in_val_c;
@@ -99,14 +99,13 @@ module ysyx_23060203_EXU (
       rd <= in_rd;
       rd_src <= in_rd_src;
       ls <= in_ls;
-      csr_wen <= in_csr_wen;
+      zicsr <= in_zicsr;
       csr_src <= in_csr_src;
       exc <= in_exc;
       ret <= in_ret;
       fencei <= in_fencei;
       `ifndef SYNTHESIS
         inst <= in_inst;
-        dnpc <= in_dnpc;
       `endif
     end else if (out_ready & out_valid) begin
       valid <= 0;
@@ -117,6 +116,7 @@ module ysyx_23060203_EXU (
   assign out_valid = ~flush & valid & exec_out_valid;
 
   assign out_pc = pc;
+  assign out_dnpc = dnpc;
 
   // -------------------- EXEC --------------------
   reg exec_en_r, exec_en_r_next;
@@ -229,7 +229,7 @@ module ysyx_23060203_EXU (
     alu_val;
 
   // -------------------- CSR写回 --------------------
-  assign out_csr_wen = csr_wen;
+  assign out_zicsr = zicsr;
   assign out_csr_waddr = val_c[11:0];
   assign out_csr_wdata = csr_src ? val_b : alu_val;
 
