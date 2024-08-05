@@ -54,17 +54,18 @@ int current_process_sw = 1;
 Context* schedule(Context *prev) {
   current->cp = prev;
 
-  static int cnt = 0;
+  // static int cnt = 0;
   if (current == &pcb[0]) { // hello
     current = &pcb[current_process_sw];
   } else { // pal
-    if (cnt == 10) {
-      current = &pcb[0];
-      cnt = 0;
-    } else {
-      current = &pcb[current_process_sw];
-      ++cnt;
-    }
+    current = &pcb[0];
+    // if (cnt == 10) {
+    //   current = &pcb[0];
+    //   cnt = 0;
+    // } else {
+    //   current = &pcb[current_process_sw];
+    //   ++cnt;
+    // }
   }
 
   return current->cp;
