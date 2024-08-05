@@ -13,9 +13,6 @@ void call_main(uintptr_t *args) {
   char **envp = (char **)args + 1 + argc + 1;
 
   __libc_init_array();
-
-  printf("start!!!!!\n");
-
   exit(main(argc, argv, envp));
   assert(0);
 }
