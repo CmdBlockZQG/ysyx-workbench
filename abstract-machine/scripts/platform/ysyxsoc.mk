@@ -10,8 +10,8 @@ AM_SRCS := riscv/ysyxsoc/start.S \
            riscv/ysyxsoc/ioe/gpio.c \
            riscv/ysyxsoc/ioe/input.c \
            riscv/ysyxsoc/ioe/gpu.c \
-           platform/dummy/vme.c \
-           platform/dummy/mpe.c
+           riscv/ysyxsoc/vme.c \
+           riscv/ysyxsoc/mpe.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld
