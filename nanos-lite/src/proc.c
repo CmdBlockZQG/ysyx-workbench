@@ -39,14 +39,11 @@ void init_proc() {
   // char *const envp[] = { "KEY=VALUE", NULL };
 
   char *const empty[] = { NULL };
-  // context_uload(&pcb[0], "/bin/hello", empty, empty);
-  // context_uload(&pcb[1], "/bin/pal", empty, empty);
+  context_uload(&pcb[0], "/bin/hello", empty, empty);
+  context_uload(&pcb[1], "/bin/pal", empty, empty);
   // context_uload(&pcb[2], "/bin/bird", empty, empty);
   // context_uload(&pcb[3], "/bin/nslider", empty, empty);
 
-  // context_kload(&pcb[0], hello_fun, (void *)1);
-  context_uload(&pcb[0], "/bin/hello", empty, empty);
-  context_uload(&pcb[1], "/bin/hello", empty, empty);
 }
 
 int current_process_sw = 1;
@@ -54,18 +51,17 @@ int current_process_sw = 1;
 Context* schedule(Context *prev) {
   current->cp = prev;
 
-  // static int cnt = 0;
+  static int cnt = 0;
   if (current == &pcb[0]) { // hello
     current = &pcb[current_process_sw];
   } else { // pal
-    current = &pcb[0];
-    // if (cnt == 10) {
-    //   current = &pcb[0];
-    //   cnt = 0;
-    // } else {
-    //   current = &pcb[current_process_sw];
-    //   ++cnt;
-    // }
+    if (cnt == 10) {
+      current = &pcb[0];
+      cnt = 0;
+    } else {
+      current = &pcb[current_process_sw];
+      ++cnt;
+    }
   }
 
   return current->cp;
