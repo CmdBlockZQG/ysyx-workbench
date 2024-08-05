@@ -17,7 +17,7 @@ module ysyx_23060203_CLINT (
   end else begin
     mtime <= mtime + 1;
 
-    if (&mtime[19:0]) begin
+    if (&mtime[17:0]) begin
       mtip <= 1;
     end else if (mtip_clear) begin
       mtip <= 0;
