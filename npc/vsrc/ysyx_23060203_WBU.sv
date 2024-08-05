@@ -110,8 +110,10 @@ module ysyx_23060203_WBU (
         mepc <= in_pc;
         mcause <= 32'd11;
         mstatus <= exc_mstatus;
+        intr <= 0;
       end else if (in_ret) begin
         mstatus <= ret_mstatus;
+        intr <= 0;
       end else if (in_zicsr) begin
         case (in_csr_waddr)
           CSR_MSTATUS  : mstatus  <= in_csr_wdata;
@@ -122,6 +124,7 @@ module ysyx_23060203_WBU (
           CSR_MSCRATCH : mscratch <= in_csr_wdata;
           default: ;
         endcase
+        intr <= 0;
       end else if (timer_intr_pending) begin
         mepc <= in_dnpc;
         mcause <= 32'h80000007;
