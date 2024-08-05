@@ -28,8 +28,13 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
 }
 
 void __am_gpu_memcpy(AM_GPU_MEMCPY_T *ctl) {
-  void *dst = (void *)(uintptr_t)(VGA_ADDR + ctl->dest);
-  memcpy(dst, ctl->src, ctl->size);
+  assert((ctl->dest & 0b11) == 0);
+  assert((ctl->size & 0b11) == 0);
+  uint32_t *dst = (uint32_t *)(uintptr_t)(VRAM_ADDR + ctl->dest);
+  uint32_t *src = ctl->src;
+  for (int i = 0; i < (ctl->size >> 2); ++i) {
+    dst[i] = src[i];
+  }
 }
 
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
