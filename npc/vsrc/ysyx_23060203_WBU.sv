@@ -52,7 +52,7 @@ module ysyx_23060203_WBU (
 
   // -------------------- interrupt --------------------
   wire mstatus_mie = mstatus[3];
-  wire timer_intr_pending = mstatus_mie & clint_mtip;
+  wire timer_intr_pending = 0;//mstatus_mie & clint_mtip;
 
   // -------------------- CSU --------------------
   reg valid;
