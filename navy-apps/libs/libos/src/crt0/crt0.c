@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <stdio.h>
 
 int main(int argc, char *argv[], char *envp[]);
 void __libc_init_array();

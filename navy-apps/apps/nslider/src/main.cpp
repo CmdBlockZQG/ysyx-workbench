@@ -20,21 +20,14 @@ static SDL_Surface *slide = NULL;
 static int cur = 0;
 
 void render() {
-  printf("ckeck point render_in\n");
   if (slide) {
     SDL_FreeSurface(slide);
   }
   char fname[256];
   sprintf(fname, path, cur);
-
-  printf("ckeck point free_surface\n");
   slide = SDL_LoadBMP(fname);
-  printf("ckeck point load_bmp\n");
-  
   assert(slide);
   SDL_UpdateRect(slide, 0, 0, 0, 0);
-
-  printf("ckeck point update_rect\n");
 }
 
 void prev(int rep) {
@@ -53,16 +46,11 @@ void next(int rep) {
 
 int main() {
   SDL_Init(0);
-  printf("ckeck point sdl_init\n");
   SDL_Surface *screen = SDL_SetVideoMode(W, H, 32, SDL_HWSURFACE);
-
-  printf("ckeck point set_video\n");
 
   int rep = 0, g = 0;
 
   render();
-
-  printf("ckeck point render_out\n");
 
   while (1) {
     SDL_Event e;

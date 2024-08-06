@@ -94,13 +94,11 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   CallbackHelper(0);
-  printf("ckeck point callback_helper\n");
   if (!x && !y && !w && !h) {
     w = s->w; h = s->h;
   }
 
   uint32_t *buf = malloc(w * h * 4);
-  printf("ckeck point malloc\n");
   SDL_PixelFormat *fmt = s->format;
   void *pixel_ptr;
 
@@ -111,15 +109,9 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
     }
   }
 
-  printf("ckeck point fill_buf\n");
-
   NDL_DrawRect(buf, x, y, w, h);
 
-  printf("ckeck point draw_rect\n");
-
   free(buf);
-
-  printf("ckeck point free\n");
 }
 
 // APIs below are already implemented.
