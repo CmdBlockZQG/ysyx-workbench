@@ -117,7 +117,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, R(rd) = Sgn(src1) % Sgn(src2));
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = src1 % src2);
 
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(11, s->pc));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(8 | cpu_priv, s->pc));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , I, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   INSTPAT("0000000 00000 00000 001 00000 00011 11", fence.i, I, ;); // fence.i -> nop
@@ -127,6 +127,9 @@ static int decode_exec(Decode *s) {
     csr_mstatus = (csr_mstatus & ~(1 << 3)) | (((csr_mstatus >> 7) & 1) << 3);
     // set mstatus.MPIE 1
     csr_mstatus = csr_mstatus | (1 << 7);
+  );
+  INSTPAT("0001000 00010 00000 000 00000 11100 11", sret   , I,
+    TODO()
   );
   
   #define csr (*csr_ptr(imm))

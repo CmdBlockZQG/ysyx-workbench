@@ -56,9 +56,15 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   return -1;
 }
 
-word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause;
-word_t csr_satp = 0, csr_mscratch;
-word_t csr_mhartid = 0, csr_mvendorid = 0x79737978, csr_marchid = 0x15fdeeb;
+cpu_priv_t cpu_priv;
+
+word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause, csr_mtval;
+word_t csr_mip = 0, csr_mie = 0;
+word_t csr_medeleg = 0, csr_mideleg = 0;
+word_t csr_sstatus = 0, csr_stvec, csr_sepc, csr_scause, csr_stval;
+word_t csr_sip = 0, csr_sie = 0;
+word_t csr_satp = 0, csr_mscratch, csr_sscratch;
+word_t csr_mvendorid = 0x79737978, csr_marchid = 0x15fdeeb, csr_mhartid = 0;
 
 void isa_snapshot_save(FILE *f) {
   assert(fwrite(&csr_mtvec, sizeof(word_t), 1, f) == 1);
