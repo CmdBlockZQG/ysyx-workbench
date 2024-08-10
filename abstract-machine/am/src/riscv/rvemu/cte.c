@@ -1,6 +1,7 @@
 #include <am.h>
 #include <riscv/riscv.h>
 #include <klib.h>
+#include <rvemu.h>
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 
@@ -9,6 +10,9 @@ static Context* (*user_handler)(Event, Context*) = NULL;
 #else
 #define SYSCALL_TYPE_GPR 17
 #endif
+
+#define MTIME_ADDR (CLINT_ADDR + 0xbff8)
+#define MTIMECMP_ADDR (CLINT_ADDR + 0x4000)
 
 Context* __am_irq_handle(Context *c) {
   void __am_get_cur_as(Context *c);
@@ -22,6 +26,10 @@ Context* __am_irq_handle(Context *c) {
         c->mepc += 4;
       break;
       case 0x80000007: // timer interrupt
+        uint64_t mtime = ((uint64_t)inl(MTIME_ADDR + 4) << 32) | inl(MTIME_ADDR);
+        uint64_t mtimecmp = mtime + 10 * 1000; // 10ms later
+        outl(MTIMECMP_ADDR, (uint32_t)mtimecmp);
+        outl(MTIMECMP_ADDR + 4, (uint32_t)(mtimecmp >> 32));
         ev.event = EVENT_IRQ_TIMER;
       break;
       default:
