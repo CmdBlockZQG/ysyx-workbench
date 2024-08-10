@@ -56,7 +56,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   return -1;
 }
 
-cpu_priv_t cpu_priv;
+cpu_priv_t cpu_priv = PRIV_M;
 
 word_t csr_mstatus = 0x1800, csr_mtvec, csr_mepc, csr_mcause, csr_mtval;
 word_t csr_mip = 0, csr_mie = 0;
