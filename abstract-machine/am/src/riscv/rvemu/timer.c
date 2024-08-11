@@ -1,11 +1,13 @@
 #include <am.h>
 #include <rvemu.h>
 
+#define MTIME_ADDR (CLINT_ADDR + 0xbff8)
+
 void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = ((uint64_t)inl(RTC_ADDR + 4) << 32) | inl(RTC_ADDR);
+  uptime->us = ((uint64_t)inl(MTIME_ADDR + 4) << 32) | inl(MTIME_ADDR);
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

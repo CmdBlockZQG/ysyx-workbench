@@ -5,6 +5,5 @@
 _start:
   mv s0, zero
   la sp, _stack_pointer
-  jal _trm_init
-
-.size _start, . - _start
+  //jal _trm_init
+  jal FSBLoder

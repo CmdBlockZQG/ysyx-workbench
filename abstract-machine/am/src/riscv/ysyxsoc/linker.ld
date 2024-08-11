@@ -1,72 +1,78 @@
-ENTRY(_fsbl)
-PHDRS {
-  fsbl PT_LOAD;
-  ssbl PT_LOAD;
-  text PT_LOAD;
-  rodata PT_LOAD;
-  data PT_LOAD;
-}
+ENTRY(_start)
+/*ENTRY(bootloader)*/
+PHDRS { text PT_LOAD; startup PT_LOAD; SSBL PT_LOAD; data PT_LOAD; rodata PT_LOAD; bss PT_LOAD;}
 
-MEMORY {
-  sram  : ORIGIN = 0x0f000000, LENGTH = 8K
-  mrom  : ORIGIN = 0x20000000, LENGTH = 4K
-  flash : ORIGIN = 0x30000000, LENGTH = 64M
-  psram : ORIGIN = 0x80000000, LENGTH = 4M
-  sdram : ORIGIN = 0xa0000000, LENGTH = 128M
+MEMORY
+{
+    FLASH (rx)  : ORIGIN = 0x30000000, LENGTH = 256M
+    SRAM  (rwx) : ORIGIN = 0x0f000000, LENGTH = 8K
+    PSRAM (rwx) : ORIGIN = 0x80000000, LENGTH = 4M
+    SDRAM (rwx) : ORIGIN = 0xa0000000, LENGTH = 32M
 }
 
 SECTIONS {
-  fsbl : {
-    *(fsbl)
-  } >flash AT>flash : fsbl
+    startup_LMA = LOADADDR(.startup);
+    .startup : {
+        . = ALIGN(0x8);
+        _start_startup_addr = .;
+        *(entry)
+        *(.startup)
+        . = ALIGN(0x8);
+        _end_startup_addr = .;
+    } >FLASH AT>FLASH : startup
 
-  ssbl : ALIGN(0x8) {
-    _ssbl_start = .;
-    *(ssbl)
-    . = ALIGN(0x8);
-    _ssbl_end = .;
-  } >sram AT>flash : ssbl =0x0
+    SSBL_LMA = LOADADDR(.SSBL);
+    .SSBL : {
+        . = ALIGN(0x8);
+        _start_ssbl_addr = .;
+        *(.SSBL)
+        . = ALIGN(0x8);
+        _end_ssbl_addr = .;
+    } >SRAM AT>FLASH : SSBL
 
-  .text : ALIGN(0x8) {
-    _text_start = .;
-    *(entry)
-    *(.text*)
-    . = ALIGN(0x8);
-    _text_end = .;
-  } >sdram AT>flash : text =0x0
+    text_LMA = LOADADDR(.text);
+    .text : {
+        . = ALIGN(0x8);
+        _start_text_addr = .;
+        *(.text*)
+        . = ALIGN(0x8);
+        _end_text_addr = .;
+    } >SDRAM AT>FLASH : text
+    etext = .;
 
-  .rodata : ALIGN(0x8) {
-    _rodata_start = .;
-    *(.srodata*)
-    *(.rodata*)
-    . = ALIGN(0x8);
-    _rodata_end = .;
-  } >sdram AT>flash : rodata =0x0
-  
-  .data : ALIGN(0x8) {
-    _data_start = .;
-    *(.data*)
-    *(.sdata*)
-    . = ALIGN(0x8);
-    _data_end = .;
-  } >sdram AT>flash : data =0x0
+    rodata_LMA = LOADADDR(.rodata);
+    .rodata : {
+        . = ALIGN(0x8);
+        _start_rodata_addr = .;
+        *(.rodata*)
+        *(.srodata.*)
+        . = ALIGN(0x8);
+        _end_rodata_addr = .;
+    } >SDRAM AT>FLASH : rodata
 
-  .bss (NOLOAD) : ALIGN(0x8) {
-    _bss_start = .;
-    *(.bss*)
-    *(.sbss*)
-    *(.scommon)
-    . = ALIGN(0x8);
-    _bss_end = .;
-  } >sdram
+    data_LMA = LOADADDR(.data);
+    .data : {
+        . = ALIGN(0x8);
+        _start_data_addr = .;
+        *(.data)
+        *(.data.*)
+        . = ALIGN(0x8);
+        _end_data_addr = .;
+    } >SDRAM AT>FLASH : data
+    _addr2 = .;
 
-  _ssbl_src = LOADADDR(ssbl);
-  _text_src = LOADADDR(.text);
-  _rodata_src = LOADADDR(.rodata);
-  _data_src = LOADADDR(.data);
-  . = _bss_end;
-  _heap_start = ALIGN(0x1000);
-
-  _stack_top = ORIGIN(sram);
-  _stack_pointer = ORIGIN(sram) + LENGTH(sram);
+    .bss : {
+        . = ALIGN(0x8);
+        bss_start = .;
+        *(.bss*)
+        *(.sbss*)
+        *(.scommon)
+        . = ALIGN(0x8);
+        bss_end = .;
+    } >SDRAM : bss
+    _end_addr = .;
+    _psram_heap_base = ALIGN(0x8);
+    _stack_pointer = 0x0f002000;
+    _trm_init_addr = _trm_init;
+    _SSBL_addr = bootloader;
 }
