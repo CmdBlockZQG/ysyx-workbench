@@ -5,7 +5,6 @@
 
 #include ISA_H
 
-#define DEVICE_BASE 0xa0000000
 #define SERIAL_PORT 0x10000000
 #define RTC_ADDR    0x10001000
 #define CLINT_ADDR  0x20000000
