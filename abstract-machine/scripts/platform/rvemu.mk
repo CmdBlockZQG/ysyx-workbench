@@ -16,7 +16,7 @@ CFLAGS += -DMAINARGS=\"$(mainargs)\"
 CFLAGS += -I$(AM_HOME)/am/src/riscv/rvemu/include
 .PHONY: $(AM_HOME)/am/src/riscv/rvemu/trm.c run
 
-RVEMUFLAGS += --log=$(shell dirname $(IMAGE).elf) --batch
+RVEMUFLAGS += --log=$(shell dirname $(IMAGE).elf)
 
 image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
