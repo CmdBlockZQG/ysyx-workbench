@@ -199,7 +199,7 @@ module ysyx_23060203_CPU (
 
     .csr_satp(csr_satp), .flush_tlb(flush_tlb),
 
-    .clint_mtip(clint_mtip), .clint_mtip_clear(clint_mtip_clear),
+    .clint_mtip(1'b0), .clint_mtip_clear(clint_mtip_clear),
 
     .in_ready(wbu_in_ready),
     .in_valid(exu_out_valid),
