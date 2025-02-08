@@ -10,7 +10,7 @@ Area heap = RANGE(&_heap_start, PMEM_END);
 #endif
 static const char mainargs[] = MAINARGS;
 
-[[gnu::noinline]] void putch(char ch) {
+void putch(char ch) {
   outb(SERIAL_PORT, ch);
 }
 
