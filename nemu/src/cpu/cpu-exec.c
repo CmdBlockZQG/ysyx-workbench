@@ -80,7 +80,7 @@ static void ftrace(Decode *s) {
                 elf_symbol_list[to].name,
                 elf_symbol_list[to].addr);
       if (strstr(elf_symbol_list[to].name, "printf")) {
-        // lock_dep = ftrace_dep;
+        lock_dep = ftrace_dep;
       }
     }
     ret_st[ftrace_dep++] = s->snpc;
