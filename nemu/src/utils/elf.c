@@ -14,7 +14,7 @@ static FILE *fp = NULL;
 
 static ElfN(Ehdr) eh;
 
-#define STRTAB_BUF_SIZE 32768
+#define STRTAB_BUF_SIZE 65536
 #define MAX_SYMBOL 256
 
 static char strtab[STRTAB_BUF_SIZE];
