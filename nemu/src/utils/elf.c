@@ -15,7 +15,7 @@ static FILE *fp = NULL;
 static ElfN(Ehdr) eh;
 
 #define STRTAB_BUF_SIZE 163840
-#define MAX_SYMBOL 5000
+#define MAX_SYMBOL 1000
 
 static char strtab[STRTAB_BUF_SIZE];
 static char *elf_no_name = "<anonymous symbol>";
