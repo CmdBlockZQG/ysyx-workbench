@@ -97,6 +97,9 @@ sta:
 	make -C /home/cmdblock/ysyx/yosys-sta/ sta
 	grep "Chip area for" ~/ysyx/yosys-sta/result/ysyx_23060203-700MHz/synth_stat.txt
 
-.PHONY: default all clean sim run sta
+merge:
+	@cat $(shell find $(abspath ./vsrc) -name "*.sv") > build/ysyx_23060203.sv
+
+.PHONY: default all clean sim run sta merge
 
 include ../Makefile
