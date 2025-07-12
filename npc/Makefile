@@ -8,11 +8,11 @@ VSRCS += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
 INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
 INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
 CXXFLAGS += -DYSYXSOC=1
-VERILATOR_FLAGS += -DYSYXSOC=1
 override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so-ysyxsoc
 else
 TOPNAME = ysyx_23060203
 override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+VERILATOR_FLAGS += -DNO_YSYXSOC=1
 endif
 
 NXDC_FILES = constr/top.nxdc
@@ -21,7 +21,7 @@ INC_PATH = $(abspath ./csrc/include)
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace \
 					-O3 --x-assign fast --x-initial fast --noassert
-VERILATOR_FLAGS += --timescale "1ns/1ns" --no-timing --autoflush
+VERILATOR_FLAGS += -DNPC_DEBUG=1 --timescale "1ns/1ns" --no-timing --autoflush
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -97,6 +97,9 @@ sta:
 	make -C /home/cmdblock/ysyx/yosys-sta/ sta
 	grep "Chip area for" ~/ysyx/yosys-sta/result/ysyx_23060203-700MHz/synth_stat.txt
 
-.PHONY: default all clean sim run sta
+merge:
+	@cat $(shell find $(abspath ./vsrc) -name "*.sv") > build/ysyx_23060203.sv
+
+.PHONY: default all clean sim run sta merge
 
 include ../Makefile

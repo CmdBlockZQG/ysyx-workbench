@@ -46,12 +46,42 @@ module ysyx_23060203_IDU (
   output            out_ret,
   output            out_fencei
 
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     ,
     output reg [31:0] out_inst,
     output     [31:0] out_dnpc
   `endif
 );
+
+  parameter OP_LUI    = 5'b01101;
+  parameter OP_AUIPC  = 5'b00101;
+  parameter OP_JAL    = 5'b11011;
+  parameter OP_JALR   = 5'b11001;
+  parameter OP_BRANCH = 5'b11000;
+  parameter OP_LOAD   = 5'b00000;
+  parameter OP_STORE  = 5'b01000;
+  parameter OP_RI     = 5'b00100;
+  parameter OP_RR     = 5'b01100;
+  parameter OP_SYS    = 5'b11100;
+  parameter OP_FENCEI = 5'b00011;
+
+  // ALU funct 常量
+  // 括号中为sw为0/1时的运算
+  parameter ALU_ADD = 3'b000; // 加减（加法/减法）
+  parameter ALU_SHL = 3'b001; // 左移
+  parameter ALU_LTS = 3'b010; // 有符号小于
+  parameter ALU_LTU = 3'b011; // 无符号小于
+  parameter ALU_XOR = 3'b100; // 异或
+  parameter ALU_SHR = 3'b101; // 右移（逻辑/算数）
+  parameter ALU_OR  = 3'b110; // 或
+  parameter ALU_AND = 3'b111; // 与
+
+  parameter CSRF_RW  = 3'b001;
+  parameter CSRF_RS  = 3'b010;
+  parameter CSRF_RC  = 3'b011;
+  parameter CSRF_RWI = 3'b101;
+  parameter CSRF_RSI = 3'b110;
+  parameter CSRF_RCI = 3'b111;
 
   reg valid;
   reg [31:0] pc, inst;
@@ -81,7 +111,7 @@ module ysyx_23060203_IDU (
   assign out_valid = valid & ~flush & ~gpr_raw;
 
   assign out_pc = pc;
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     assign out_inst = inst;
   `endif
 
@@ -187,7 +217,7 @@ module ysyx_23060203_IDU (
 
   assign jump_dnpc = {dnpc_c[31:1], 1'b0};
 
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     reg [31:0] out_dnpc_b;
     always_comb begin
       case (opcode)
@@ -301,7 +331,7 @@ module ysyx_23060203_IDU (
   assign out_fencei = opcode == OP_FENCEI;
 
   // -------------------- 性能计数器 --------------------
-`ifndef SYNTHESIS
+`ifdef NPC_DEBUG
   always @(posedge clock) if (~reset) begin
     if (~valid) begin
       perf_event(PERF_IDU_IDLE);

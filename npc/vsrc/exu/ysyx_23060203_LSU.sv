@@ -3,8 +3,8 @@ module ysyx_23060203_LSU (
 
   input flush,
 
-  axi_if.out mem_r,
-  axi_if.out mem_w,
+  ysyx_23060203_axi_if.out mem_r,
+  ysyx_23060203_axi_if.out mem_w,
 
   output in_ready,
   input in_valid,
@@ -183,7 +183,7 @@ module ysyx_23060203_LSU (
   assign mem_w.bready = state == ST_STORE_RESP;
 
   // -------------------- 性能计数器 --------------------
-`ifndef SYNTHESIS
+`ifdef NPC_DEBUG
   always @(posedge clock) if (~reset) begin
     case (state)
       ST_LOAD_REQ, ST_LOAD_RESP:

@@ -1,7 +1,7 @@
 module ysyx_23060203_IFU (
   input clock, reset,
 
-  axi_if.out mem_r,
+  ysyx_23060203_axi_if.out mem_r,
 
   input jump_flush,
   input [31:0] jump_dnpc,
@@ -106,12 +106,12 @@ module ysyx_23060203_IFU (
     if (reset) begin
       out_valid_r <= 0;
       flush_r <= 0;
-      `ifdef YSYXSOC
-        // soc中从flash开始取指
-        fetch_pc <= 32'h30000000;
-      `else
+      `ifdef NO_YSYXSOC
         // 仿真从0x80000000开始取指
         fetch_pc <= 32'h80000000;
+      `else
+        // soc中从flash开始取指
+        fetch_pc <= 32'h30000000;
       `endif
     end else begin
       out_valid_r <= out_valid_r_next;
@@ -124,7 +124,7 @@ module ysyx_23060203_IFU (
   end
 
   // -------------------- 性能计数器 --------------------
-`ifndef SYNTHESIS
+`ifdef NPC_DEBUG
   always @(posedge clock) if (~reset) begin
     if (out_valid) begin
       perf_event(PERF_IFU_HOLD);

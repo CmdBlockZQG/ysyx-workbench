@@ -1,8 +1,8 @@
 module ysyx_23060203_CPU (
   input clock, reset,
 
-  // axi_if.in io_in,
-  axi_if.out io_out
+  // ysyx_23060203_axi_if.in io_in,
+  ysyx_23060203_axi_if.out io_out
 );
 
   wire [31:0] gpr_rdata1, gpr_rdata2;
@@ -16,7 +16,7 @@ module ysyx_23060203_CPU (
   wire ifu_out_valid;
   wire [31:0] ifu_out_pc;
   wire [31:0] ifu_out_inst;
-  axi_if ifu_mem_r();
+  ysyx_23060203_axi_if ifu_mem_r();
   ysyx_23060203_IFU IFU (
     .clock(clock), .reset(reset),
 
@@ -53,7 +53,7 @@ module ysyx_23060203_CPU (
   wire idu_out_exc;
   wire idu_out_ret;
   wire idu_out_fencei;
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     wire [31:0] idu_out_inst;
     wire [31:0] idu_out_dnpc;
   `endif
@@ -92,7 +92,7 @@ module ysyx_23060203_CPU (
     .out_exc(idu_out_exc),
     .out_ret(idu_out_ret),
     .out_fencei(idu_out_fencei)
-    `ifndef SYNTHESIS
+    `ifdef NPC_DEBUG
       ,
       .out_inst(idu_out_inst),
       .out_dnpc(idu_out_dnpc)
@@ -101,7 +101,7 @@ module ysyx_23060203_CPU (
 
   wire [4:0] exu_rd;
   wire [31:0] exu_rd_val;
-  axi_if lsu_mem_r();
+  ysyx_23060203_axi_if lsu_mem_r();
   wire exu_in_ready;
   wire exu_out_valid;
   wire [31:0] exu_out_pc;
@@ -113,7 +113,7 @@ module ysyx_23060203_CPU (
   wire exu_out_exc;
   wire exu_out_ret;
   wire exu_out_fencei;
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     wire [31:0] exu_out_inst;
     wire [31:0] exu_out_dnpc;
   `endif
@@ -155,7 +155,7 @@ module ysyx_23060203_CPU (
     .out_exc(exu_out_exc),
     .out_ret(exu_out_ret),
     .out_fencei(exu_out_fencei)
-    `ifndef SYNTHESIS
+    `ifdef NPC_DEBUG
       ,
       .in_inst(idu_out_inst),
       .in_dnpc(idu_out_dnpc),
@@ -193,21 +193,21 @@ module ysyx_23060203_CPU (
     .in_ret(exu_out_ret),
     .in_fencei(exu_out_fencei)
 
-    `ifndef SYNTHESIS
+    `ifdef NPC_DEBUG
       ,
       .in_inst(exu_out_inst),
       .in_dnpc(exu_out_dnpc)
     `endif
   );
 
-  axi_if mem_r();
+  ysyx_23060203_axi_if mem_r();
   ysyx_23060203_MemArb MemArb (
     .clock(clock), .reset(reset),
     .ifu_r(ifu_mem_r), .lsu_r(lsu_mem_r),
     .ram_r(mem_r)
   );
 
-  axi_if clint_r();
+  ysyx_23060203_axi_if clint_r();
   ysyx_23060203_XBar Xbar (
     .clock(clock), .reset(reset),
     .read(mem_r),
@@ -219,7 +219,7 @@ module ysyx_23060203_CPU (
     .read(clint_r)
   );
 
-`ifdef YSYXSOC `ifndef SYNTHESIS
+`ifndef NO_YSYXSOC `ifdef NPC_DEBUG
   // SoC Access Fault 检查
   always @(posedge clock) begin
     if (io_out.rvalid & io_out.rresp[1]) begin

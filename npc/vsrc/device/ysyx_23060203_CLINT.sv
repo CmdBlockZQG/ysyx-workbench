@@ -1,7 +1,7 @@
 module ysyx_23060203_CLINT (
   input clock, reset,
 
-  axi_if.in read
+  ysyx_23060203_axi_if.in read
 );
 
   reg [63:0] uptime, uptime_next;

@@ -28,12 +28,21 @@ module ysyx_23060203_WBU (
   input in_ret,
   input in_fencei
 
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     ,
     input [31:0] in_inst,
     input [31:0] in_dnpc
   `endif
 );
+
+  // CSR寄存器地址常量
+  parameter CSR_MSTATUS  = 12'h300;
+  parameter CSR_MTVEC    = 12'h305;
+  parameter CSR_MEPC     = 12'h341;
+  parameter CSR_MCAUSE   = 12'h342;
+
+  parameter CSR_MVENDORID = 12'hf11;
+  parameter CSR_MARCHID   = 12'hf12;
 
   assign in_ready = 1;
 
@@ -75,7 +84,6 @@ module ysyx_23060203_WBU (
   end
 
   // -------------------- CSR --------------------
-  `include "def/csr.sv"
   reg [31:0] mtvec, mepc;
 
   always @(posedge clock)
@@ -108,7 +116,7 @@ module ysyx_23060203_WBU (
   end
 
   // -------------------- 仿真环境 --------------------
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     always @(posedge clock) begin
       if (in_valid) begin
         if (in_exc) inst_complete(mtvec, in_inst);
