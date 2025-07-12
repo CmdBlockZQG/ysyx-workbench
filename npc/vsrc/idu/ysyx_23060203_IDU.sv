@@ -32,17 +32,15 @@ module ysyx_23060203_IDU (
   input out_ready,
   output out_valid,
   output     [31:0] out_pc,
-  output     [31:0] out_dnpc,
   output reg [31:0] out_val_a,
   output reg [31:0] out_val_b,
   output reg [31:0] out_val_c,
   output reg [ 2:0] out_alu_funct,
   output reg        out_alu_sw,
-  output            out_mul,
   output reg [ 4:0] out_rd,
   output            out_rd_src,
   output reg [ 3:0] out_ls,
-  output            out_zicsr,
+  output            out_csr_wen,
   output            out_csr_src,
   output            out_exc,
   output            out_ret,
@@ -50,7 +48,8 @@ module ysyx_23060203_IDU (
 
   `ifndef SYNTHESIS
     ,
-    output reg [31:0] out_inst
+    output reg [31:0] out_inst,
+    output     [31:0] out_dnpc
   `endif
 );
 
@@ -175,32 +174,33 @@ module ysyx_23060203_IDU (
 
   // jump_dnpc
   wire [31:0] dnpc_a = (opcode == OP_JALR) ? src1 : pc;
-  reg [31:0] jump_dnpc_b;
+  reg [31:0] dnpc_b;
 
   always_comb begin
     case (opcode)
-      OP_JALR: jump_dnpc_b = imm_i;
-      default: jump_dnpc_b = inst[31] ? 32'h4 : imm_b;
+      OP_JALR: dnpc_b = imm_i;
+      default: dnpc_b = inst[31] ? 32'h4 : imm_b;
     endcase
   end
 
-  wire [31:0] jump_dnpc_c = dnpc_a + jump_dnpc_b;
+  wire [31:0] dnpc_c = dnpc_a + dnpc_b;
 
-  assign jump_dnpc = {jump_dnpc_c[31:1], 1'b0};
+  assign jump_dnpc = {dnpc_c[31:1], 1'b0};
 
-  // out_dnpc
-  reg [31:0] out_dnpc_b;
-  always_comb begin
-    case (opcode)
-      OP_JAL    : out_dnpc_b = imm_j;
-      OP_JALR   : out_dnpc_b = imm_i;
-      OP_BRANCH : out_dnpc_b = br_jump_en ? imm_b : 32'h4;
-      default   : out_dnpc_b = 32'h4;
-    endcase
-  end
+  `ifndef SYNTHESIS
+    reg [31:0] out_dnpc_b;
+    always_comb begin
+      case (opcode)
+        OP_JAL    : out_dnpc_b = imm_j;
+        OP_JALR   : out_dnpc_b = imm_i;
+        OP_BRANCH : out_dnpc_b = br_jump_en ? imm_b : 32'h4;
+        default   : out_dnpc_b = 32'h4;
+      endcase
+    end
 
-  wire [31:0] out_dnpc_c = dnpc_a + out_dnpc_b;
-  assign out_dnpc = {out_dnpc_c[31:1], 1'b0};
+    wire [31:0] out_dnpc_c = dnpc_a + out_dnpc_b;
+    assign out_dnpc = {out_dnpc_c[31:1], 1'b0};
+  `endif
 
   // -------------------- 选数 --------------------
   always_comb begin
@@ -249,10 +249,6 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  // mul 是否为乘除法指令
-  // 若是，则alu_funct传递乘除法模式
-  assign out_mul = (opcode == OP_RR) & funct7[0];
-
   // rd 目标寄存器
   // 0表示不写入寄存器
   always_comb begin
@@ -283,8 +279,8 @@ module ysyx_23060203_IDU (
     endcase
   end
 
-  // zicsr 是否写入CSR
-  assign out_zicsr = sys & zicsr;
+  // csr_wen 是否写入CSR
+  assign out_csr_wen = sys & zicsr;
 
   // csr_src 写入CSR值来源
   // 0: ALU

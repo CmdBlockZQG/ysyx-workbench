@@ -37,11 +37,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 }
 
 word_t isa_query_intr() {
-#ifdef CONFIG_TIMER_INTR
   if (cpu.intr && MSTATUS_MIE) {
     cpu.intr = false;
     return IRQ_TIMER;
   }
-#endif
   return INTR_EMPTY;
 }

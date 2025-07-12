@@ -11,18 +11,14 @@ static Context* (*user_handler)(Event, Context*) = NULL;
 #endif
 
 Context* __am_irq_handle(Context *c) {
-  void __am_get_cur_as(Context *c);
-  __am_get_cur_as(c);
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
       case 11: // ecall
-        if (c->gpr[SYSCALL_TYPE_GPR] == -1) ev.event = EVENT_YIELD;
-        else ev.event = EVENT_SYSCALL;
-        c->mepc += 4;
-      break;
-      case 0x80000007: // timer interrupt
-        ev.event = EVENT_IRQ_TIMER;
+        switch (c->gpr[SYSCALL_TYPE_GPR]) {
+          case -1: ev.event = EVENT_YIELD; break;
+          default: ev.event = EVENT_ERROR; break;
+        }
       break;
       default:
         ev.event = EVENT_ERROR;
@@ -33,8 +29,6 @@ Context* __am_irq_handle(Context *c) {
     assert(c != NULL);
   }
 
-  void __am_switch(Context *c);
-  __am_switch(c);
   return c;
 }
 
@@ -43,7 +37,6 @@ extern void __am_asm_trap(void);
 bool cte_init(Context*(*handler)(Event, Context*)) {
   // initialize exception entry
   asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
-  asm volatile("csrwi mscratch, 0x0");
 
   // register event handler
   user_handler = handler;
@@ -53,13 +46,11 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *ctx = kstack.end - sizeof(Context);
-  ctx->pdir = NULL;
   ctx->mcause = 11;
-  ctx->mstatus = 0x1880;
-  ctx->mepc = (uintptr_t)entry;
+  ctx->mstatus = 0x1800;
+  ctx->mepc = (uintptr_t)entry - 4;
   ctx->gpr[10] = (uintptr_t)arg;
   ctx->gpr[2] = (uintptr_t)ctx;
-  ctx->R_PRIV = PRIV_USER;
   return ctx;
 }
 

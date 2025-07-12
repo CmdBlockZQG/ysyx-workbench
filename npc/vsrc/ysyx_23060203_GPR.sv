@@ -11,7 +11,7 @@ module ysyx_23060203_GPR (
   output [31:0] rdata2 // 读出数据
 );
 
-  parameter NR_REG = 32;
+  parameter NR_REG = 16;
 
   // -------------------- WRITE --------------------
   reg [31:0] r [1:NR_REG-1]/*verilator public*/;

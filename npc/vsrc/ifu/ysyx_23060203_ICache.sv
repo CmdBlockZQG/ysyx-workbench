@@ -1,16 +1,11 @@
 module ysyx_23060203_ICache (
   input clock, reset,
 
-  input flush_icache,
+  input fencei,
 
   input [31:0] addr,
   output hit,
   output [31:0] inst,
-
-  output mmu_valid,
-  output [31:0] mmu_vaddr,
-  input mmu_hit,
-  input [31:0] mmu_paddr,
 
   axi_if.out mem_r
 );
@@ -37,63 +32,44 @@ module ysyx_23060203_ICache (
 
   // -------------------- 访存状态机 --------------------
 
-  typedef enum logic [1:0] {
-    ST_IDLE,
-    ST_MMU,
-    ST_REQ,
-    ST_RESP
+  typedef enum logic [2:0] {
+    ST_IDLE = 3'b001,
+    ST_REQ  = 3'b010,
+    ST_RESP = 3'b100
   } state_t;
-  wire st_idle = state == ST_IDLE;
-  wire st_mmu  = state == ST_MMU;
-  wire st_req  = state == ST_REQ;
-  wire st_resp = state == ST_RESP;
+  wire st_idle = state[0];
+  wire st_req  = state[1];
+  wire st_resp = state[2];
 
   state_t state, state_next;
-  reg [31:0] paddr, paddr_next;
 
   always @(posedge clock) begin
     if (reset) begin
       state <= ST_IDLE;
     end else begin
       state <= state_next;
-      paddr <= paddr_next;
     end
   end
 
   always_comb begin
     state_next = state;
-    paddr_next = paddr;
-    case (state)
-      ST_IDLE: begin
-        if (~hit) begin
-          state_next = ST_MMU;
-        end
+    if (st_idle) begin
+      if (~hit) begin
+        state_next = ST_REQ;
       end
-      ST_MMU: begin
-        if (mmu_hit) begin
-          state_next = ST_REQ;
-          paddr_next = mmu_paddr;
-        end
+    end else if (st_req) begin
+      if (mem_r.arready) begin
+        state_next = ST_RESP;
       end
-      ST_REQ: begin
-        if (mem_r.arready) begin
-          state_next = ST_RESP;
-        end
+    end else if (st_resp) begin
+      if (mem_r.rready & mem_r.rvalid & mem_r.rlast) begin
+        state_next = ST_IDLE;
       end
-      ST_RESP: begin
-        if (mem_r.rready & mem_r.rvalid & mem_r.rlast) begin
-          state_next = ST_IDLE;
-        end
-      end
-      default: ;
-    endcase
+    end
   end
 
-  assign mmu_valid = st_mmu;
-  assign mmu_vaddr = {tag, index, off_next, 2'b00};
-
   assign mem_r.arvalid = st_req;
-  assign mem_r.araddr = paddr;
+  assign mem_r.araddr = {tag, index, off_next, 2'b00};
   assign mem_r.arid = 0;
   assign mem_r.arlen = BLOCK_SZ - 1;
   assign mem_r.arsize = 3'b010;
@@ -123,7 +99,7 @@ module ysyx_23060203_ICache (
 
   integer i;
   always @(posedge clock) begin
-    if (flush_icache) begin
+    if (fencei) begin
       /*verilator unroll_full*/
       for (i = 0; i < SET_N; i = i + 1) begin
         if (mem_r.rready & mem_r.rvalid & mem_r.rlast & (i[INDEX_W-1:0] == index)) ;

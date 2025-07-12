@@ -1,8 +1,6 @@
 #ifndef NPC_H__
 #define NPC_H__
 
-#include <klib-macros.h>
-
 #include ISA_H
 
 #define DEVICE_BASE 0xa0000000
@@ -15,17 +13,5 @@
 #define DISK_ADDR       (DEVICE_BASE + 0x0000300)
 #define FB_ADDR         (MMIO_BASE   + 0x1000000)
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
-
-extern char _pmem_start;
-#define PMEM_SIZE (128 * 1024 * 1024)
-#define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
-
-#define NPC_PADDR_SPACE \
-  RANGE(&_pmem_start, PMEM_END), \
-  RANGE(MMIO_BASE, MMIO_BASE + 0x1000)
-
-typedef uintptr_t PTE;
-
-#define PGSIZE 4096
 
 #endif
