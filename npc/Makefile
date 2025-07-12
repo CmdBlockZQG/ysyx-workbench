@@ -8,11 +8,12 @@ VSRCS += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
 INCDIR += "$(abspath ../ysyxSoC/perip/uart16550/rtl)"
 INCDIR += "$(abspath ../ysyxSoC/perip/spi/rtl)"
 CXXFLAGS += -DYSYXSOC=1
+VERILATOR_FLAGS += -DYSYXSOC=1
 override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so-ysyxsoc
 else
 TOPNAME = ysyx_23060203
+VERILATOR_FLAGS += -DUSE_DPIC_RAM=1
 override ARGS += --diff=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
-VERILATOR_FLAGS += -DNO_YSYXSOC=1
 endif
 
 NXDC_FILES = constr/top.nxdc

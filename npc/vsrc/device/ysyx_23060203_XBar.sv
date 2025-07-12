@@ -26,10 +26,10 @@ module ysyx_23060203_XBar (
   end
 
   wire req_clint;
-  `ifdef NO_YSYXSOC
-    assign req_clint = (read.araddr[31:4] == 28'ha000004);
-  `else
+  `ifdef YSYXSOC
     assign req_clint = (read.araddr[31:16] == 16'h0200);
+  `else
+    assign req_clint = (read.araddr[31:4] == 28'ha000004);
   `endif
 
   always_comb begin

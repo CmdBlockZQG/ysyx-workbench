@@ -219,7 +219,7 @@ module ysyx_23060203_CPU (
     .read(clint_r)
   );
 
-`ifndef NO_YSYXSOC `ifdef NPC_DEBUG
+`ifdef YSYXSOC `ifdef NPC_DEBUG
   // SoC Access Fault 检查
   always @(posedge clock) begin
     if (io_out.rvalid & io_out.rresp[1]) begin
