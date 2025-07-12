@@ -1,0 +1,75 @@
+From d1659e007f58707553797df852b34012216a2cf2 Mon Sep 17 00:00:00 2001
+From: CmdBlock <CmdBlockZQG@outlook.com>
+Date: Wed, 24 Apr 2024 18:02:09 +0800
+Subject: [PATCH 04/13] GPIO access for soc
+
+---
+ perip/gpio/gpio_top_apb.v | 53 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 53 insertions(+)
+
+diff --git a/perip/gpio/gpio_top_apb.v b/perip/gpio/gpio_top_apb.v
+index ec51ffe56..deda50ef3 100644
+--- a/perip/gpio/gpio_top_apb.v
++++ b/perip/gpio/gpio_top_apb.v
+@@ -23,5 +23,58 @@ module gpio_top_apb(
+   output [7:0]  gpio_seg_6,
+   output [7:0]  gpio_seg_7
+ );
++  // -------------------- 通信 --------------------
++  assign in_pready = 1;
++  assign in_pslverr = 0;
++  assign in_prdata = {16'b0, gpio_in};
++  wire write_en = in_psel & in_penable & in_pwrite;
++
++  reg [15:0] gpio_reg;
++  reg [31:0] seg_reg;
++
++  always @(posedge clock) if (reset) begin
++    gpio_reg <= 16'b0;
++    seg_reg <= 32'b0;
++  end else if (write_en) begin
++    if (in_paddr[3]) seg_reg <= in_pwdata;
++    else gpio_reg <= in_pwdata[15:0];
++  end
++
++  // -------------------- 输出信号组合 --------------------
++  assign gpio_out = gpio_reg;
++
++  reg [7:0] gpio_seg [8];
++  generate
++    genvar i;
++    for (i = 0; i < 8; i = i + 1) begin : gen_seg
++      always_comb case (seg_reg[4*i+3:4*i])
++        0:  gpio_seg[i] = 8'b00000011;
++        1:  gpio_seg[i] = 8'b10011111;
++        2:  gpio_seg[i] = 8'b00100101;
++        3:  gpio_seg[i] = 8'b00001101;
++        4:  gpio_seg[i] = 8'b10011001;
++        5:  gpio_seg[i] = 8'b01001001;
++        6:  gpio_seg[i] = 8'b01000001;
++        7:  gpio_seg[i] = 8'b00011111;
++        8:  gpio_seg[i] = 8'b00000001;
++        9:  gpio_seg[i] = 8'b00001001;
++        10: gpio_seg[i] = 8'b00010001;
++        11: gpio_seg[i] = 8'b11000001;
++        12: gpio_seg[i] = 8'b01100011;
++        13: gpio_seg[i] = 8'b10000101;
++        14: gpio_seg[i] = 8'b01100001;
++        15: gpio_seg[i] = 8'b01110001;
++        default: gpio_seg[i] = 8'b11111111;
++      endcase
++    end
++  endgenerate
++  assign gpio_seg_0 = gpio_seg[0];
++  assign gpio_seg_1 = gpio_seg[1];
++  assign gpio_seg_2 = gpio_seg[2];
++  assign gpio_seg_3 = gpio_seg[3];
++  assign gpio_seg_4 = gpio_seg[4];
++  assign gpio_seg_5 = gpio_seg[5];
++  assign gpio_seg_6 = gpio_seg[6];
++  assign gpio_seg_7 = gpio_seg[7];
+ 
+ endmodule
+-- 
+2.50.1
+

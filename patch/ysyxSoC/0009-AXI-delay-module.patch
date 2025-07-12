@@ -1,0 +1,226 @@
+From aa6fcf8c0fb203b75fef7630a31d778fd402862f Mon Sep 17 00:00:00 2001
+From: CmdBlock <54425466+CmdBlockZQG@users.noreply.github.com>
+Date: Fri, 5 Jul 2024 14:09:12 +0800
+Subject: [PATCH 09/13] AXI delay module
+
+---
+ perip/amba/apb_delayer.v  |  13 ++--
+ perip/amba/axi4_delayer.v | 140 ++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 143 insertions(+), 10 deletions(-)
+
+diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
+index a2ce98feb..03a113a0c 100644
+--- a/perip/amba/apb_delayer.v
++++ b/perip/amba/apb_delayer.v
+@@ -30,15 +30,16 @@ module apb_delayer(
+   assign out_paddr = in_paddr;
+   assign out_pprot = in_pprot;
+   assign out_pwrite = in_pwrite;
+-  assign out_pwdata  = in_pwdata;
+-  assign out_pstrb   = in_pstrb;
++  assign out_pwdata = in_pwdata;
++  assign out_pstrb = in_pstrb;
+ 
+   reg sel;
+   assign out_psel = sel & in_psel;
+   assign out_penable = in_penable & out_psel;
+ 
+   reg [31:0] cnt;
+-  parameter RATIO = 32'h4;
++  parameter RATIO = 32'd43;
++  parameter SCALER = 32'd10;
+ 
+   always @(posedge clock) if (reset) begin
+     state <= st_idle;
+@@ -57,7 +58,7 @@ module apb_delayer(
+       end
+     end
+     st_access: begin
+-      cnt <= cnt + RATIO - 1;
++      cnt <= cnt + (RATIO - SCALER);
+       if (out_pready) begin
+         in_prdata <= out_prdata;
+         in_pslverr <= out_pslverr;
+@@ -66,8 +67,8 @@ module apb_delayer(
+       end
+     end
+     st_delay: begin
+-      cnt <= cnt - 1;
+-      if (cnt == 2) begin
++      cnt <= cnt - SCALER;
++      if (cnt < (SCALER << 1)) begin
+         in_pready <= 1;
+         state <= st_idle;
+       end
+diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
+index 18451a2b0..bc378aa51 100644
+--- a/perip/amba/axi4_delayer.v
++++ b/perip/amba/axi4_delayer.v
+@@ -63,6 +63,77 @@ module axi4_delayer(
+   input  [1:0]  out_bresp
+ );
+ 
++  // 状态定义
++  typedef enum {
++    st_idle,   // 空闲，无请求
++    st_access, // 等待slave返回结果，记录时间
++    st_delay,  // slave已经返回结果，等待一定时间向上层提供结果
++    st_hold    // 保持向上层提供结果，等待上层取走
++  } state_t;
++
++  // 参数
++  parameter RATIO = 32'd43;
++  parameter SCALER = 32'd10;
++
++  // -------------------- 读延迟 --------------------
++  state_t rstate;
++  always @(posedge clock) if (reset) rstate <= st_idle;
++
++  // 计时器
++  reg [31:0] rcnt;
++  always @(posedge clock) if (reset) rcnt <= 0;
++
++  // 受控的总线信号
++  reg rblock; // 请求回复信号是否被阻挡
++  assign in_rvalid = ~rblock & out_rvalid;
++  assign out_rready = ~rblock & in_rready;
++
++  // 总线控制复位
++  always @(posedge clock) if (reset) begin
++    rblock <= 1;
++  end
++
++  // 总线延迟控制
++  always @(posedge clock) if (~reset) case (rstate)
++    st_idle: begin
++      rcnt <= 0;
++      // 请求到达，开始计时
++      if (out_arvalid & out_arready) begin
++        rstate <= st_access;
++      end
++    end
++    st_access: begin
++      rcnt <= rcnt + (RATIO - SCALER);
++      // slave结果有效，开始延迟
++      if (out_rvalid) begin
++        rstate <= st_delay;
++      end
++    end
++    st_delay: begin
++      rcnt <= rcnt - SCALER;
++      // 时间到，恢复读取结果通信
++      if (rcnt < (SCALER << 1)) begin
++        rblock <= 0;
++        rstate <= st_hold;
++      end
++    end
++    st_hold: begin
++      // 等待读取结果握手
++      if (out_rvalid & out_rready) begin
++        rblock <= 1;
++        if (out_rlast) begin
++          // 事务完成，回到空闲状态
++          rstate <= st_idle;
++        end else begin
++          // burst未完成，回到access状态
++          rstate <= st_access;
++        end
++      end
++    end
++    default: ;
++  endcase
++
++  // 总线信号转发
+   assign in_arready = out_arready;
+   assign out_arvalid = in_arvalid;
+   assign out_arid = in_arid;
+@@ -70,12 +141,75 @@ module axi4_delayer(
+   assign out_arlen = in_arlen;
+   assign out_arsize = in_arsize;
+   assign out_arburst = in_arburst;
+-  assign out_rready = in_rready;
+-  assign in_rvalid = out_rvalid;
+   assign in_rid = out_rid;
+   assign in_rdata = out_rdata;
+   assign in_rresp = out_rresp;
+   assign in_rlast = out_rlast;
++
++  // -------------------- 写延迟 --------------------
++  state_t wstate;
++  always @(posedge clock) if (reset) wstate <= st_idle;
++
++  // 计时器
++  reg [31:0] wcnt;
++  always @(posedge clock) if (reset) wcnt <= 0;
++
++  // 受控的总线信号
++  reg wblock; // 请求回复信号是否被阻挡
++  assign in_bvalid = ~wblock & out_bvalid;
++  assign out_bready = ~wblock & in_bready;
++
++  // 总线控制复位
++  always @(posedge clock) if (reset) begin
++    wblock <= 1;
++  end
++
++  // 数据和地址都到达后开始计时
++  wire aw_hs = out_awvalid & out_awready;
++  wire w_hs = out_wvalid & out_wready;
++  reg aw_hs_reg, w_hs_reg;
++  always @(posedge clock) if (reset | (wstate != st_idle)) begin
++    aw_hs_reg <= 0;
++    w_hs_reg <= 0;
++  end
++
++  // 总线延迟控制
++  always @(posedge clock) if (~reset) case (wstate)
++    st_idle: begin
++      wcnt <= 0;
++      if (aw_hs) aw_hs_reg <= 1;
++      if (w_hs) w_hs_reg <= 1;
++      // 请求到达，开始计时
++      if ((aw_hs | aw_hs_reg) & (w_hs | w_hs_reg)) begin
++        wstate <= st_access;
++      end
++    end
++    st_access: begin
++      wcnt <= wcnt + (RATIO - SCALER);
++      // slave结果有效，开始延迟
++      if (out_bvalid) begin
++        wstate <= st_delay;
++      end
++    end
++    st_delay: begin
++      wcnt <= wcnt - SCALER;
++      // 时间到，恢复b通道通信
++      if (wcnt < (SCALER << 1)) begin
++        wblock <= 0;
++        wstate <= st_hold;
++      end
++    end
++    st_hold: begin
++      // 等待读取结果握手
++      if (out_bvalid & out_bready) begin
++        wblock <= 1;
++        wstate <= st_idle;
++        // TEMP: 不支持突发写
++      end
++    end
++    default: ;
++  endcase
++
+   assign in_awready = out_awready;
+   assign out_awvalid = in_awvalid;
+   assign out_awid = in_awid;
+@@ -88,8 +222,6 @@ module axi4_delayer(
+   assign out_wdata = in_wdata;
+   assign out_wstrb = in_wstrb;
+   assign out_wlast = in_wlast;
+-  assign out_bready = in_bready;
+-  assign in_bvalid = out_bvalid;
+   assign in_bid = out_bid;
+   assign in_bresp = out_bresp;
+ 
+-- 
+2.50.1
+
