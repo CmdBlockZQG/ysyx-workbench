@@ -40,9 +40,9 @@ void init_proc() {
 
   char *const empty[] = { NULL };
   char *const pal_skip[] = { "--skip", NULL };
-  // context_uload(&pcb[0], "/bin/hello", empty, empty);
-  context_uload(&pcb[1], "/bin/hello", empty, empty);
-  context_uload(&pcb[0], "/bin/pal", pal_skip, empty);
+  context_uload(&pcb[0], "/bin/hello", empty, empty);
+  // context_uload(&pcb[1], "/bin/hello", empty, empty);
+  context_uload(&pcb[1], "/bin/pal", pal_skip, empty);
   // context_uload(&pcb[2], "/bin/bird", empty, empty);
   // context_uload(&pcb[3], "/bin/nslider", empty, empty);
 
