@@ -7,7 +7,7 @@ module ysyx_23060203_ICache (
   output hit,
   output [31:0] inst,
 
-  axi_if.out mem_r
+  ysyx_23060203_axi_if.out mem_r
 );
   parameter OFFSET_W = 4; // 块内地址宽度，块大小=2^x字节
   parameter INDEX_W  = 2; // 组地址宽度，组数=2^x
@@ -116,7 +116,7 @@ module ysyx_23060203_ICache (
   end
 
   // -------------------- 性能计数器 --------------------
-`ifndef SYNTHESIS
+`ifdef NPC_DEBUG
   always @(posedge clock) if (~reset) begin
     if (~st_idle) begin
       perf_event(PERF_ICACHE_MEM);

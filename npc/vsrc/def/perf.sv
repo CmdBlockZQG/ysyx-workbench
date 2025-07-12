@@ -1,3 +1,5 @@
+`ifdef NPC_DEBUG
+
 typedef enum {
   PERF_IFU_WAIT,
   PERF_IFU_HOLD,
@@ -21,3 +23,5 @@ typedef enum {
   PERF_LSU_MEMR,
   PERF_LSU_MEMW
 } perf_cnt_t;
+
+`endif

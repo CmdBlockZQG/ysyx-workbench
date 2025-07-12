@@ -9,8 +9,8 @@ module ysyx_23060203_EXU (
   output [31:0] exu_rd_val,
 
   // 访存AXI接口
-  axi_if.out mem_r,
-  axi_if.out mem_w,
+  ysyx_23060203_axi_if.out mem_r,
+  ysyx_23060203_axi_if.out mem_w,
 
   // 上游IDU输入
   output in_ready,
@@ -43,7 +43,7 @@ module ysyx_23060203_EXU (
   output out_ret,
   output out_fencei
 
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     ,
     input [31:0] in_inst,
     input [31:0] in_dnpc,
@@ -66,7 +66,7 @@ module ysyx_23060203_EXU (
   reg        ret;
   reg        fencei;
 
-  `ifndef SYNTHESIS
+  `ifdef NPC_DEBUG
     reg [31:0] inst;
     reg [31:0] dnpc;
     assign out_inst = inst;
@@ -95,7 +95,7 @@ module ysyx_23060203_EXU (
       exc <= in_exc;
       ret <= in_ret;
       fencei <= in_fencei;
-      `ifndef SYNTHESIS
+      `ifdef NPC_DEBUG
         inst <= in_inst;
         dnpc <= in_dnpc;
       `endif
@@ -191,7 +191,7 @@ module ysyx_23060203_EXU (
   assign out_fencei = fencei;
 
   // -------------------- 性能计数器 --------------------
-`ifndef SYNTHESIS
+`ifdef NPC_DEBUG
   always @(posedge clock) if (~reset) begin
     if (out_ready & out_valid) begin
       perf_event(PERF_EXU_INST);

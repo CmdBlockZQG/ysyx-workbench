@@ -1,9 +1,9 @@
 module ysyx_23060203_XBar (
   input clock, reset,
 
-  axi_if.in read,
-  axi_if.out soc_r,
-  axi_if.out clint_r
+  ysyx_23060203_axi_if.in read,
+  ysyx_23060203_axi_if.out soc_r,
+  ysyx_23060203_axi_if.out clint_r
 );
 
   typedef enum logic [2:0] {
@@ -26,10 +26,10 @@ module ysyx_23060203_XBar (
   end
 
   wire req_clint;
-  `ifdef YSYXSOC
-    assign req_clint = (read.araddr[31:16] == 16'h0200);
-  `else
+  `ifdef NO_YSYXSOC
     assign req_clint = (read.araddr[31:4] == 28'ha000004);
+  `else
+    assign req_clint = (read.araddr[31:16] == 16'h0200);
   `endif
 
   always_comb begin

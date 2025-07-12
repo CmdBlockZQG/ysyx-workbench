@@ -1,10 +1,10 @@
 module ysyx_23060203_MemArb (
   input clock, reset,
 
-  axi_if.in ifu_r,
-  axi_if.in lsu_r,
+  ysyx_23060203_axi_if.in ifu_r,
+  ysyx_23060203_axi_if.in lsu_r,
 
-  axi_if.out ram_r
+  ysyx_23060203_axi_if.out ram_r
 );
 
   typedef enum logic [2:0] {

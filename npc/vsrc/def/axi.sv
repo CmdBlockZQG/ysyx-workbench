@@ -1,4 +1,4 @@
-interface axi_if;
+interface ysyx_23060203_axi_if;
 
   // read
   logic        arready;

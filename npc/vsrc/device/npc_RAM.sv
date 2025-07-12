@@ -1,8 +1,8 @@
-`ifndef YSYXSOC
+`ifdef NPC_DEBUG
 module npc_RAM (
   input clock, reset,
 
-  axi_if.in in
+  ysyx_23060203_axi_if.in in
 );
 
   always @(posedge clock) if (reset) begin // 复位
@@ -110,9 +110,7 @@ module npc_RAM (
     end
 
     if (write_en) begin
-`ifndef SYNTHESIS
       pmem_write({waddr[31:2], 2'b00}, wdata[31:0], {4'b0, wmask[3:0]});
-`endif
 
       in.bresp <= 2'b00;
       in.bvalid <= 1;
