@@ -16,7 +16,11 @@
 
   import "DPI-C" function void perf_event(input int id);
 
-  `ifdef NO_YSYXSOC
+  `ifdef YSYXSOC
+
+    import "DPI-C" function void abort_err(input int err);
+
+  `else
 
     import "DPI-C" function int pmem_read(input int raddr);
     import "DPI-C" function void pmem_write(
@@ -24,11 +28,7 @@
       input int wdata,
       input byte wmask
     );
-
-  `else
-
-    import "DPI-C" function void abort_err(input int err);
   
-  `endif // NO_YSYXSOC
+  `endif // YSYXSOC
 
 `endif // NPC_DEBUG

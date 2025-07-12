@@ -64,15 +64,8 @@ module ysyx_23060203 (
   output [3:0]  io_slave_rid
 );
 
-`ifdef NO_YSYXSOC
-
   ysyx_23060203_axi_if io_master();
   // ysyx_23060203_axi_if io_slave();
-
-  npc_RAM NPC_RAM (
-    .clock(clock), .reset(reset),
-    .in(io_master)
-  );
 
   ysyx_23060203_CPU NPC_CPU (
     .clock(clock), .reset(reset),
@@ -81,10 +74,14 @@ module ysyx_23060203 (
     .io_out(io_master)
   );
 
-`else
+`ifdef USE_DPIC_RAM
 
-  ysyx_23060203_axi_if io_master();
-  // ysyx_23060203_axi_if io_slave();
+  npc_RAM NPC_RAM (
+    .clock(clock), .reset(reset),
+    .in(io_master)
+  );
+
+`else
 
   // master input
   assign io_master.awready = io_master_awready;
@@ -149,13 +146,6 @@ module ysyx_23060203 (
   // assign io_slave.arsize  = io_slave_arsize;
   // assign io_slave.arburst = io_slave_arburst;
   // assign io_slave.rready  = io_slave_rready;
-
-  ysyx_23060203_CPU NPC_CPU (
-    .clock(clock), .reset(reset),
-    // .io_interrupt(io_interrupt),
-    // .io_in(io_slave),
-    .io_out(io_master)
-  );
 
 `endif
 endmodule
