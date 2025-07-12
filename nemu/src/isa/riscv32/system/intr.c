@@ -37,9 +37,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 }
 
 word_t isa_query_intr() {
-  // if (cpu.intr && MSTATUS_MIE) {
-  //   cpu.intr = false;
-  //   return IRQ_TIMER;
-  // }
+  if (cpu.intr && MSTATUS_MIE) {
+    cpu.intr = false;
+    return IRQ_TIMER;
+  }
   return INTR_EMPTY;
 }

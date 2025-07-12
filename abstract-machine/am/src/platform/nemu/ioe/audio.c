@@ -1,6 +1,5 @@
 #include <am.h>
 #include <nemu.h>
-#include <stdint.h>
 
 #define AUDIO_FREQ_ADDR      (AUDIO_ADDR + 0x00)
 #define AUDIO_CHANNELS_ADDR  (AUDIO_ADDR + 0x04)
@@ -45,7 +44,7 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
       // write aligned 4 bytes at a time
       uintptr_t addr = buf + buf_p;
       int len = 0;
-      if (audio_left >= 4 && nplay >= 4 && !(addr & 0b11) && !((uintptr_t)p & 0b11)) {
+      if (audio_left >= 4 && nplay >= 4 && !(addr & 0b11)) {
         outl(addr, *(uint32_t *)p);
         len = 4;
       } else {
