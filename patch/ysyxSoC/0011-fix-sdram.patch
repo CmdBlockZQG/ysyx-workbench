@@ -1,0 +1,89 @@
+From f4c4bdc1e5ebb66598cf63025a6779d9b14ab7dd Mon Sep 17 00:00:00 2001
+From: CmdBlock <54425466+CmdBlockZQG@users.noreply.github.com>
+Date: Mon, 22 Jul 2024 10:18:57 +0800
+Subject: [PATCH 11/13] fix sdram
+
+---
+ perip/sdram/core_sdram_axi4/sdram_axi.v      |  2 +-
+ perip/sdram/core_sdram_axi4/sdram_axi_core.v |  8 --------
+ perip/sdram/core_sdram_axi4/sdram_axi_pmem.v | 11 ++++-------
+ 3 files changed, 5 insertions(+), 16 deletions(-)
+
+diff --git a/perip/sdram/core_sdram_axi4/sdram_axi.v b/perip/sdram/core_sdram_axi4/sdram_axi.v
+index ba6246cbd..a60ba356d 100644
+--- a/perip/sdram/core_sdram_axi4/sdram_axi.v
++++ b/perip/sdram/core_sdram_axi4/sdram_axi.v
+@@ -86,7 +86,7 @@ module sdram_axi
+ // Key Params
+ //-----------------------------------------------------------------
+ parameter SDRAM_MHZ             = 50;
+-parameter SDRAM_ADDR_W          = 24;
++parameter SDRAM_ADDR_W          = 25;
+ parameter SDRAM_COL_W           = 9;
+ parameter SDRAM_READ_LATENCY    = 2;
+ 
+diff --git a/perip/sdram/core_sdram_axi4/sdram_axi_core.v b/perip/sdram/core_sdram_axi4/sdram_axi_core.v
+index 8bb759e0a..e5711b6f8 100644
+--- a/perip/sdram/core_sdram_axi4/sdram_axi_core.v
++++ b/perip/sdram/core_sdram_axi4/sdram_axi_core.v
+@@ -280,14 +280,6 @@ begin
+     STATE_WRITE0 :
+     begin
+         next_state_r = STATE_IDLE;
+-
+-        // Another pending write request (with no refresh pending)
+-        if (!refresh_q && ram_req_w && (ram_wr_w != 4'b0))
+-        begin
+-            // Open row hit
+-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
+-                next_state_r = STATE_WRITE0;
+-        end
+     end
+     //-----------------------------------------
+     // STATE_PRECHARGE
+diff --git a/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v b/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v
+index 853e26f09..3d6a5bb40 100644
+--- a/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v
++++ b/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v
+@@ -349,7 +349,7 @@ module sdram_axi_pmem_fifo2
+ //-----------------------------------------------------------------
+ #(
+     parameter WIDTH   = 8,
+-    parameter DEPTH   = 1, // 4
++    parameter DEPTH   = 4,
+     parameter ADDR_W  = 2
+ )
+ //-----------------------------------------------------------------
+@@ -377,8 +377,7 @@ localparam COUNT_W = ADDR_W + 1;
+ //-----------------------------------------------------------------
+ // Registers
+ //-----------------------------------------------------------------
+-// reg [WIDTH-1:0]         ram [DEPTH-1:0];
+-reg [WIDTH-1:0]         ram;
++reg [WIDTH-1:0]         ram [DEPTH-1:0];
+ reg [ADDR_W-1:0]        rd_ptr;
+ reg [ADDR_W-1:0]        wr_ptr;
+ reg [COUNT_W-1:0]       count;
+@@ -398,8 +397,7 @@ begin
+     // Push
+     if (push_i & accept_o)
+     begin
+-        // ram[wr_ptr] <= data_in_i;
+-        ram         <= data_in_i;
++        ram[wr_ptr] <= data_in_i;
+         wr_ptr      <= wr_ptr + 1;
+     end
+ 
+@@ -423,8 +421,7 @@ assign accept_o   = (count != DEPTH);
+ assign valid_o    = (count != 0);
+ /* verilator lint_on WIDTH */
+ 
+-assign data_out_o = ram;
+-// assign data_out_o = ram[rd_ptr];
++assign data_out_o = ram[rd_ptr];
+ 
+ 
+ 
+-- 
+2.50.1
+

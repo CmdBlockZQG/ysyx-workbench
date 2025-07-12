@@ -1,0 +1,78 @@
+From 3ff83102da56034ee50d6047a2d63227e0f6520a Mon Sep 17 00:00:00 2001
+From: CmdBlock <54425466+CmdBlockZQG@users.noreply.github.com>
+Date: Sat, 12 Jul 2025 17:01:41 +0800
+Subject: [PATCH 13/13] disable delay module
+
+---
+ perip/amba/apb_delayer.v    | 4 ++--
+ perip/amba/axi4_delayer.v   | 4 ++--
+ perip/spi/rtl/spi_top_apb.v | 3 ++-
+ 3 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
+index 45a140ff5..d08017dab 100644
+--- a/perip/amba/apb_delayer.v
++++ b/perip/amba/apb_delayer.v
+@@ -24,7 +24,7 @@ module apb_delayer(
+   input         out_pslverr
+ );
+ 
+-`define APB_DELAY_EN
++// `define APB_DELAY_EN
+ 
+ `ifdef APB_DELAY_EN
+ 
+@@ -42,7 +42,7 @@ module apb_delayer(
+   assign out_penable = in_penable & out_psel;
+ 
+   reg [31:0] cnt;
+-  parameter RATIO = 32'd36;
++  parameter RATIO = 32'd65;
+   parameter SCALER = 32'd10;
+ 
+   always @(posedge clock) if (reset) begin
+diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
+index 427a3940f..c1690bf88 100644
+--- a/perip/amba/axi4_delayer.v
++++ b/perip/amba/axi4_delayer.v
+@@ -63,7 +63,7 @@ module axi4_delayer(
+   input  [1:0]  out_bresp
+ );
+ 
+-`define AXI_DELAY_EN
++// `define AXI_DELAY_EN
+ 
+ `ifdef AXI_DELAY_EN
+ 
+@@ -76,7 +76,7 @@ module axi4_delayer(
+   } state_t;
+ 
+   // 参数
+-  parameter RATIO = 32'd36;
++  parameter RATIO = 32'd65;
+   parameter SCALER = 32'd10;
+ 
+   // -------------------- 读延迟 --------------------
+diff --git a/perip/spi/rtl/spi_top_apb.v b/perip/spi/rtl/spi_top_apb.v
+index e3544a09d..0143410e4 100644
+--- a/perip/spi/rtl/spi_top_apb.v
++++ b/perip/spi/rtl/spi_top_apb.v
+@@ -1,6 +1,6 @@
+ // define this macro to enable fast behavior simulation
+ // for flash by skipping SPI transfers
+-// `define FAST_FLASH
++`define FAST_FLASH
+ 
+ module spi_top_apb #(
+   parameter flash_addr_start = 32'h30000000,
+@@ -36,6 +36,7 @@ flash_cmd flash_cmd_i(
+   .valid(in_psel && !in_penable),
+   .cmd(in_pwrite ? invalid_cmd : 8'h03),
+   .addr({8'b0, in_paddr[23:2], 2'b0}),
++  // .addr({6'b0, in_paddr[25:2], 2'b0}),
+   .data(data)
+ );
+ assign spi_sck    = 1'b0;
+-- 
+2.50.1
+
