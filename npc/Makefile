@@ -31,7 +31,8 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 $(shell mkdir -p $(BUILD_DIR))
 
 # project source
-VSRCS += $(shell find $(abspath ./vsrc) -name "*.sv")
+VSRCS_LOCAL = $(shell find $(abspath ./vsrc) -name "*.sv")
+VSRCS += $(VSRCS_LOCAL)
 CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 INCDIR += "$(abspath ./vsrc)"
 
@@ -94,13 +95,16 @@ run: $(BIN)
 	@git rev-parse HEAD
 	$(BIN) $(ARGS) $(IMG)
 
-sta:
-	make -C /home/cmdblock/ysyx/yosys-sta/ sta
-	grep "Chip area for" ~/ysyx/yosys-sta/result/ysyx_23060203-700MHz/synth_stat.txt
+VAIO = $(BUILD_DIR)/$(STUID).sv
+$(VAIO): $(VSRCS_LOCAL)
+	@cat $(VSRCS_LOCAL) > $(VAIO)
 
-verilog:
-	@cat $(shell find $(abspath ./vsrc) -name "*.sv") > $(BUILD_DIR)/ysyx_23060203.sv
+verilog: $(VAIO)
 
-.PHONY: default all clean sim run sta merge
+sta: $(VAIO)
+	make -C ../yosys-sta sta DESIGN=$(STUID) CLK_FREQ_MHZ=500 \
+		CLK_PORT_NAME=clock RTL_FILES=$(abspath $(VAIO))
+
+.PHONY: default all clean sim run sta verilog
 
 include ../Makefile
