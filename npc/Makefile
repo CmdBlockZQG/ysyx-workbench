@@ -127,7 +127,7 @@ sim-iverilog: $(IVERILOG_VVP) iverilog-hex
 
 IVERILOG_NETLIST_VVP = $(BUILD_DIR)/iverilog_netlist_vvp
 $(IVERILOG_NETLIST_VVP): $(IVERILOG_TB)
-	iverilog -g2012 -o $(IVERILOG_NETLIST_VVP) $(CELLS)/cells.v $(IVERILOG_TB) $(NETLIST)
+	iverilog -g2012 -o $(IVERILOG_NETLIST_VVP) $(CELLS) $(IVERILOG_TB) $(NETLIST)
 
 sim-iverilog-netlist: $(IVERILOG_NETLIST_VVP) iverilog-hex
 	vvp $(IVERILOG_NETLIST_VVP)
