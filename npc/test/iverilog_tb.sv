@@ -174,6 +174,9 @@ module sim_RAM (
     if (mask[3]) mem[r + 32'h3] = data[31:24];
   endfunction
 
+  reg waddr_valid_reg;
+  reg wdata_valid_reg;
+
   always @(posedge clock) if (reset) begin // 复位
     in_arready <= 1;
     in_rvalid <= 0;
@@ -248,7 +251,6 @@ module sim_RAM (
   wire waddr_handshake = in_awready & in_awvalid;
   reg [31:0] waddr_reg;
   wire [31:0] waddr = waddr_handshake ? in_awaddr : waddr_reg;
-  reg waddr_valid_reg;
   wire waddr_valid = waddr_handshake | waddr_valid_reg;
 
   wire wdata_handshake = in_wready & in_wvalid;
@@ -256,7 +258,6 @@ module sim_RAM (
   reg [3:0] wmask_reg;
   wire [31:0] wdata = wdata_handshake ? in_wdata : wdata_reg;
   wire [3:0] wmask = wdata_handshake ? in_wstrb : wmask_reg;
-  reg wdata_valid_reg;
   wire wdata_valid = wdata_handshake | wdata_valid_reg;
 
   wire write_en = waddr_valid & wdata_valid;
