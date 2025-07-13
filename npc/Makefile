@@ -43,10 +43,10 @@ CXXFLAGS += $(INCFLAGS) -Wall -Werror \
 						-fmacro-prefix-map=/home/cmdblock/ysyx/ysyx-workbench/npc/csrc=
 
 # rules for llvm disasm
-CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
-LDFLAGS += $(shell llvm-config --libs)
+# CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+# LDFLAGS += $(shell llvm-config --libs)
 
-LDFLAGS += -lreadline
+# LDFLAGS += -lreadline
 
 # ---------- nvboard ----------
 
