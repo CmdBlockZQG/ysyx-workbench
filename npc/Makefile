@@ -44,7 +44,7 @@ CXXFLAGS += $(INCFLAGS) -Wall -Werror \
 
 # ---------- c++ testbench function switch ----------
 
-ENABLE_SDB ?= 0
+ENABLE_SDB ?= 1
 ifeq ($(ENABLE_SDB), 1)
 LDFLAGS += -lreadline
 CXXFLAGS += -DSDB=1
