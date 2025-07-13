@@ -1,3 +1,4 @@
+#ifdef ITRACE
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -92,3 +93,8 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
   assert((int)s.length() - skip < size);
   strcpy(str, p);
 }
+#else
+#include <cstdint>
+void init_disasm(const char *triple) {}
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {}
+#endif // ITRACE

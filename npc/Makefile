@@ -42,11 +42,19 @@ CXXFLAGS += $(INCFLAGS) -Wall -Werror \
 					  -DTOP_NAME="\"V$(TOPNAME)\"" \
 						-fmacro-prefix-map=/home/cmdblock/ysyx/ysyx-workbench/npc/csrc=
 
-# rules for llvm disasm
-CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
-LDFLAGS += $(shell llvm-config --libs)
+# ---------- c++ testbench function switch ----------
 
+ENABLE_SDB ?= 0
+ifeq ($(ENABLE_SDB), 1)
 LDFLAGS += -lreadline
+CXXFLAGS += -DSDB=1
+endif
+
+ENABLE_ITRACE ?= 0
+ifeq ($(ENABLE_ITRACE), 1)
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE -DITRACE=1
+LDFLAGS += $(shell llvm-config --libs)
+endif
 
 # ---------- nvboard ----------
 

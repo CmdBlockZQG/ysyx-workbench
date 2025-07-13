@@ -3,11 +3,14 @@
 #include "mem.h"
 #include "sdb.h"
 
+#ifdef SDB
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
 
 static bool is_batch_mode = false;
 
+#ifdef SDB
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
   static char *line_read = nullptr;
@@ -25,6 +28,7 @@ static char* rl_gets() {
 
   return line_read;
 }
+#endif
 
 static int cmd_c(char *args) {
   cpu_exec(-1);
@@ -180,7 +184,7 @@ void sdb_mainloop() {
     cmd_c(nullptr);
     return;
   }
-
+#ifdef SDB
   for (char *str; (str = rl_gets()) != nullptr; ) {
     char *str_end = str + strlen(str);
 
@@ -206,6 +210,9 @@ void sdb_mainloop() {
 
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
   }
+#else
+  Log("SDB is disabled, exiting.");
+#endif // SDB
 }
 
 void init_sdb() {
