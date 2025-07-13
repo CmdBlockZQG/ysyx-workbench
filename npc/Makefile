@@ -50,7 +50,7 @@ LDFLAGS += -lreadline
 CXXFLAGS += -DSDB=1
 endif
 
-ENABLE_ITRACE ?= 0
+ENABLE_ITRACE ?= 1
 ifeq ($(ENABLE_ITRACE), 1)
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += $(shell llvm-config --libs) -DITRACE=1
