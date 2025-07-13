@@ -22,6 +22,11 @@ module ysyx_23060203_ICache (
   reg [TAG_W-1:0] line_tag [SET_N];
   reg [31:0] line_data [SET_N][BLOCK_SZ];
 
+  always @(posedge clock) begin
+    if (reset) for (i = 0; i < SET_N; i = i + 1)
+      line_valid[i] <= 0;
+  end
+
   wire [TAG_W-1:0] tag = addr[31:OFFSET_W+INDEX_W];
   wire [INDEX_W-1:0] index = addr[OFFSET_W+INDEX_W-1:OFFSET_W];
   wire [(OFFSET_W-2)-1:0] off = addr[OFFSET_W-1:2];

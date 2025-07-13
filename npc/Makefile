@@ -48,7 +48,8 @@ LDFLAGS += $(shell llvm-config --libs)
 
 LDFLAGS += -lreadline
 
-# NVBoard
+# ---------- nvboard ----------
+
 ENABLE_NVBOARD ?= 0
 ifeq ($(ENABLE_NVBOARD), 1)
 include $(NVBOARD_HOME)/scripts/nvboard.mk
@@ -60,6 +61,7 @@ CSRCS += $(SRC_AUTO_BIND)
 CXXFLAGS += -DNVBOARD=1
 endif
 
+# ---------- verilator compile ----------
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE) $(shell find $(abspath ./csrc) -name "*.h")
 	@rm -rf $(OBJ_DIR)
@@ -79,6 +81,8 @@ all: default
 clean:
 	rm -rf $(BUILD_DIR)
 
+# ---------- verilator bin run ----------
+
 # override ARGS += --wave=$(BUILD_DIR)/wave.vcd
 override ARGS += --pctrace=$(BUILD_DIR)/pctrace
 IMG ?=
@@ -95,9 +99,12 @@ run: $(BIN)
 	@git rev-parse HEAD
 	$(BIN) $(ARGS) $(IMG)
 
-VAIO = $(BUILD_DIR)/$(STUID).sv
+# ---------- synthesis ----------
+
+SV2V = tools/sv2v
+VAIO = $(BUILD_DIR)/$(STUID).v
 $(VAIO): $(VSRCS_LOCAL)
-	@cat $(VSRCS_LOCAL) > $(VAIO)
+	sv2v --top=$(STUID) $(VSRCS_LOCAL) > $(VAIO)
 
 verilog: $(VAIO)
 
@@ -105,6 +112,20 @@ sta: $(VAIO)
 	make -C ../yosys-sta sta DESIGN=$(STUID) CLK_FREQ_MHZ=500 \
 		CLK_PORT_NAME=clock RTL_FILES=$(abspath $(VAIO))
 
-.PHONY: default all clean sim run sta verilog
+# ---------- iverilog simulation ----------
+
+IVERILOG_HEX = $(BUILD_DIR)/img.hex
+$(IVERILOG_HEX): $(IMG)
+	xxd -c1 -p $(IMG) $(IVERILOG_HEX)
+
+IVERILOG_TB = test/iverilog_tb.sv
+IVERILOG_VVP = $(BUILD_DIR)/iverilog_vvp
+$(IVERILOG_VVP): $(VAIO) $(IVERILOG_TB) $(IVERILOG_HEX)
+	iverilog -g2012 -o $(IVERILOG_VVP) $(IVERILOG_TB) $(VAIO)
+
+sim-iverilog: $(IVERILOG_VVP)
+	vvp $(IVERILOG_VVP)
+
+.PHONY: default all clean sim run verilog sta sim-iverilog
 
 include ../Makefile
