@@ -52,8 +52,8 @@ endif
 
 ENABLE_ITRACE ?= 1
 ifeq ($(ENABLE_ITRACE), 1)
-CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
-LDFLAGS += $(shell llvm-config --libs) -DITRACE=1
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE -DITRACE=1
+LDFLAGS += $(shell llvm-config --libs)
 endif
 
 # ---------- nvboard ----------

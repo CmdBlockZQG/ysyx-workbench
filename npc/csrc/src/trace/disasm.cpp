@@ -1,7 +1,5 @@
 #ifdef ITRACE
 
-#include <debug.h>
-
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -79,7 +77,8 @@ void init_disasm(const char *triple) {
   gIP->setPrintBranchImmAsAddress(true);
   if (isa == "riscv32" || isa == "riscv64")
     gIP->applyTargetSpecificCLOption("no-aliases");
-  Log("disasm init");
+  
+  printf("disasm init");
 }
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
