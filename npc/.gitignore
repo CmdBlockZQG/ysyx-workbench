@@ -12,4 +12,5 @@
 !README.md
 !*.nxdc
 !*.py
+!tools/sv2v
 build/

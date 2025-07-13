@@ -101,9 +101,10 @@ run: $(BIN)
 
 # ---------- synthesis ----------
 
-VAIO = $(BUILD_DIR)/$(STUID).sv
+SV2V = tools/sv2v
+VAIO = $(BUILD_DIR)/$(STUID).v
 $(VAIO): $(VSRCS_LOCAL)
-	@cat $(VSRCS_LOCAL) > $(VAIO)
+	sv2v --top=$(STUID) $(VSRCS_LOCAL) > $(VAIO)
 
 verilog: $(VAIO)
 
@@ -115,11 +116,11 @@ sta: $(VAIO)
 
 IVERILOG_HEX = $(BUILD_DIR)/img.hex
 $(IVERILOG_HEX):
-	xxd -p $(IMG) $(IVERILOG_HEX)
+	xxd -c1 -p $(IMG) $(IVERILOG_HEX)
 
 IVERILOG_TB = test/iverilog_tb.sv
 IVERILOG_VVP = $(BUILD_DIR)/iverilog_vvp
-$(IVERILOG_VVP): $(VAIO) $(IVERILOG_TB)
+$(IVERILOG_VVP): $(VAIO) $(IVERILOG_TB) $(IVERILOG_HEX)
 	iverilog -g2012 -o $(IVERILOG_VVP) $(IVERILOG_TB) $(VAIO)
 
 sim-iverilog: $(IVERILOG_VVP)
