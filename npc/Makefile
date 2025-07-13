@@ -104,7 +104,7 @@ run: $(BIN)
 SV2V = tools/sv2v
 VAIO = $(BUILD_DIR)/$(STUID).v
 $(VAIO): $(VSRCS_LOCAL)
-	sv2v --top=$(STUID) $(VSRCS_LOCAL) > $(VAIO)
+	$(SV2V) --top=$(STUID) $(VSRCS_LOCAL) > $(VAIO)
 
 verilog: $(VAIO)
 
