@@ -114,18 +114,25 @@ sta: $(VAIO)
 
 # ---------- iverilog simulation ----------
 
-IVERILOG_HEX = $(BUILD_DIR)/img.hex
-$(IVERILOG_HEX):
-	xxd -c1 -p $(IMG) $(IVERILOG_HEX)
+iverilog-hex:
+	xxd -c1 -p $(IMG) $(BUILD_DIR)/img.hex
 
 IVERILOG_TB = test/iverilog_tb.sv
 IVERILOG_VVP = $(BUILD_DIR)/iverilog_vvp
-$(IVERILOG_VVP): $(VAIO) $(IVERILOG_TB) $(IVERILOG_HEX)
+$(IVERILOG_VVP): $(VAIO) $(IVERILOG_TB)
 	iverilog -g2012 -o $(IVERILOG_VVP) $(IVERILOG_TB) $(VAIO)
 
-sim-iverilog: $(IVERILOG_VVP)
+sim-iverilog: $(IVERILOG_VVP) iverilog-hex
 	vvp $(IVERILOG_VVP)
 
-.PHONY: default all clean sim run verilog sta sim-iverilog
+IVERILOG_NETLIST_VVP = $(BUILD_DIR)/iverilog_netlist_vvp
+$(IVERILOG_NETLIST_VVP): $(IVERILOG_TB)
+	iverilog -g2012 -o $(IVERILOG_NETLIST_VVP) $(CELLS)/cells.v $(IVERILOG_TB) $(NETLIST)
+
+sim-iverilog-netlist: $(IVERILOG_NETLIST_VVP) iverilog-hex
+	vvp $(IVERILOG_NETLIST_VVP)
+
+.PHONY: default all clean sim run verilog sta\
+		iverilog-hex sim-iverilog
 
 include ../Makefile
