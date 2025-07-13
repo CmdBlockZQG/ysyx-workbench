@@ -2,10 +2,11 @@
 
 module iverilog_tb;
 
-initial begin // 波形
-  $dumpfile("build/iverilog_wave.vcd");
-  $dumpvars(0, CPU);
-end
+// initial begin // 波形
+//   $dumpfile("build/iverilog_wave.vcd");
+//   $dumpvars(0, CPU);
+//   $dumpvars(0, RAM);
+// end
 
 // 时钟信号
 reg clock = 0;
@@ -164,13 +165,13 @@ module sim_RAM (
   function automatic void pmem_write(input [31:0] addr, input [31:0] data, input [7:0] mask);
     logic [31:0] r = {4'b0, addr[27:2], 2'b0};
     if (addr == 32'ha00003f8) begin
-      $display("%c", data[7:0]);
+      $write("%c", data[7:0]);
       return;
     end
     if (mask[0]) mem[r] = data[7:0];
-    else if (mask[1]) mem[r + 32'h1] = data[15:8];
-    else if (mask[2]) mem[r + 32'h2] = data[23:16];
-    else if (mask[3]) mem[r + 32'h3] = data[31:24];
+    if (mask[1]) mem[r + 32'h1] = data[15:8];
+    if (mask[2]) mem[r + 32'h2] = data[23:16];
+    if (mask[3]) mem[r + 32'h3] = data[31:24];
   endfunction
 
   always @(posedge clock) if (reset) begin // 复位
