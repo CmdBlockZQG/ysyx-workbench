@@ -46,7 +46,7 @@ CXXFLAGS += $(INCFLAGS) -Wall -Werror \
 # CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 # LDFLAGS += $(shell llvm-config --libs)
 
-# LDFLAGS += -lreadline
+LDFLAGS += -lreadline
 
 # ---------- nvboard ----------
 
