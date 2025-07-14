@@ -58,6 +58,10 @@ void driver_cycle() {
   top_module->clock = 0; driver_step();
   top_module->clock = 1; driver_step();
   IFDEF(NVBOARD, nvboard_update());
+#ifdef SOC_UART_INPUT
+  void soc_uart_input_update();
+  soc_uart_input_update();
+#endif
 }
 
 void reset_top() {

@@ -120,6 +120,12 @@ int main(int argc, char *argv[]) {
   /* load image */
   long img_size = load_img();
 
+  /* init soc uart */
+#ifdef SOC_UART_INPUT
+  void soc_uart_input_init();
+  soc_uart_input_init();
+#endif
+
   /* reset cpu */
   init_cpu();
 
