@@ -1,4 +1,5 @@
 #include "common.h"
+#include <cassert>
 
 #ifdef SOC_UART_INPUT
 #include <iostream>
@@ -68,7 +69,7 @@ void soc_uart_input_update() {
   static uint8_t data;
 
   if (state == 0) {
-    if (buffer.empty() || buffer[0] == '\0') {
+    if (buffer.empty()) {
       std::string line;
       while (str_queue.try_pop(line)) {
         buffer += line;
@@ -76,6 +77,7 @@ void soc_uart_input_update() {
       if (buffer.empty()) return;
     }
     data = buffer[0];
+    assert(data);
     buffer.erase(0, 1);
     top_module->externalPins_uart_rx = 0; // start bit
     state = 1;
