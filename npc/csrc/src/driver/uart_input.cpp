@@ -77,7 +77,7 @@ void soc_uart_input_update() {
       if (buffer.empty()) return;
     }
     data = buffer[0];
-    Log("RX send: %d", data);
+    Log("RX send: %d %c", data, data);
     buffer.erase(0, 1);
     top_module->externalPins_uart_rx = 0; // start bit
     state = 1;
