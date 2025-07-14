@@ -1,5 +1,4 @@
 #include "common.h"
-#include <cassert>
 
 #ifdef SOC_UART_INPUT
 #include <iostream>
@@ -39,13 +38,9 @@ static ThreadSafeQueue str_queue;
 
 static void input_thread() {
   std::string line;
-  char c;
-  while ((c = getchar()) != EOF) {
-    line += c;
-    if (c == '\n') {
-      str_queue.push(line);
-      line.clear();
-    }
+  while (std::getline(std::cin, line)) {
+    str_queue.push(line);
+    if (std::cin.eof() || std::cin.fail()) break;
   }
 }
 
@@ -72,12 +67,11 @@ void soc_uart_input_update() {
     if (buffer.empty()) {
       std::string line;
       while (str_queue.try_pop(line)) {
-        buffer += line;
+        buffer += line + "\n";
       }
       if (buffer.empty()) return;
     }
     data = buffer[0];
-    Log("RX send: %d %c", data, data);
     buffer.erase(0, 1);
     top_module->externalPins_uart_rx = 0; // start bit
     state = 1;
