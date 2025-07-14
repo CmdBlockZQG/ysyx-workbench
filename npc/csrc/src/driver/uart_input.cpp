@@ -38,9 +38,13 @@ static ThreadSafeQueue str_queue;
 
 static void input_thread() {
   std::string line;
-  while (std::getline(std::cin, line)) {
-    str_queue.push(line);
-    if (std::cin.eof() || std::cin.fail()) break;
+  char c;
+  while ((c = getchar()) != EOF) {
+    line += c;
+    if (c == '\n') {
+      str_queue.push(line);
+      line.clear();
+    }
   }
 }
 
@@ -67,7 +71,7 @@ void soc_uart_input_update() {
     if (buffer.empty()) {
       std::string line;
       while (str_queue.try_pop(line)) {
-        buffer += line + "\n";
+        buffer += line;
       }
       if (buffer.empty()) return;
     }
