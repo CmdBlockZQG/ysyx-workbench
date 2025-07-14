@@ -68,7 +68,7 @@ void soc_uart_input_update() {
   static uint8_t data;
 
   if (state == 0) {
-    if (buffer.empty()) {
+    if (buffer.empty() || buffer[0] == '\0') {
       std::string line;
       while (str_queue.try_pop(line)) {
         buffer += line;
