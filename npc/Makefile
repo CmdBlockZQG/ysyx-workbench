@@ -44,7 +44,7 @@ CXXFLAGS += $(INCFLAGS) -Wall -Werror \
 
 # ---------- c++ testbench function switch ----------
 
-ENABLE_SDB ?= 1
+ENABLE_SDB ?= 0
 ifeq ($(ENABLE_SDB), 1)
 LDFLAGS += -lreadline
 CXXFLAGS += -DSDB=1
@@ -112,7 +112,7 @@ run: $(BIN)
 SV2V = tools/sv2v
 VAIO = $(BUILD_DIR)/$(STUID).v
 $(VAIO): $(VSRCS_LOCAL)
-	$(SV2V) --top=$(STUID) $(VSRCS_LOCAL) > $(VAIO)
+	$(SV2V) --top=$(STUID) -DYSYXSOC=1 $(VSRCS_LOCAL) > $(VAIO)
 
 verilog: $(VAIO)
 
