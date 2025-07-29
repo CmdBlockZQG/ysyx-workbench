@@ -30,7 +30,6 @@ module ysyx_23060203_ICache (
   wire [TAG_W-1:0] tag = addr[31:OFFSET_W+INDEX_W];
   wire [INDEX_W-1:0] index = addr[OFFSET_W+INDEX_W-1:OFFSET_W];
   wire [(OFFSET_W-2)-1:0] off = addr[OFFSET_W-1:2];
-  wire [(OFFSET_W-2)-1:0] off_next = off + 1;
 
   assign hit = line_valid[index] & (line_tag[index] == tag);
   assign inst = line_data[index][off];
@@ -74,11 +73,11 @@ module ysyx_23060203_ICache (
   end
 
   assign mem_r.arvalid = st_req;
-  assign mem_r.araddr = {tag, index, off_next, 2'b00};
+  assign mem_r.araddr = {tag, index, {OFFSET_W{1'b0}}};
   assign mem_r.arid = 0;
   assign mem_r.arlen = BLOCK_SZ - 1;
   assign mem_r.arsize = 3'b010;
-  assign mem_r.arburst = (BLOCK_SZ == 1) ? 2'b00 : 2'b10;
+  assign mem_r.arburst = 2'b01; // INCR
   assign mem_r.rready = st_resp;
 
   //  -------------------- 缓存更新 --------------------
@@ -94,9 +93,6 @@ module ysyx_23060203_ICache (
 
   always_comb begin
     off_r_next = off_r;
-    if (mem_r.arready & mem_r.arvalid) begin
-      off_r_next = off_next;
-    end
     if (mem_r.rready & mem_r.rvalid) begin
       off_r_next = off_r + 1;
     end
