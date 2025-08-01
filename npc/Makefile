@@ -91,7 +91,7 @@ clean:
 
 # ---------- verilator bin run ----------
 
-# override ARGS += --wave=$(BUILD_DIR)/wave.vcd
+override ARGS += --wave=$(BUILD_DIR)/wave.vcd
 override ARGS += --pctrace=$(BUILD_DIR)/pctrace
 IMG ?=
 ifdef ELF
