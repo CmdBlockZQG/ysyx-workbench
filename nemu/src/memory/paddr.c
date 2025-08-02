@@ -108,6 +108,10 @@ void init_mem() {
 #endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+#ifdef CONFIG_YSYXSOC
+  memset(mrom, 0xCB, MROM_SIZE);
+  memset(flash, 0xCB, FLASH_SIZE);
+#endif
 }
 
 #ifdef CONFIG_MTRACE
