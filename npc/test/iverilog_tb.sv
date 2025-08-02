@@ -155,24 +155,42 @@ module sim_RAM (
 );
 
   reg [7:0] mem [32'h1000_0000];
+  reg [7:0] mem_test [32'h1000_0000];
   initial $readmemh("build/img.hex", mem);
 
   function automatic logic [31:0] pmem_read(input [31:0] addr);
     logic [31:0] r = {4'b0, addr[27:2], 2'b0};
     if (addr[31:4] == 28'ha000004) return 32'h0; // NPC CLINT
-    return {mem[r + 32'h3], mem[r + 32'h2], mem[r + 32'h1], mem[r]};
+    if (addr[31:2] == 32'h10000004 >> 2) return 32'h2000;
+    if (addr[31:28] == 4'h3) return {mem[r + 32'h3], mem[r + 32'h2], mem[r + 32'h1], mem[r]};
+    else if (addr[31:28] == 4'h8) return {mem_test[r + 32'h3], mem_test[r + 32'h2], mem_test[r + 32'h1], mem_test[r]};
+    else begin
+      $display("Warning: Unhandled memory read at address %h", addr);
+      return 32'h0;
+    end
   endfunction
   
   function automatic void pmem_write(input [31:0] addr, input [31:0] data, input [7:0] mask);
     logic [31:0] r = {4'b0, addr[27:2], 2'b0};
-    if (addr == 32'ha00003f8) begin // NPC UART
+    if (addr == 32'ha00003f8 || addr == 32'h10000000) begin // UART
       $write("%c", data[7:0]);
       return;
     end
-    if (mask[0]) mem[r] = data[7:0];
-    if (mask[1]) mem[r + 32'h1] = data[15:8];
-    if (mask[2]) mem[r + 32'h2] = data[23:16];
-    if (mask[3]) mem[r + 32'h3] = data[31:24];
+    if (addr[31:28] == 4'h3) begin
+      if (mask[0]) mem[r] = data[7:0];
+      if (mask[1]) mem[r + 32'h1] = data[15:8];
+      if (mask[2]) mem[r + 32'h2] = data[23:16];
+      if (mask[3]) mem[r + 32'h3] = data[31:24];
+    end else if (addr[31:28] == 4'h8) begin
+      if (mask[0]) mem_test[r] = data[7:0];
+      if (mask[1]) mem_test[r + 32'h1] = data[15:8];
+      if (mask[2]) mem_test[r + 32'h2] = data[23:16];
+      if (mask[3]) mem_test[r + 32'h3] = data[31:24];
+      return;
+    end else begin
+      $display("Warning: Unhandled memory write at address %h", addr);
+      return;
+    end
   endfunction
 
   reg waddr_valid_reg;
