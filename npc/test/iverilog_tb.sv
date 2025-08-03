@@ -2,11 +2,11 @@
 
 module iverilog_tb;
 
-initial begin // 波形
-  $dumpfile("build/iverilog_wave.vcd");
-  $dumpvars(0, CPU);
-  $dumpvars(0, RAM);
-end
+// initial begin // 波形
+//   $dumpfile("build/iverilog_wave.vcd");
+//   $dumpvars(0, CPU);
+//   $dumpvars(0, RAM);
+// end
 
 // 时钟信号
 reg clock = 0;
