@@ -22,17 +22,14 @@ module ysyx_23060203_ICache (
   reg [TAG_W-1:0] line_tag [SET_N];
   reg [31:0] line_data [SET_N][BLOCK_SZ];
 
-  always @(posedge clock) begin
-    if (reset) for (i = 0; i < SET_N; i = i + 1)
-      line_valid[i] <= 0;
-  end
-
   wire [TAG_W-1:0] tag = addr[31:OFFSET_W+INDEX_W];
   wire [INDEX_W-1:0] index = addr[OFFSET_W+INDEX_W-1:OFFSET_W];
   wire [(OFFSET_W-2)-1:0] off = addr[OFFSET_W-1:2];
 
   assign hit = line_valid[index] & (line_tag[index] == tag);
   assign inst = line_data[index][off];
+
+  wire mem_r_fin = mem_r.rready & mem_r.rvalid & mem_r.rlast;
 
   // -------------------- 访存状态机 --------------------
 
@@ -66,7 +63,7 @@ module ysyx_23060203_ICache (
         state_next = ST_RESP;
       end
     end else if (st_resp) begin
-      if (mem_r.rready & mem_r.rvalid & mem_r.rlast) begin
+      if (mem_r_fin) begin
         state_next = ST_IDLE;
       end
     end
@@ -98,20 +95,35 @@ module ysyx_23060203_ICache (
     end
   end
 
-  integer i;
   always @(posedge clock) begin
-    if (fencei) begin
-      /*verilator unroll_full*/
-      for (i = 0; i < SET_N; i = i + 1) begin
-        if (mem_r.rready & mem_r.rvalid & mem_r.rlast & (i[INDEX_W-1:0] == index)) ;
-        else line_valid[i] <= 0;
-      end
-    end
     if (mem_r.rready & mem_r.rvalid) begin
       line_data[index][off_r] <= mem_r.rdata;
       if (mem_r.rlast) begin
-        line_valid[index] <= 1;
         line_tag[index] <= tag;
+      end
+    end
+  end
+
+  //  -------------------- 缓存行valid --------------------
+  reg fencei_r;
+  always @(posedge clock) begin
+    if (reset) fencei_r <= 0;
+    else begin
+      if (mem_r_fin) fencei_r <= 0;
+      else if (~st_idle & fencei) fencei_r <= 1;
+    end
+  end
+
+  integer i;
+  always @(posedge clock) begin
+    /*verilator unroll_full*/
+    for (i = 0; i < SET_N; i = i + 1) begin
+      if (reset) line_valid[i] <= 0;
+      else begin
+        if (fencei) line_valid[i] <= 0;
+        else if (mem_r_fin & ~fencei_r & (i[INDEX_W-1:0] == index)) begin
+          line_valid[i] <= 1;
+        end
       end
     end
   end
