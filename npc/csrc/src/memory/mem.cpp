@@ -38,7 +38,7 @@ uint8_t *guest_to_host(addr_t addr) {
 
 void init_mem() {
   memset(mrom, 0xCB, MROM_SIZE);
-  memset(flash, 0xCB, FLASH_SIZE);
+  memset(flash, 0xCB, SRAM_SIZE);
 }
 
 word_t addr_read(addr_t addr, int len) {
