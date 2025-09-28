@@ -6,11 +6,7 @@
 #define SDRAM_END 0xa2000000
 extern char _heap_start;
 Area heap = RANGE(&_heap_start, SDRAM_END);
-
-#ifndef MAINARGS
-#define MAINARGS ""
-#endif
-static const char mainargs[] = MAINARGS;
+static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER;
 
 void putch(char ch) {
   io_write(AM_UART_TX, ch);
